@@ -88,6 +88,8 @@ const leaderboardRoutes = require('./routes/leaderboard.routes')
 app.use('/leaderboard', requireAuth, enforceQuotasLazily, trackDailyStreak, leaderboardRoutes)
 const communityRoutes = require('./routes/community.routes')
 app.use('/community', requireAuth, enforceQuotasLazily, trackDailyStreak, communityRoutes)
+const paymentRoutes = require('./routes/payment.routes')
+app.use('/payments', paymentRoutes) // Auth is handled inside router
 
 // 7. Health check endpoint
 // Railway uses this to verify the service is healthy after deploy
