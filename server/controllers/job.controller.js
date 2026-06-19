@@ -62,22 +62,40 @@ async function deleteJob(req, res, next) {
   }
 }
 
-// --- AI Tools (Stubs for 3B) ---
+const User = require('../models/user.model')
+const Resume = require('../models/resume.model')
+const { matchResumeToJD, generateJobInsight } = require('../services/job.service')
+
+// --- AI Tools ---
 
 async function matchJD(req, res, next) {
   try {
-    // STUB: Will implement AI matching in 3B
     const data = matchJDSchema.parse(req.body)
     
-    res.json({ 
-      success: true, 
-      match: {
-        score: 75,
-        matchedKeywords: ['React', 'Node.js', 'MongoDB'],
-        missingKeywords: ['Docker', 'AWS'],
-        suggestions: ['Add a project showcasing AWS deployment']
-      }
-    })
+    // Check quota (same as interview quota for AI tools)
+    if (req.user.plan === 'free' && req.user.aiUsageToday >= 5) {
+      throw new QuotaError(req.user.lastQuotaReset)
+    }
+
+    // Determine which resume to use
+    let resume
+    if (data.resumeId) {
+      resume = await Resume.findOne({ _id: data.resumeId, userId: req.user.userId })
+    } else {
+      resume = await Resume.findOne({ userId: req.user.userId }).sort({ createdAt: -1 })
+    }
+
+    if (!resume || !resume.rawText) {
+      throw new NotFoundError('Resume (Please upload a resume first)')
+    }
+
+    // Call service
+    const match = await matchResumeToJD(resume.rawText, data.jobDescription)
+    
+    // Increment daily AI usage
+    await User.findByIdAndUpdate(req.user.userId, { $inc: { aiUsageToday: 1 } })
+
+    res.json({ success: true, match })
   } catch (err) {
     next(err)
   }
@@ -85,20 +103,11 @@ async function matchJD(req, res, next) {
 
 async function getJobInsight(req, res, next) {
   try {
-    // STUB: Will implement SerpAPI + Gemini insight in 3B
     const { roleTitle } = jobInsightSchema.parse(req.query)
     
-    res.json({
-      success: true,
-      insight: {
-        role: roleTitle,
-        requiredSkills: ['JavaScript', 'React', 'Node.js'],
-        salaryTrends: { min: '₹6L', max: '₹12L', median: '₹8L' },
-        interviewProcess: ['OA Round', 'Technical 1', 'Technical 2', 'HR'],
-        topCompanies: ['TCS', 'Infosys', 'Startup Inc'],
-        growthOutlook: 'High demand over next 5 years'
-      }
-    })
+    const insight = await generateJobInsight(roleTitle)
+    
+    res.json({ success: true, insight })
   } catch (err) {
     next(err)
   }
