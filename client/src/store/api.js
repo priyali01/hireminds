@@ -256,6 +256,29 @@ export const api = createApi({
       }),
       invalidatesTags: ['Reviews', 'User'],
     }),
+
+    // --- Payments Endpoints ---
+    createRazorpayOrder: builder.mutation({
+      query: (data) => ({
+        url: '/payments/create-order',
+        method: 'POST',
+        body: data,
+      }),
+    }),
+    verifyRazorpayPayment: builder.mutation({
+      query: (data) => ({
+        url: '/payments/verify',
+        method: 'POST',
+        body: data,
+      }),
+      invalidatesTags: ['User'],
+    }),
+
+    // --- TPO Dashboard Endpoints ---
+    getTpoDashboard: builder.query({
+      query: () => '/tpo/dashboard',
+      providesTags: ['TPO'],
+    }),
   }),
 })
 
@@ -292,4 +315,7 @@ export const {
   useModerateExperienceMutation,
   useGetOpenReviewRequestsQuery,
   useSubmitPeerReviewMutation,
+  useCreateRazorpayOrderMutation,
+  useVerifyRazorpayPaymentMutation,
+  useGetTpoDashboardQuery,
 } = api

@@ -57,6 +57,7 @@ export default function DashboardPage() {
           <Link to="/interview" className="nav-link">Interviews</Link>
           <Link to="/leaderboard" className="nav-link">Leaderboard</Link>
           <Link to="/community" className="nav-link">Community</Link>
+          <Link to="/pricing" className="nav-link" style={{ color: '#f59e0b', fontWeight: 'bold' }}>⭐ Upgrade</Link>
         </div>
         <button onClick={handleLogout} className="btn btn-ghost btn-sm" id="logout-btn">
           Sign out

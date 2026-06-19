@@ -19,6 +19,8 @@ const JobsPage = lazy(() => import('./pages/JobsPage'))
 const LeaderboardPage = lazy(() => import('./pages/LeaderboardPage'))
 const CommunityFeedPage = lazy(() => import('./pages/CommunityFeedPage'))
 const AdminDashboard = lazy(() => import('./pages/AdminDashboard'))
+const TPODashboard = lazy(() => import('./pages/TPODashboard'))
+const PricingPage = lazy(() => import('./pages/PricingPage'))
 
 // Loading fallback
 function PageLoader() {
@@ -195,6 +197,22 @@ export default function App() {
             element={
               <ProtectedRoute>
                 <AdminDashboard />
+              </ProtectedRoute>
+            }
+          />
+          <Route
+            path="/tpo/dashboard"
+            element={
+              <ProtectedRoute>
+                <TPODashboard />
+              </ProtectedRoute>
+            }
+          />
+          <Route
+            path="/pricing"
+            element={
+              <ProtectedRoute>
+                <PricingPage />
               </ProtectedRoute>
             }
           />
