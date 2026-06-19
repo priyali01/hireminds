@@ -92,6 +92,8 @@ const paymentRoutes = require('./routes/payment.routes')
 app.use('/payments', paymentRoutes) // Auth is handled inside router
 const tpoRoutes = require('./routes/tpo.routes')
 app.use('/tpo', tpoRoutes)
+const chatRoutes = require('./routes/chat.routes')
+app.use('/chat', requireAuth, enforceQuotasLazily, trackDailyStreak, chatRoutes)
 
 // 7. Health check endpoint
 // Railway uses this to verify the service is healthy after deploy
