@@ -198,6 +198,16 @@ export const api = createApi({
     getDashboardEvents: builder.query({
       query: () => '/dashboard/events',
     }),
+
+    // --- Leaderboard endpoints ---
+    getGlobalLeaderboard: builder.query({
+      query: () => '/leaderboard',
+      providesTags: ['User'], // Gamification state is tied to user
+    }),
+    getCampusLeaderboard: builder.query({
+      query: () => '/leaderboard/campus',
+      providesTags: ['User'],
+    }),
   }),
 })
 
@@ -225,4 +235,6 @@ export const {
   useGetJobInsightQuery,
   useGetDashboardNewsQuery,
   useGetDashboardEventsQuery,
+  useGetGlobalLeaderboardQuery,
+  useGetCampusLeaderboardQuery,
 } = api

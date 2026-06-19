@@ -82,6 +82,8 @@ const jobRoutes = require('./routes/job.routes')
 app.use('/jobs', requireAuth, trackDailyStreak, jobRoutes)
 const dashboardRoutes = require('./routes/dashboard.routes')
 app.use('/dashboard', requireAuth, trackDailyStreak, dashboardRoutes)
+const leaderboardRoutes = require('./routes/leaderboard.routes')
+app.use('/leaderboard', requireAuth, trackDailyStreak, leaderboardRoutes)
 
 // 7. Health check endpoint
 // Railway uses this to verify the service is healthy after deploy
