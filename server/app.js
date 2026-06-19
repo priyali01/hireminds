@@ -72,6 +72,8 @@ app.use(cookieParser())
 // 6. API Routes
 app.use('/auth', authRoutes)
 app.use('/resumes', resumeRoutes)
+const interviewRoutes = require('./routes/interview.routes')
+app.use('/interviews', interviewRoutes)
 
 // 7. Health check endpoint
 // Railway uses this to verify the service is healthy after deploy

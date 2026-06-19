@@ -143,6 +143,28 @@ export const api = createApi({
     submitResumeFeedback: builder.mutation({
       query: (body) => ({ url: '/resumes/feedback', method: 'POST', body }),
     }),
+
+    // --- Interview endpoints ---
+    createInterviewSession: builder.mutation({
+      query: (body) => ({ url: '/interviews/sessions', method: 'POST', body }),
+      invalidatesTags: ['Interview', 'User'],
+    }),
+    submitInterviewAnswer: builder.mutation({
+      query: ({ id, ...body }) => ({ url: `/interviews/sessions/${id}/answer`, method: 'POST', body }),
+      invalidatesTags: (result, error, { id }) => [{ type: 'Interview', id }],
+    }),
+    getInterviewHistory: builder.query({
+      query: () => '/interviews/sessions',
+      providesTags: ['Interview'],
+    }),
+    getInterviewSession: builder.query({
+      query: (id) => `/interviews/sessions/${id}`,
+      providesTags: (result, error, id) => [{ type: 'Interview', id }],
+    }),
+    completeInterviewSession: builder.mutation({
+      query: (id) => ({ url: `/interviews/sessions/${id}/complete`, method: 'PATCH' }),
+      invalidatesTags: (result, error, id) => [{ type: 'Interview', id }, 'Interview', 'User'],
+    }),
   }),
 })
 
@@ -157,4 +179,9 @@ export const {
   useGetResumeHistoryQuery,
   useGetResumeQuery,
   useSubmitResumeFeedbackMutation,
+  useCreateInterviewSessionMutation,
+  useSubmitInterviewAnswerMutation,
+  useGetInterviewHistoryQuery,
+  useGetInterviewSessionQuery,
+  useCompleteInterviewSessionMutation,
 } = api
