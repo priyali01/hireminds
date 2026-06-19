@@ -165,6 +165,31 @@ export const api = createApi({
       query: (id) => ({ url: `/interviews/sessions/${id}/complete`, method: 'PATCH' }),
       invalidatesTags: (result, error, id) => [{ type: 'Interview', id }, 'Interview', 'User'],
     }),
+
+    // --- Job endpoints ---
+    getJobs: builder.query({
+      query: () => '/jobs',
+      providesTags: ['Job'],
+    }),
+    createJob: builder.mutation({
+      query: (body) => ({ url: '/jobs', method: 'POST', body }),
+      invalidatesTags: ['Job'],
+    }),
+    updateJobStatus: builder.mutation({
+      query: ({ id, status }) => ({ url: `/jobs/${id}/status`, method: 'PATCH', body: { status } }),
+      invalidatesTags: ['Job'],
+    }),
+    deleteJob: builder.mutation({
+      query: (id) => ({ url: `/jobs/${id}`, method: 'DELETE' }),
+      invalidatesTags: ['Job'],
+    }),
+    matchJD: builder.mutation({
+      query: (body) => ({ url: '/jobs/match', method: 'POST', body }),
+      invalidatesTags: ['User'], // Because it uses AI quota
+    }),
+    getJobInsight: builder.query({
+      query: (roleTitle) => `/jobs/insight?roleTitle=${encodeURIComponent(roleTitle)}`,
+    }),
   }),
 })
 
@@ -184,4 +209,10 @@ export const {
   useGetInterviewHistoryQuery,
   useGetInterviewSessionQuery,
   useCompleteInterviewSessionMutation,
+  useGetJobsQuery,
+  useCreateJobMutation,
+  useUpdateJobStatusMutation,
+  useDeleteJobMutation,
+  useMatchJDMutation,
+  useGetJobInsightQuery,
 } = api
