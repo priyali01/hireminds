@@ -55,6 +55,7 @@ export default function DashboardPage() {
           <Link to="/resume" className="nav-link">Resume</Link>
           <Link to="/jobs" className="nav-link">Jobs</Link>
           <Link to="/interview" className="nav-link">Interviews</Link>
+          <Link to="/leaderboard" className="nav-link">Leaderboard</Link>
         </div>
         <button onClick={handleLogout} className="btn btn-ghost btn-sm" id="logout-btn">
           Sign out
@@ -87,6 +88,18 @@ export default function DashboardPage() {
             value={user?.level ? user.level.charAt(0).toUpperCase() + user.level.slice(1) : null}
             icon="📈"
             color="var(--color-score-mid)"
+          />
+          <StatCard
+            label="Points"
+            value={user?.points || 0}
+            icon="🏆"
+            color="var(--color-score-high)"
+          />
+          <StatCard
+            label="Streak"
+            value={user?.currentStreak ? `${user.currentStreak} 🔥` : '0'}
+            icon="⚡"
+            color="#ff4500"
           />
         </div>
 
