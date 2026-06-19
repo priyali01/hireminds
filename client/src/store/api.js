@@ -190,6 +190,14 @@ export const api = createApi({
     getJobInsight: builder.query({
       query: (roleTitle) => `/jobs/insight?roleTitle=${encodeURIComponent(roleTitle)}`,
     }),
+
+    // --- Dashboard endpoints ---
+    getDashboardNews: builder.query({
+      query: () => '/dashboard/news',
+    }),
+    getDashboardEvents: builder.query({
+      query: () => '/dashboard/events',
+    }),
   }),
 })
 
@@ -215,4 +223,6 @@ export const {
   useDeleteJobMutation,
   useMatchJDMutation,
   useGetJobInsightQuery,
+  useGetDashboardNewsQuery,
+  useGetDashboardEventsQuery,
 } = api

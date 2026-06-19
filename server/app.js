@@ -76,6 +76,8 @@ const interviewRoutes = require('./routes/interview.routes')
 app.use('/interviews', interviewRoutes)
 const jobRoutes = require('./routes/job.routes')
 app.use('/jobs', jobRoutes)
+const dashboardRoutes = require('./routes/dashboard.routes')
+app.use('/dashboard', dashboardRoutes)
 
 // 7. Health check endpoint
 // Railway uses this to verify the service is healthy after deploy
