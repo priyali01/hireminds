@@ -3,6 +3,8 @@ import { Link, useNavigate } from 'react-router-dom'
 import { selectCurrentUser } from '../store/authSlice'
 import { clearCredentials } from '../store/authSlice'
 import { useLogoutMutation, useGetResumeHistoryQuery } from '../store/api'
+import DashboardNewsFeed from '../components/DashboardNewsFeed'
+import DashboardCalendarWidget from '../components/DashboardCalendarWidget'
 import '../styles/dashboard.css'
 
 function StatCard({ label, value, icon, color }) {
@@ -51,6 +53,8 @@ export default function DashboardPage() {
         <div className="nav-links">
           <Link to="/dashboard" className="nav-link active">Dashboard</Link>
           <Link to="/resume" className="nav-link">Resume</Link>
+          <Link to="/jobs" className="nav-link">Jobs</Link>
+          <Link to="/interview" className="nav-link">Interviews</Link>
         </div>
         <button onClick={handleLogout} className="btn btn-ghost btn-sm" id="logout-btn">
           Sign out
@@ -142,6 +146,12 @@ export default function DashboardPage() {
             </div>
           </div>
         )}
+
+        {/* Dashboard Widgets */}
+        <div className="widgets-grid" style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: '1.5rem', marginTop: '2rem' }}>
+          <DashboardNewsFeed />
+          <DashboardCalendarWidget />
+        </div>
 
         {/* Empty state if no analyses */}
         {!historyData?.resumes?.length && (

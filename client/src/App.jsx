@@ -15,6 +15,7 @@ const InterviewSessionPage = lazy(() => import('./pages/InterviewSessionPage'))
 const InterviewResultsPage = lazy(() => import('./pages/InterviewResultsPage'))
 const DriveSetupPage = lazy(() => import('./pages/DriveSetupPage'))
 const DriveResultsPage = lazy(() => import('./pages/DriveResultsPage'))
+const JobsPage = lazy(() => import('./pages/JobsPage'))
 
 // Loading fallback
 function PageLoader() {
@@ -159,6 +160,14 @@ export default function App() {
             element={
               <ProtectedRoute>
                 <DriveResultsPage />
+              </ProtectedRoute>
+            }
+          />
+          <Route
+            path="/jobs"
+            element={
+              <ProtectedRoute>
+                <JobsPage />
               </ProtectedRoute>
             }
           />
