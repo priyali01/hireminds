@@ -1,7 +1,9 @@
 const InterviewSession = require('../models/interview.model')
 const User = require('../models/user.model')
+const Resume = require('../models/resume.model')
 const { createSessionSchema, submitAnswerSchema, setupDriveSchema } = require('../validators/interview.validators')
 const { NotFoundError, QuotaError } = require('../utils/errors')
+const { generateQuestions, evaluateAnswer } = require('../services/interview.service')
 
 /**
  * POST /interviews/sessions
@@ -16,16 +18,25 @@ async function createSession(req, res, next) {
       throw new QuotaError(req.user.lastQuotaReset)
     }
 
-    // STUB: Will integrate with AI service in 2B
+    // Get optional resume text for context
+    let resumeText = ''
+    if (data.resumeId) {
+      const resume = await Resume.findOne({ _id: data.resumeId, userId: req.user.userId })
+      if (resume && resume.rawText) resumeText = resume.rawText
+    }
+
+    // Generate questions via AI
+    const count = data.type === 'technical' ? 5 : 3
+    const { questions, modelUsed, promptVersion } = await generateQuestions(data.type, data.role, resumeText, count)
+
     const session = await InterviewSession.create({
       userId: req.user.userId,
       ...data,
       status: 'in_progress',
       startedAt: new Date(),
-      questions: [
-        { text: 'Could you introduce yourself?', category: 'intro', difficulty: 'easy' },
-        { text: 'What is your greatest strength?', category: 'behavioral', difficulty: 'easy' }
-      ]
+      questions,
+      modelUsed,
+      promptVersion
     })
 
     res.status(201).json({ success: true, session })
@@ -45,14 +56,11 @@ async function submitAnswer(req, res, next) {
     const session = await InterviewSession.findOne({ _id: req.params.id, userId: req.user.userId })
     if (!session) throw new NotFoundError('Interview Session')
 
-    // STUB: Will integrate with AI service in 2B
-    const evaluation = {
-      score: 8,
-      feedback: 'Good answer, but could be more structured.',
-      missingElements: ['STAR method context'],
-      improvedAnswer: 'Here is a better structured answer...',
-      toneAssessment: 'Professional and confident',
-    }
+    const question = session.questions[questionIndex]?.text
+    if (!question) throw new NotFoundError('Question')
+
+    // Evaluate via AI
+    const { evaluation } = await evaluateAnswer(question, userAnswer, session.role, session.roundType)
 
     session.answers.push({
       questionIndex,
@@ -132,17 +140,55 @@ async function completeSession(req, res, next) {
   }
 }
 
+const { startDrive: startDriveService, evaluateDriveAnswer, completeDrive: completeDriveService } = require('../services/drive.service')
+
 // STUBS for Drive endpoints (to be implemented in 2C)
 async function startDrive(req, res, next) {
-  res.json({ success: true, message: 'Drive started stub' })
+  try {
+    const { driveType } = setupDriveSchema.parse(req.body)
+    
+    // Check quota
+    if (req.user.plan === 'free' && req.user.interviewsThisWeek >= 1) {
+      throw new QuotaError(req.user.lastQuotaReset)
+    }
+
+    const session = await startDriveService(req.user.userId, driveType)
+    
+    res.status(201).json({ success: true, session })
+  } catch (err) {
+    next(err)
+  }
 }
 
 async function submitDriveSection(req, res, next) {
-  res.json({ success: true, message: 'Drive section answered stub' })
+  try {
+    const { questionIndex, userAnswer } = submitAnswerSchema.parse(req.body)
+    
+    const session = await InterviewSession.findOne({ _id: req.params.id, userId: req.user.userId })
+    if (!session) throw new NotFoundError('Interview Session')
+
+    const evaluation = await evaluateDriveAnswer(session, questionIndex, userAnswer)
+    
+    res.json({ success: true, evaluation })
+  } catch (err) {
+    next(err)
+  }
 }
 
 async function completeDrive(req, res, next) {
-  res.json({ success: true, message: 'Drive completed stub' })
+  try {
+    const session = await InterviewSession.findOne({ _id: req.params.id, userId: req.user.userId })
+    if (!session) throw new NotFoundError('Interview Session')
+
+    const completedSession = await completeDriveService(session)
+
+    // Increment quota counter
+    await User.findByIdAndUpdate(req.user.userId, { $inc: { interviewsThisWeek: 1 } })
+
+    res.json({ success: true, session: completedSession })
+  } catch (err) {
+    next(err)
+  }
 }
 
 module.exports = {
