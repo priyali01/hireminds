@@ -1,12 +1,16 @@
 const express = require('express')
 const router = express.Router()
 const { requireAuth } = require('../middleware/auth.middleware')
-const { createOrder } = require('../controllers/payment.controller')
+const { createOrder, verifyPayment, webhookHandler } = require('../controllers/payment.controller')
 
-// Require authentication
+// Webhook doesn't require our JWT auth, it verifies the Razorpay signature
+router.post('/webhook', webhookHandler)
+
+// Require authentication for user actions
 router.use(requireAuth)
 
-// Create an order
+// Checkout Flow
 router.post('/create-order', createOrder)
+router.post('/verify', verifyPayment)
 
 module.exports = router
