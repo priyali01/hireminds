@@ -3,8 +3,9 @@ const User = require('../models/user.model')
 const Resume = require('../models/resume.model')
 const { createSessionSchema, submitAnswerSchema, setupDriveSchema } = require('../validators/interview.validators')
 const { NotFoundError, QuotaError } = require('../utils/errors')
-const { generateQuestions, evaluateAnswer } = require('../services/interview.service')
+const { generateQuestions, evaluateAnswer: evaluateAnswerService } = require('../services/interview.service')
 const { awardPoints } = require('../services/gamification.service')
+const TrainingService = require('../services/training.service')
 
 /**
  * POST /interviews/sessions
@@ -61,7 +62,7 @@ async function submitAnswer(req, res, next) {
     if (!question) throw new NotFoundError('Question')
 
     // Evaluate via AI
-    const { evaluation } = await evaluateAnswer(question, userAnswer, session.role, session.roundType)
+    const { evaluation } = await evaluateAnswerService(question, userAnswer, session.role, session.roundType)
 
     session.answers.push({
       questionIndex,
@@ -73,6 +74,15 @@ async function submitAnswer(req, res, next) {
 
     // Also update daily AI usage
     await User.findByIdAndUpdate(req.user.userId, { $inc: { aiUsageToday: 1 } })
+
+    // Hook: Log for future AI fine-tuning
+    TrainingService.logInterviewQA(
+      req.user.userId,
+      question,
+      userAnswer,
+      evaluation.improvedAnswer,
+      evaluation.score
+    )
 
     res.json({ success: true, evaluation })
   } catch (err) {
