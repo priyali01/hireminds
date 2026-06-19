@@ -6,7 +6,10 @@ const {
   submitExperience,
   toggleUpvote,
   getPendingQueue,
-  moderateExperience
+  moderateExperience,
+  requestReview,
+  getOpenReviews,
+  submitReview
 } = require('../controllers/community.controller')
 
 // Require auth for all community routes
@@ -16,6 +19,11 @@ router.use(requireAuth)
 router.get('/experiences', getFeed)
 router.post('/experiences', submitExperience)
 router.post('/experiences/:id/upvote', toggleUpvote)
+
+// Peer Resume Reviews
+router.post('/reviews/request', requestReview)
+router.get('/reviews/open', getOpenReviews)
+router.post('/reviews/:id/submit', submitReview)
 
 // Admin Middleware check
 const requireAdmin = (req, res, next) => {

@@ -5,7 +5,8 @@ const POINT_VALUES = {
   RESUME_UPLOAD: 10,
   MOCK_INTERVIEW: 50,
   JOB_APPLICATION: 5,
-  DAILY_LOGIN: 2
+  DAILY_LOGIN: 2,
+  PEER_REVIEW: 25 // Points for helping others
 }
 
 const BADGES = {

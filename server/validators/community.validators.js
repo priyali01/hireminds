@@ -14,7 +14,24 @@ const moderateExperienceSchema = z.object({
   status: z.enum(['approved', 'rejected'])
 })
 
+const createReviewRequestSchema = z.object({
+  resumeId: z.string().min(1),
+  targetRole: z.string().min(1).max(100),
+  level: z.enum(['fresher', 'junior', 'mid', 'senior'])
+})
+
+const submitReviewSchema = z.object({
+  overallRating: z.number().min(1).max(5),
+  comments: z.string().min(10).max(2000),
+  sectionFeedback: z.array(z.object({
+    section: z.string(),
+    comment: z.string()
+  })).optional()
+})
+
 module.exports = {
   createExperienceSchema,
-  moderateExperienceSchema
+  moderateExperienceSchema,
+  createReviewRequestSchema,
+  submitReviewSchema
 }
