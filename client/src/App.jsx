@@ -17,6 +17,8 @@ const DriveSetupPage = lazy(() => import('./pages/DriveSetupPage'))
 const DriveResultsPage = lazy(() => import('./pages/DriveResultsPage'))
 const JobsPage = lazy(() => import('./pages/JobsPage'))
 const LeaderboardPage = lazy(() => import('./pages/LeaderboardPage'))
+const CommunityFeedPage = lazy(() => import('./pages/CommunityFeedPage'))
+const AdminDashboard = lazy(() => import('./pages/AdminDashboard'))
 
 // Loading fallback
 function PageLoader() {
@@ -177,6 +179,22 @@ export default function App() {
             element={
               <ProtectedRoute>
                 <LeaderboardPage />
+              </ProtectedRoute>
+            }
+          />
+          <Route
+            path="/community"
+            element={
+              <ProtectedRoute>
+                <CommunityFeedPage />
+              </ProtectedRoute>
+            }
+          />
+          <Route
+            path="/admin"
+            element={
+              <ProtectedRoute>
+                <AdminDashboard />
               </ProtectedRoute>
             }
           />

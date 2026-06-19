@@ -56,6 +56,7 @@ export default function DashboardPage() {
           <Link to="/jobs" className="nav-link">Jobs</Link>
           <Link to="/interview" className="nav-link">Interviews</Link>
           <Link to="/leaderboard" className="nav-link">Leaderboard</Link>
+          <Link to="/community" className="nav-link">Community</Link>
         </div>
         <button onClick={handleLogout} className="btn btn-ghost btn-sm" id="logout-btn">
           Sign out

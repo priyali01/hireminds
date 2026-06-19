@@ -208,6 +208,54 @@ export const api = createApi({
       query: () => '/leaderboard/campus',
       providesTags: ['User'],
     }),
+
+    // --- Community Endpoints ---
+    getExperiences: builder.query({
+      query: (params) => ({
+        url: '/community/experiences',
+        params,
+      }),
+      providesTags: ['Community'],
+    }),
+    submitExperience: builder.mutation({
+      query: (data) => ({
+        url: '/community/experiences',
+        method: 'POST',
+        body: data,
+      }),
+      invalidatesTags: ['Community'],
+    }),
+    toggleExperienceUpvote: builder.mutation({
+      query: (id) => ({
+        url: `/community/experiences/${id}/upvote`,
+        method: 'POST',
+      }),
+      invalidatesTags: ['Community'],
+    }),
+    getPendingExperiences: builder.query({
+      query: () => '/community/admin/pending',
+      providesTags: ['CommunityAdmin'],
+    }),
+    moderateExperience: builder.mutation({
+      query: ({ id, status }) => ({
+        url: `/community/admin/moderate/${id}`,
+        method: 'PATCH',
+        body: { status },
+      }),
+      invalidatesTags: ['CommunityAdmin', 'Community'],
+    }),
+    getOpenReviewRequests: builder.query({
+      query: () => '/community/reviews/open',
+      providesTags: ['Reviews'],
+    }),
+    submitPeerReview: builder.mutation({
+      query: ({ id, data }) => ({
+        url: `/community/reviews/${id}/submit`,
+        method: 'POST',
+        body: data,
+      }),
+      invalidatesTags: ['Reviews', 'User'],
+    }),
   }),
 })
 
@@ -237,4 +285,11 @@ export const {
   useGetDashboardEventsQuery,
   useGetGlobalLeaderboardQuery,
   useGetCampusLeaderboardQuery,
+  useGetExperiencesQuery,
+  useSubmitExperienceMutation,
+  useToggleExperienceUpvoteMutation,
+  useGetPendingExperiencesQuery,
+  useModerateExperienceMutation,
+  useGetOpenReviewRequestsQuery,
+  useSubmitPeerReviewMutation,
 } = api
