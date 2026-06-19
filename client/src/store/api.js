@@ -279,6 +279,15 @@ export const api = createApi({
       query: () => '/tpo/dashboard',
       providesTags: ['TPO'],
     }),
+
+    // --- Chat Agent Endpoints ---
+    sendChatMessage: builder.mutation({
+      query: (data) => ({
+        url: '/chat',
+        method: 'POST',
+        body: data,
+      }),
+    }),
   }),
 })
 
@@ -318,4 +327,5 @@ export const {
   useCreateRazorpayOrderMutation,
   useVerifyRazorpayPaymentMutation,
   useGetTpoDashboardQuery,
+  useSendChatMessageMutation,
 } = api

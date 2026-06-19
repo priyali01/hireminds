@@ -21,6 +21,7 @@ const CommunityFeedPage = lazy(() => import('./pages/CommunityFeedPage'))
 const AdminDashboard = lazy(() => import('./pages/AdminDashboard'))
 const TPODashboard = lazy(() => import('./pages/TPODashboard'))
 const PricingPage = lazy(() => import('./pages/PricingPage'))
+const CareerAgentPage = lazy(() => import('./pages/CareerAgentPage'))
 
 // Loading fallback
 function PageLoader() {
@@ -213,6 +214,14 @@ export default function App() {
             element={
               <ProtectedRoute>
                 <PricingPage />
+              </ProtectedRoute>
+            }
+          />
+          <Route
+            path="/chat"
+            element={
+              <ProtectedRoute>
+                <CareerAgentPage />
               </ProtectedRoute>
             }
           />
