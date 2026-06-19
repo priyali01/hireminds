@@ -84,57 +84,35 @@ export default function DashboardPage() {
             icon="📈"
             color="var(--color-score-mid)"
           />
-          <StatCard
-            label="Skills added"
-            value={user?.skills?.length || 0}
-            icon="💡"
-            color="var(--color-info)"
-          />
-          <StatCard
-            label="Analyses done"
-            value={historyData?.count || 0}
-            icon="📄"
-            color="var(--color-score-high)"
-          />
         </div>
 
         {/* Main action cards */}
-        <div className="action-grid">
-          <Link to="/resume" className="action-card" id="action-resume">
-            <div className="action-icon">📄</div>
-            <h3 className="action-title">Analyse your resume</h3>
-            <p className="action-desc">
+        <div className="action-grid" style={{ display: 'grid', gridTemplateColumns: 'repeat(auto-fit, minmax(280px, 1fr))', gap: '1.5rem', marginTop: '1.5rem' }}>
+          <Link to="/resume" className="action-card" id="action-resume" style={{ padding: '1.5rem', background: 'var(--color-surface)', border: '1px solid var(--color-border)', borderRadius: '1rem', textDecoration: 'none', color: 'inherit', display: 'flex', flexDirection: 'column', gap: '1rem' }}>
+            <div className="action-icon" style={{ fontSize: '2rem' }}>📄</div>
+            <h3 className="action-title" style={{ margin: 0 }}>Analyse your resume</h3>
+            <p className="action-desc" style={{ color: 'var(--color-text-muted)', fontSize: '0.875rem', margin: 0 }}>
               Get a level-aware ATS score, see missing keywords, and get a one-week fix plan.
             </p>
-            <span className="action-cta">Get started →</span>
           </Link>
 
-          <div className="action-card action-coming-soon" id="action-interview">
-            <div className="action-icon">🎤</div>
-            <h3 className="action-title">Mock Interview</h3>
-            <p className="action-desc">
-              Practice with AI-generated questions based on your resume. Coming in Phase 2.
+          <Link to="/interview" className="action-card" id="action-interview" style={{ padding: '1.5rem', background: 'var(--color-surface)', border: '1px solid var(--color-border)', borderRadius: '1rem', textDecoration: 'none', color: 'inherit', display: 'flex', flexDirection: 'column', gap: '1rem' }}>
+            <div className="action-icon" style={{ fontSize: '2rem' }}>🎤</div>
+            <h3 className="action-title" style={{ margin: 0 }}>Mock Interview</h3>
+            <p className="action-desc" style={{ color: 'var(--color-text-muted)', fontSize: '0.875rem', margin: 0 }}>
+              Practice with AI-generated technical, HR, and behavioral questions.
             </p>
-            <span className="badge badge-blue">Coming soon</span>
-          </div>
-
-          <div className="action-card action-coming-soon" id="action-trainer">
-            <div className="action-icon">🏋️</div>
-            <h3 className="action-title">Personal Trainer</h3>
-            <p className="action-desc">
+          </Link>
+          
+          <div className="action-card action-coming-soon" id="action-trainer" style={{ padding: '1.5rem', background: 'var(--color-surface)', border: '1px dashed var(--color-border)', opacity: 0.7, borderRadius: '1rem', display: 'flex', flexDirection: 'column', gap: '1rem' }}>
+            <div className="action-icon" style={{ fontSize: '2rem' }}>🏋️</div>
+            <h3 className="action-title" style={{ margin: 0 }}>Personal Trainer</h3>
+            <p className="action-desc" style={{ color: 'var(--color-text-muted)', fontSize: '0.875rem', margin: 0 }}>
               Weekly AI-generated learning goals based on your readiness score.
             </p>
-            <span className="badge badge-blue">Coming soon</span>
+            <span className="badge badge-blue" style={{ alignSelf: 'flex-start' }}>Coming soon</span>
           </div>
-
-          <div className="action-card action-coming-soon" id="action-jobs">
-            <div className="action-icon">💼</div>
-            <h3 className="action-title">Job Matcher</h3>
-            <p className="action-desc">
-              Paste any job description and see how well your resume matches.
-            </p>
-            <span className="badge badge-blue">Coming soon</span>
-          </div>
+        </div>
         </div>
 
         {/* Recent analyses */}

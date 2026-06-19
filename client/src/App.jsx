@@ -9,6 +9,10 @@ const RegisterPage = lazy(() => import('./pages/RegisterPage'))
 const OnboardingPage = lazy(() => import('./pages/OnboardingPage'))
 const ResumePage = lazy(() => import('./pages/ResumePage'))
 const DashboardPage = lazy(() => import('./pages/DashboardPage'))
+const InterviewPage = lazy(() => import('./pages/InterviewPage'))
+const InterviewSetupPage = lazy(() => import('./pages/InterviewSetupPage'))
+const InterviewSessionPage = lazy(() => import('./pages/InterviewSessionPage'))
+const InterviewResultsPage = lazy(() => import('./pages/InterviewResultsPage'))
 
 // Loading fallback
 function PageLoader() {
@@ -96,6 +100,38 @@ export default function App() {
             element={
               <ProtectedRoute>
                 <ResumePage />
+              </ProtectedRoute>
+            }
+          />
+          <Route
+            path="/interview"
+            element={
+              <ProtectedRoute>
+                <InterviewPage />
+              </ProtectedRoute>
+            }
+          />
+          <Route
+            path="/interview/setup"
+            element={
+              <ProtectedRoute>
+                <InterviewSetupPage />
+              </ProtectedRoute>
+            }
+          />
+          <Route
+            path="/interview/session/:id"
+            element={
+              <ProtectedRoute>
+                <InterviewSessionPage />
+              </ProtectedRoute>
+            }
+          />
+          <Route
+            path="/interview/results/:id"
+            element={
+              <ProtectedRoute>
+                <InterviewResultsPage />
               </ProtectedRoute>
             }
           />
