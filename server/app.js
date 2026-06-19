@@ -3,6 +3,7 @@ const cors = require('cors')
 const helmet = require('helmet')
 const morgan = require('morgan')
 const cookieParser = require('cookie-parser')
+const rateLimit = require('express-rate-limit')
 require('dotenv').config()
 
 const authRoutes = require('./routes/auth.routes')
@@ -70,20 +71,21 @@ app.use(express.urlencoded({ extended: true, limit: '1mb' }))
 app.use(cookieParser())
 
 // 6. API Routes
-app.use('/auth', authRoutes)
+app.use('/auth', authLimiter, authRoutes)
 const { requireAuth } = require('./middleware/auth.middleware')
 const { trackDailyStreak } = require('./middleware/streak.middleware')
+const { enforceQuotasLazily } = require('./middleware/quota.middleware')
 
-// Gamification tracker for all protected API routes
-app.use('/resumes', requireAuth, trackDailyStreak, resumeRoutes)
+// Gamification & Quota trackers for all protected API routes
+app.use('/resumes', requireAuth, enforceQuotasLazily, trackDailyStreak, resumeRoutes)
 const interviewRoutes = require('./routes/interview.routes')
-app.use('/interviews', requireAuth, trackDailyStreak, interviewRoutes)
+app.use('/interviews', requireAuth, enforceQuotasLazily, trackDailyStreak, interviewRoutes)
 const jobRoutes = require('./routes/job.routes')
-app.use('/jobs', requireAuth, trackDailyStreak, jobRoutes)
+app.use('/jobs', requireAuth, enforceQuotasLazily, trackDailyStreak, jobRoutes)
 const dashboardRoutes = require('./routes/dashboard.routes')
-app.use('/dashboard', requireAuth, trackDailyStreak, dashboardRoutes)
+app.use('/dashboard', requireAuth, enforceQuotasLazily, trackDailyStreak, dashboardRoutes)
 const leaderboardRoutes = require('./routes/leaderboard.routes')
-app.use('/leaderboard', requireAuth, trackDailyStreak, leaderboardRoutes)
+app.use('/leaderboard', requireAuth, enforceQuotasLazily, trackDailyStreak, leaderboardRoutes)
 
 // 7. Health check endpoint
 // Railway uses this to verify the service is healthy after deploy
