@@ -67,7 +67,8 @@ const userSchema = new mongoose.Schema(
     },
     level: {
       type: String,
-      enum: ['fresher', 'intermediate', 'experienced'],
+      enum: ['fresher', 'junior', 'mid', 'senior'],
+      required: true,
       default: null,
     },
     targetRoles: {
