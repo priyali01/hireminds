@@ -111,6 +111,26 @@ const userSchema = new mongoose.Schema(
       default: Date.now,
     },
 
+    // --- Gamification ---
+    points: {
+      type: Number,
+      default: 0,
+    },
+    currentStreak: {
+      type: Number,
+      default: 0,
+    },
+    longestStreak: {
+      type: Number,
+      default: 0,
+    },
+    lastActiveDate: {
+      type: Date,
+    },
+    badges: [{
+      type: String,
+    }],
+
     // --- DPDP Act 2023 Compliance ---
     consentGiven: {
       type: Boolean,

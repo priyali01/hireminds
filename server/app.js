@@ -71,13 +71,17 @@ app.use(cookieParser())
 
 // 6. API Routes
 app.use('/auth', authRoutes)
-app.use('/resumes', resumeRoutes)
+const { requireAuth } = require('./middleware/auth.middleware')
+const { trackDailyStreak } = require('./middleware/streak.middleware')
+
+// Gamification tracker for all protected API routes
+app.use('/resumes', requireAuth, trackDailyStreak, resumeRoutes)
 const interviewRoutes = require('./routes/interview.routes')
-app.use('/interviews', interviewRoutes)
+app.use('/interviews', requireAuth, trackDailyStreak, interviewRoutes)
 const jobRoutes = require('./routes/job.routes')
-app.use('/jobs', jobRoutes)
+app.use('/jobs', requireAuth, trackDailyStreak, jobRoutes)
 const dashboardRoutes = require('./routes/dashboard.routes')
-app.use('/dashboard', dashboardRoutes)
+app.use('/dashboard', requireAuth, trackDailyStreak, dashboardRoutes)
 
 // 7. Health check endpoint
 // Railway uses this to verify the service is healthy after deploy
