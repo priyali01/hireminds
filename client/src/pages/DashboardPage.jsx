@@ -117,7 +117,6 @@ export default function DashboardPage() {
             <span className="badge badge-blue" style={{ alignSelf: 'flex-start' }}>Coming soon</span>
           </div>
         </div>
-        </div>
 
         {/* Recent analyses */}
         {historyData?.resumes?.length > 0 && (
