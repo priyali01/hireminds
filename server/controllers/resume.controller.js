@@ -3,6 +3,7 @@ const pdfParse = require('pdf-parse-fork')
 const Resume = require('../models/resume.model')
 const User = require('../models/user.model')
 const { analyseResume } = require('../services/ats.service')
+const { awardPoints } = require('../services/gamification.service')
 const { resumeAnalyzeSchema, resumeFeedbackSchema } = require('../validators')
 const { NotFoundError, ValidationError } = require('../utils/errors')
 
@@ -57,6 +58,9 @@ async function analyzeText(req, res, next) {
     await User.findByIdAndUpdate(req.user.userId, {
       $inc: { analysesThisMonth: 1, aiUsageToday: 1 },
     })
+
+    // Award gamification points
+    await awardPoints(req.user.userId, 'RESUME_UPLOAD')
 
     res.json({
       success: true,

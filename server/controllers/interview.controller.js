@@ -4,6 +4,7 @@ const Resume = require('../models/resume.model')
 const { createSessionSchema, submitAnswerSchema, setupDriveSchema } = require('../validators/interview.validators')
 const { NotFoundError, QuotaError } = require('../utils/errors')
 const { generateQuestions, evaluateAnswer } = require('../services/interview.service')
+const { awardPoints } = require('../services/gamification.service')
 
 /**
  * POST /interviews/sessions
@@ -134,6 +135,9 @@ async function completeSession(req, res, next) {
     // Increment interviewsThisWeek quota counter
     await User.findByIdAndUpdate(req.user.userId, { $inc: { interviewsThisWeek: 1 } })
 
+    // Award Gamification Points
+    await awardPoints(req.user.userId, 'MOCK_INTERVIEW')
+
     res.json({ success: true, session })
   } catch (err) {
     next(err)
@@ -184,6 +188,9 @@ async function completeDrive(req, res, next) {
 
     // Increment quota counter
     await User.findByIdAndUpdate(req.user.userId, { $inc: { interviewsThisWeek: 1 } })
+
+    // Award Gamification Points
+    await awardPoints(req.user.userId, 'MOCK_INTERVIEW')
 
     res.json({ success: true, session: completedSession })
   } catch (err) {

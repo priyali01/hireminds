@@ -1,7 +1,8 @@
 const JobApplication = require('../models/job.model')
 const JobInsight = require('../models/insight.model')
 const { createJobSchema, updateJobStatusSchema, matchJDSchema, jobInsightSchema } = require('../validators/job.validators')
-const { NotFoundError } = require('../utils/errors')
+const { awardPoints } = require('../services/gamification.service')
+const { NotFoundError, QuotaError } = require('../utils/errors')
 
 // --- Application Tracker (Kanban) ---
 
@@ -22,6 +23,10 @@ async function createJob(req, res, next) {
       ...data,
       appliedDate: data.status === 'applied' ? new Date() : undefined
     })
+
+    // Award gamification points
+    await awardPoints(req.user.userId, 'JOB_APPLICATION')
+
     res.status(201).json({ success: true, job })
   } catch (err) {
     next(err)
