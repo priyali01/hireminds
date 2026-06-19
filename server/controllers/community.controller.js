@@ -98,13 +98,6 @@ async function toggleUpvote(req, res, next) {
   }
 }
 
-const Experience = require('../models/experience.model')
-const ReviewRequest = require('../models/reviewRequest.model')
-const User = require('../models/user.model')
-const { createExperienceSchema, moderateExperienceSchema, createReviewRequestSchema, submitReviewSchema } = require('../validators/community.validators')
-const { awardPoints } = require('../services/gamification.service')
-const { NotFoundError, ValidationError } = require('../utils/errors')
-
 // --- Peer Resume Reviews Endpoints ---
 
 /**
@@ -263,6 +256,9 @@ module.exports = {
   getFeed,
   submitExperience,
   toggleUpvote,
+  requestReview,
+  getOpenReviews,
+  submitReview,
   getPendingQueue,
   moderateExperience
 }

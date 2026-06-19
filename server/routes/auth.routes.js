@@ -1,7 +1,7 @@
 const express = require('express')
 const router = express.Router()
 const { register, login, refresh, logout, me, completeOnboarding } = require('../controllers/auth.controller')
-const { authMiddleware } = require('../middleware/auth.middleware')
+const { requireAuth } = require('../middleware/auth.middleware')
 
 // POST /auth/register
 router.post('/register', register)
@@ -13,12 +13,12 @@ router.post('/login', login)
 router.post('/refresh', refresh)
 
 // POST /auth/logout — requires valid access token
-router.post('/logout', authMiddleware, logout)
+router.post('/logout', requireAuth, logout)
 
 // GET /auth/me — returns current user profile
-router.get('/me', authMiddleware, me)
+router.get('/me', requireAuth, me)
 
 // PUT /auth/onboarding — saves 5-step onboarding data
-router.put('/onboarding', authMiddleware, completeOnboarding)
+router.put('/onboarding', requireAuth, completeOnboarding)
 
 module.exports = router

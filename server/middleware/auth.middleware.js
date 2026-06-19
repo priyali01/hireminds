@@ -83,4 +83,4 @@ async function optionalAuthMiddleware(req, res, next) {
   return next()
 }
 
-module.exports = { authMiddleware, optionalAuthMiddleware }
+module.exports = { requireAuth: authMiddleware, optionalAuthMiddleware }

@@ -8,10 +8,10 @@ const {
   getResume,
   submitFeedback,
 } = require('../controllers/resume.controller')
-const { authMiddleware } = require('../middleware/auth.middleware')
+const { requireAuth } = require('../middleware/auth.middleware')
 
 // All resume routes require authentication
-router.use(authMiddleware)
+router.use(requireAuth)
 
 // POST /resumes/analyze — analyse raw text
 router.post('/analyze', analyzeText)

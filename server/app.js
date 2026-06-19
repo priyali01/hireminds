@@ -10,8 +10,10 @@ const authRoutes = require('./routes/auth.routes')
 const resumeRoutes = require('./routes/resume.routes')
 const errorMiddleware = require('./middleware/error.middleware')
 const logger = require('./utils/logger')
+const { authLimiter, globalLimiter } = require('./middleware/rateLimit.middleware')
 
 const app = express()
+app.use(globalLimiter)
 
 /**
  * Middleware order is non-negotiable:
