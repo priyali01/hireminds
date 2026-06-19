@@ -13,9 +13,14 @@ export default function InterviewPage() {
           <h1 style={{ fontSize: '2rem', marginBottom: '0.5rem' }}>Interview Preparation</h1>
           <p className="text-muted">Practice with AI, or simulate full placement drives.</p>
         </div>
-        <button className="btn btn-primary" onClick={() => navigate('/interview/setup')}>
-          Start New Session
-        </button>
+        <div style={{ display: 'flex', gap: '1rem' }}>
+          <button className="btn btn-secondary" onClick={() => navigate('/interview/drive/setup')}>
+            Mock Placement Drive
+          </button>
+          <button className="btn btn-primary" onClick={() => navigate('/interview/setup')}>
+            Standard Interview
+          </button>
+        </div>
       </div>
 
       <div className="card" style={{ marginBottom: '2rem' }}>

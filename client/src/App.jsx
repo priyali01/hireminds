@@ -13,6 +13,8 @@ const InterviewPage = lazy(() => import('./pages/InterviewPage'))
 const InterviewSetupPage = lazy(() => import('./pages/InterviewSetupPage'))
 const InterviewSessionPage = lazy(() => import('./pages/InterviewSessionPage'))
 const InterviewResultsPage = lazy(() => import('./pages/InterviewResultsPage'))
+const DriveSetupPage = lazy(() => import('./pages/DriveSetupPage'))
+const DriveResultsPage = lazy(() => import('./pages/DriveResultsPage'))
 
 // Loading fallback
 function PageLoader() {
@@ -132,6 +134,31 @@ export default function App() {
             element={
               <ProtectedRoute>
                 <InterviewResultsPage />
+              </ProtectedRoute>
+            }
+          />
+          <Route
+            path="/interview/drive/setup"
+            element={
+              <ProtectedRoute>
+                <DriveSetupPage />
+              </ProtectedRoute>
+            }
+          />
+          <Route
+            path="/interview/drive/:id"
+            element={
+              <ProtectedRoute>
+                {/* Reusing InterviewSessionPage since it scales to handle sections */}
+                <InterviewSessionPage />
+              </ProtectedRoute>
+            }
+          />
+          <Route
+            path="/interview/drive/:id/results"
+            element={
+              <ProtectedRoute>
+                <DriveResultsPage />
               </ProtectedRoute>
             }
           />
