@@ -4,7 +4,7 @@ import { selectIsAuthenticated, selectCurrentUser } from './store/authSlice'
 import { lazy, Suspense } from 'react'
 
 // Lazy-loaded pages for code splitting
-const LoginPage = lazy(() => import('./pages/LoginPage'))
+const LoginPage = lazy(() => import('./pages/Auth/LoginPage'))
 const RegisterPage = lazy(() => import('./pages/RegisterPage'))
 const OnboardingPage = lazy(() => import('./pages/OnboardingPage'))
 const ResumePage = lazy(() => import('./pages/ResumePage'))
