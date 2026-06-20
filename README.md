@@ -6,16 +6,38 @@ Currently at **Phase 1** completion, the platform features a fully modular backe
 
 ---
 
-## ✨ Features (Phase 1)
+## ✨ Comprehensive Feature Scope
 
-- **🔐 Secure Authentication**: JWT-based auth with `httpOnly` refresh token rotation (bcrypt-hashed storage) and DPDP Act 2023 consent tracking.
-- **🎯 Level-Aware Scoring**: Resume analysis weights are tailored to the candidate's career stage (Fresher, Intermediate, Experienced). For example, freshers are scored heavily on projects and skills rather than professional experience.
-- **📄 Robust PDF Parsing**: Automatic text extraction from PDF resumes.
-- **🤖 Gemini AI Fallback Chain**: Deep analysis using Google's Generative AI. Features a robust fallback chain (`gemini-2.5-flash` → `gemini-1.5-flash` → `gemini-1.5-pro`) to ensure high availability.
-- **📊 Detailed Score Breakdown**: Visual scores for Skills, Projects, Education, and Experience.
-- **💡 Actionable Insights**: Returns specific strengths, a one-week fix plan, and missing keywords focused on the Indian job market.
-- **🎨 Premium UI**: A clean, dynamic interface built with React 18, Tailwind CSS v3, and Framer Motion. Features a dark mode design system, glassmorphism aesthetics, responsive layouts, and interactive dashboard previews.
-- **🧪 Test-Driven (TDD)**: The backend is covered by a comprehensive suite of unit and integration tests (58/58 passing) using Jest, Supertest, and `mongodb-memory-server`.
+HireMinds is being developed in modular phases. The complete system encompasses the following core modules:
+
+### 🚀 Phase 1: Core Engine (Completed)
+- **MOD-0: Secure Auth & Onboarding**: JWT authentication with rotating `httpOnly` refresh tokens, bcrypt hashing, and DPDP Act 2023 compliant data consent. 5-step onboarding capturing career level, target roles, and graduation timelines.
+- **MOD-2: Resume Analyzer Engine**: Robust PDF parsing with text extraction. Features a fresher-aware ATS scoring algorithm (dynamically weighting projects over experience for students) and deep AI analysis via Gemini (identifies strengths, missing keywords, and generates a one-week fix plan).
+
+### ⏳ Upcoming Phases
+- **MOD-1: Dynamic Dashboard**: Personalized job opportunity slider, quick stats bar (ATS score, readiness, streak), news feed (SerpAPI + Gemini), full-year hiring calendar, and a Kanban application tracker.
+- **MOD-3: Mock Interview Simulator**: 4 specialized round types (Technical, HR, STAR behavioral, Placement Drive). Reads the user's resume to generate context-aware questions. Realistic simulations of TCS NQT, Infosys InfyTQ, AMCAT, Wipro NLTH, and Cognizant GenC.
+- **MOD-4: Intelligent Job Matcher**: JD analysis tool that matches candidate resumes against specific job descriptions, highlighting keyword gaps and required skills, enriched with real-time role research via SerpAPI.
+- **MOD-5: Personal Career Trainer**: Weekly AI-generated actionable goals based on resume scores and interview weaknesses. Tracks goal completion and provides a daily streak heatmap calendar.
+- **MOD-6: Community Hub**: Anonymous interview experience submissions with verified badges, peer resume reviews matched by target role, and an admin moderation queue.
+- **MOD-7: Enterprise & Business Layer**: Tiered usage limits enforced via custom middleware, Razorpay subscription integration, and a dedicated Campus portal for Training & Placement Officers (TPO) with aggregate cohort analytics.
+
+---
+
+## 🏛️ System Architecture
+
+HireMinds is built as a production-grade **Modular Monolith**, designed for high scalability and solo-maintainability without the overhead of microservices.
+
+- **Asynchronous Processing Engine**: Heavy tasks (AI prompt execution, PDF parsing, email delivery) are completely decoupled from the HTTP request-response cycle using **BullMQ** and Redis.
+- **Three-Layer Caching Strategy**: 
+  - *In-Memory*: Fast local reads for configuration.
+  - *Distributed (Upstash Redis)*: Caches API responses, job insights, and SerpAPI results.
+  - *Database (MongoDB TTL)*: Ephemeral data and rate-limit tracking.
+- **Resilient AI Layer**: Implements a robust **Gemini API Fallback Chain** (`2.5-flash` → `1.5-flash` → `1.5-pro`) to ensure high availability during rate limits (429) or timeouts. AI responses are strictly validated against **Zod** schemas before storage.
+- **Real-Time Streaming**: Utilizes **Server-Sent Events (SSE)** to stream large AI analysis chunks directly to the UI, minimizing perceived latency for the user.
+- **Security-First Approach**: Implements global IP rate limiting, per-user AI endpoint throttling, helmet.js headers, strict CORS, and NoSQL injection prevention.
+
+
 
 ---
 
@@ -52,10 +74,13 @@ hireminds/
 
 ## 🛠️ Tech Stack
 
-- **Frontend**: React 18, Vite, React Router v6, Redux Toolkit (RTK Query), Tailwind CSS v3, Framer Motion, React Hook Form.
-- **Backend**: Node.js, Express 5, MongoDB (Mongoose), Zod, Winston, Multer, bcryptjs, jsonwebtoken.
-- **AI**: Google Generative AI (Gemini SDK).
-- **Testing**: Jest, Supertest, MongoDB Memory Server.
+- **Frontend**: React 18, Vite, React Router v6, Redux Toolkit (RTK Query), Tailwind CSS v3, Framer Motion, React Hook Form, Recharts, react-pdf.
+- **Backend**: Node.js 20 LTS, Express 5, Zod, BullMQ, node-cron, Multer, Winston.
+- **Database & Cache**: MongoDB Atlas (Mongoose), Upstash Redis.
+- **AI & External APIs**: Google Generative AI (Gemini SDK), SerpAPI.
+- **Infrastructure**: Cloudinary (Storage), Resend (Email), Razorpay (Payments).
+- **Monitoring & Deployment**: Sentry, Posthog, Vercel (Frontend), Railway (Backend).
+- **Testing**: Jest, Supertest, MongoDB Memory Server (Backend), Vitest, React Testing Library, Playwright (Frontend E2E).
 
 ---
 
@@ -66,46 +91,22 @@ hireminds/
 - A **Google Gemini API Key** (Get it from [Google AI Studio](https://aistudio.google.com/))
 - A **MongoDB** database (Local instance or [MongoDB Atlas](https://www.mongodb.com/products/platform/atlas-database))
 
-### 2. Backend Setup
-1. Navigate to the server folder:
+### 2. Quick Setup (Root Level)
+
+We have configured root-level scripts so you can install and run the entire application concurrently from the main project folder.
+
+1. **Install all dependencies** (Installs root, server, and client packages):
    ```bash
-   cd server
+   npm run install:all
    ```
-2. Install dependencies:
-   ```bash
-   npm install
-   ```
-3. Copy the example environment file:
-   ```bash
-   cp .env.example .env
-   ```
-4. Update the `.env` file with your credentials (MongoDB URI, JWT Secrets, and Gemini API Key). *You can generate secure JWT secrets by running: `node -e "console.log(require('crypto').randomBytes(64).toString('hex'))"`*.
-5. Start the server:
+2. **Environment Variables**:
+   - Navigate to the `server/` directory and copy `.env.example` to `.env`. Update your MongoDB URI, JWT Secrets, and Gemini API Key.
+   - Navigate to the `client/` directory and copy `.env.example` to `.env`.
+3. **Start the Application**:
    ```bash
    npm run dev
    ```
-   *The server will run on `http://localhost:3001`*
-
-### 3. Frontend Setup
-1. Navigate to the client folder:
-   ```bash
-   cd client
-   ```
-2. Install dependencies:
-   ```bash
-   npm install
-   ```
-3. Copy the example environment file:
-   ```bash
-   cp .env.example .env
-   ```
-4. Start the development server:
-   ```bash
-   npm run dev
-   ```
-   *The app will be available at `http://localhost:5173`*
-
----
+   *This command runs both the Node/Express backend (`http://localhost:3001`) and the Vite/React frontend (`http://localhost:5173`) concurrently.*
 
 ## 🧪 Running Tests
 
@@ -122,6 +123,9 @@ npm test
 ## 📅 Roadmap
 
 - **Phase 1 (Completed)**: Core Authentication, User Onboarding, and Resume Analysis (MOD-0 & MOD-2).
-- **Phase 2 (Next)**: Interview Prep & Mock Placement Drives (MOD-3). Simulation of TCS NQT, Infosys InfyTQ, AMCAT, Wipro NLTH, Cognizant GenC formats.
+- **Phase 2**: Interview Prep & Mock Placement Drives (MOD-3). Simulation of TCS NQT, Infosys InfyTQ, AMCAT, Wipro NLTH, Cognizant GenC formats.
 - **Phase 3**: Job Matcher & Dashboard Enhancements (MOD-1 & MOD-4).
-- **Phase 4**: Personal Trainer & Community Features (MOD-5 & MOD-6).
+- **Phase 4**: Personal Trainer (MOD-5).
+- **Phase 5**: Community Hub (MOD-6).
+- **Phase 6**: Business layer, Payments, and Campus tier (MOD-7).
+- **Phase 7**: Fine-tuned custom models and agentic workflow layer.

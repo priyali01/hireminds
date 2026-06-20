@@ -1,5 +1,27 @@
 {
   "dependencies": {
     "@google/generative-ai": "^0.24.1"
-  }
+  },
+  "name": "hireminds",
+  "version": "1.0.0",
+  "description": "**HireMinds** is a production-grade, AI-powered career companion platform designed specifically for the Indian job market. It leverages Google's Gemini AI to provide actionable resume feedback, level-aware ATS scoring, and keyword suggestions for candidates at various career stages.",
+  "main": "index.js",
+  "devDependencies": {
+    "concurrently": "^10.0.3"
+  },
+  "scripts": {
+    "install:all": "npm install && npm install --prefix server && npm install --prefix client",
+    "dev": "concurrently \"npm run dev --prefix server\" \"npm run dev --prefix client\""
+  },
+  "repository": {
+    "type": "git",
+    "url": "git+https://github.com/priyali01/hireminds.git"
+  },
+  "keywords": [],
+  "author": "",
+  "license": "ISC",
+  "bugs": {
+    "url": "https://github.com/priyali01/hireminds/issues"
+  },
+  "homepage": "https://github.com/priyali01/hireminds#readme"
 }
