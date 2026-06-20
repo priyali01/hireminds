@@ -3,99 +3,93 @@ import { motion } from 'framer-motion'
 import { Link, useNavigate } from 'react-router-dom'
 import { useDispatch } from 'react-redux'
 import { useForm } from 'react-hook-form'
-import { Mail, Lock, Eye, EyeOff, ShieldCheck, ArrowRight, Sparkles } from 'lucide-react'
+import { Mail, Lock, Eye, EyeOff, ShieldCheck, ArrowRight } from 'lucide-react'
 import { useLoginMutation } from '../../../store/api'
 import { setCredentials } from '../../../store/authSlice'
 
+const ANIM = {
+  container: {
+    hidden: {},
+    show: { transition: { staggerChildren: 0.07, delayChildren: 0.1 } },
+  },
+  item: {
+    hidden: { opacity: 0, y: 14 },
+    show: { opacity: 1, y: 0, transition: { duration: 0.4, ease: 'easeOut' } },
+  },
+}
+
 export default function LoginForm() {
-  const dispatch = useDispatch()
-  const navigate = useNavigate()
+  const dispatch    = useDispatch()
+  const navigate    = useNavigate()
   const [login, { isLoading }] = useLoginMutation()
   const [serverError, setServerError] = useState(null)
-  const [showPassword, setShowPassword] = useState(false)
-
+  const [showPwd, setShowPwd]         = useState(false)
   const prefersReduced = window.matchMedia('(prefers-reduced-motion: reduce)').matches
 
-  const {
-    register,
-    handleSubmit,
-    formState: { errors },
-  } = useForm()
+  const { register, handleSubmit, formState: { errors } } = useForm()
 
   const onSubmit = async (data) => {
     setServerError(null)
     try {
-      const result = await login(data).unwrap()
-      dispatch(setCredentials({ user: result.user, accessToken: result.accessToken }))
-      navigate(result.user.onboardingComplete ? '/dashboard' : '/onboarding', { replace: true })
+      const res = await login(data).unwrap()
+      dispatch(setCredentials({ user: res.user, accessToken: res.accessToken }))
+      navigate(res.user.onboardingComplete ? '/dashboard' : '/onboarding', { replace: true })
     } catch (err) {
       setServerError(err.data?.message || 'Login failed. Please try again.')
     }
   }
 
-  const containerVariants = {
-    hidden: {},
-    visible: {
-      transition: {
-        staggerChildren: prefersReduced ? 0 : 0.07,
-        delayChildren: prefersReduced ? 0 : 0.3,
-      },
-    },
-  }
-
-  const itemVariants = {
-    hidden: { y: prefersReduced ? 0 : 16, opacity: prefersReduced ? 1 : 0 },
-    visible: {
-      y: 0,
-      opacity: 1,
-      transition: { duration: prefersReduced ? 0.01 : 0.4, ease: 'easeOut' },
-    },
-  }
+  const variants = prefersReduced
+    ? { container: {}, item: {} }
+    : ANIM
 
   return (
-    <div className="w-full bg-white/[0.04] backdrop-blur-2xl border border-white/[0.10] shadow-[inset_0_1px_1px_0_rgba(255,255,255,0.10),0_12px_40px_rgba(0,0,0,0.6)] rounded-[28px] px-10 pt-14 pb-10 lg:px-12 lg:pt-16 lg:pb-12 relative overflow-hidden min-h-auto flex flex-col justify-center">
+    <motion.div
+      variants={variants.container}
+      initial="hidden"
+      animate="show"
+      className="w-full"
+    >
+      {/* ── Glass card ── */}
+      <div className="relative w-full bg-white/[0.05] backdrop-blur-2xl border border-white/[0.10] rounded-3xl shadow-[0_24px_64px_rgba(0,0,0,0.6),inset_0_1px_0_rgba(255,255,255,0.08)] overflow-hidden">
 
-      {/* Left edge accent */}
-      <div className="absolute top-0 left-0 w-[2px] h-full bg-gradient-to-b from-[#6366f1] via-[#a855f7] to-transparent opacity-70 rounded-l-[28px]" />
+        {/* top glow stripe */}
+        <div className="absolute top-0 inset-x-0 h-[2px] bg-gradient-to-r from-transparent via-[#a855f7] to-transparent opacity-80" />
+        {/* left glow stripe */}
+        <div className="absolute inset-y-0 left-0 w-[2px] bg-gradient-to-b from-[#6366f1] via-[#a855f7]/50 to-transparent" />
+        {/* ambient inner glow */}
+        <div className="absolute -top-16 left-1/2 -translate-x-1/2 w-64 h-32 bg-[#7c3aed]/25 rounded-full blur-3xl pointer-events-none" />
 
-      <motion.div
-        variants={containerVariants}
-        initial="hidden"
-        animate="visible"
-        className="flex flex-col w-full gap-8"
-      >
-        {/* Top Section: Headers */}
-        <div className="flex flex-col items-center">
-          <motion.div variants={itemVariants} className="flex items-center gap-3 mb-6">
-            <div className="text-4xl filter drop-shadow-[0_0_10px_rgba(168,85,247,0.5)]">🧠</div>
-            <span className="text-4xl font-bold tracking-tight text-white">
-              Hire<span className="text-[#a855f7]">Minds</span>
-            </span>
+        <div className="relative z-10 px-9 py-10">
+
+          {/* ── Brand ── */}
+          <motion.div variants={variants.item} className="flex flex-col items-center gap-2 mb-8">
+            <div className="flex items-center gap-3">
+              <span className="text-4xl drop-shadow-[0_0_16px_rgba(168,85,247,0.7)]">🧠</span>
+              <span className="text-[1.85rem] font-extrabold tracking-tight text-white leading-none">
+                Hire<span className="text-[#a855f7]">Minds</span>
+              </span>
+            </div>
+            <p className="text-[11px] font-semibold tracking-[0.22em] text-slate-500 uppercase">
+              Your AI Career Companion
+            </p>
           </motion.div>
 
-          <motion.div
-            variants={itemVariants}
-            className="flex items-center gap-2 text-sm font-medium text-slate-500 tracking-widest mb-10"
-          >
-            <Sparkles className="w-4 h-4 text-[#a855f7]/60" />
-            Your AI Career Companion
-            <Sparkles className="w-4 h-4 text-[#a855f7]/60" />
+          {/* ── Welcome heading ── */}
+          <motion.div variants={variants.item} className="text-center mb-7">
+            <h1 className="text-2xl font-bold text-white mb-1.5">Welcome back 👋</h1>
+            <p className="text-slate-400 text-sm leading-relaxed">
+              Sign in to continue your career journey
+            </p>
           </motion.div>
 
-          <motion.h2 variants={itemVariants} className="text-3xl font-bold text-white mb-2 text-center">
-            Welcome back
-          </motion.h2>
-          <motion.p variants={itemVariants} className="text-slate-400 text-base text-center">
-            Sign in to continue your career journey
-          </motion.p>
-        </div>
-
-        {/* Middle Section: Form and Actions */}
-        <div className="flex flex-col w-full mt-6 mb-6 space-y-4">
+          {/* ── Google OAuth ── */}
           <motion.button
-            variants={itemVariants}
+            variants={variants.item}
             type="button"
-            className="w-full flex items-center justify-center gap-4 bg-white/[0.04] hover:bg-white/[0.08] border border-white/[0.10] text-slate-300 rounded-xl py-5 text-base font-medium transition-all"
+            whileHover={!prefersReduced ? { scale: 1.015 } : {}}
+            whileTap={!prefersReduced ? { scale: 0.985 } : {}}
+            className="w-full flex items-center justify-center gap-3 bg-white/[0.05] hover:bg-white/[0.09] border border-white/[0.12] text-slate-200 text-sm font-semibold rounded-xl py-3.5 transition-all duration-200 mb-5 shadow-sm"
           >
             <svg className="w-5 h-5 shrink-0" viewBox="0 0 24 24" fill="none">
               <path d="M22.56 12.25c0-.78-.07-1.53-.2-2.25H12v4.26h5.92c-.26 1.37-1.04 2.53-2.21 3.31v2.77h3.57c2.08-1.92 3.28-4.74 3.28-8.09z" fill="#4285F4"/>
@@ -106,121 +100,148 @@ export default function LoginForm() {
             Continue with Google
           </motion.button>
 
-          <motion.div variants={itemVariants} className="flex items-center gap-4 w-full">
-            <div className="flex-1 h-px bg-white/[0.06]" />
-            <span className="text-[13px] text-slate-500 uppercase tracking-wider font-medium">or continue with email</span>
-            <div className="flex-1 h-px bg-white/[0.06]" />
+          {/* ── Divider ── */}
+          <motion.div variants={variants.item} className="flex items-center gap-3 mb-6">
+            <div className="flex-1 h-px bg-white/[0.07]" />
+            <span className="text-[11px] font-semibold tracking-[0.18em] text-slate-600 uppercase">or email</span>
+            <div className="flex-1 h-px bg-white/[0.07]" />
           </motion.div>
 
-          <form onSubmit={handleSubmit(onSubmit)} className="w-full space-y-6" noValidate>
-            <motion.div variants={itemVariants}>
-              <label className="block text-sm font-medium text-slate-400 mb-3 ml-1">
-                Email address
-              </label>
-              <div className="relative">
-                <div className="absolute inset-y-0 left-0 pl-4 flex items-center pointer-events-none">
-                  <Mail className="w-5 h-5 text-slate-500" />
-                </div>
-                <input
-                  type="email"
-                  placeholder="you@example.com"
-                  className="w-full bg-white/[0.06] border border-white/[0.10] text-white rounded-xl py-4 pl-12 pr-4 text-base focus:outline-none focus:border-[#a855f7]/60 focus:ring-1 focus:ring-[#a855f7]/30 transition-all placeholder:text-slate-600"
-                  {...register('email', {
-                    required: 'Email is required',
-                    pattern: { value: /^\S+@\S+\.\S+$/, message: 'Enter a valid email' },
-                  })}
-                />
-              </div>
-              {errors.email && (
-                <p className="text-red-400 text-sm mt-2 ml-1">{errors.email.message}</p>
-              )}
-            </motion.div>
+          {/* ── Form ── */}
+          <form onSubmit={handleSubmit(onSubmit)} noValidate>
+            <div className="space-y-5">
 
-            <motion.div variants={itemVariants}>
-              <label className="block text-sm font-medium text-slate-400 mb-3 ml-1">
-                Password
-              </label>
-              <div className="relative">
-                <div className="absolute inset-y-0 left-0 pl-4 flex items-center pointer-events-none">
-                  <Lock className="w-5 h-5 text-slate-500" />
+              {/* Email field */}
+              <motion.div variants={variants.item}>
+                <label className="block text-xs font-bold text-slate-400 mb-2 tracking-widest uppercase">
+                  Email address
+                </label>
+                <div className="relative">
+                  <Mail className="absolute left-3.5 top-1/2 -translate-y-1/2 w-4 h-4 text-slate-500 pointer-events-none" />
+                  <input
+                    type="email"
+                    autoComplete="email"
+                    placeholder="you@college.ac.in"
+                    className="w-full bg-[#0c0a1a] border border-white/[0.09] hover:border-white/[0.15] text-white rounded-xl py-3.5 pl-10 pr-4 text-sm outline-none focus:border-[#a855f7]/70 focus:ring-2 focus:ring-[#a855f7]/20 transition-all placeholder:text-slate-600 caret-violet-400"
+                    {...register('email', {
+                      required: 'Email is required',
+                      pattern: { value: /^\S+@\S+\.\S+$/, message: 'Enter a valid email' },
+                    })}
+                  />
                 </div>
-                <input
-                  type={showPassword ? 'text' : 'password'}
-                  placeholder="••••••••••••"
-                  className="w-full bg-white/[0.06] border border-white/[0.10] text-white rounded-xl py-5 pl-12 pr-12 text-base focus:outline-none focus:border-[#a855f7]/60 focus:ring-1 focus:ring-[#a855f7]/30 transition-all placeholder:text-slate-600"
-                  {...register('password', { required: 'Password is required' })}
-                />
-                <button
-                  type="button"
-                  onClick={() => setShowPassword(!showPassword)}
-                  className="absolute inset-y-0 right-0 pr-4 flex items-center text-slate-500 hover:text-slate-300 transition-colors"
-                >
-                  {showPassword ? <EyeOff className="w-5 h-5" /> : <Eye className="w-5 h-5" />}
-                </button>
-              </div>
-              {errors.password && (
-                <p className="text-red-400 text-sm mt-2 ml-1">{errors.password.message}</p>
-              )}
-            </motion.div>
-
-            <motion.div variants={itemVariants} className="flex items-center justify-between pt-2">
-              <label className="flex items-center gap-4 cursor-pointer group">
-                <div className="relative flex items-center justify-center w-6 h-6 rounded border border-[#a855f7]/40 bg-[#a855f7]/20 group-hover:bg-[#a855f7]/30 transition-colors shrink-0">
-                  <input type="checkbox" className="opacity-0 absolute inset-0 cursor-pointer" defaultChecked />
-                  <svg className="w-4 h-4 text-[#d8b4fe]" fill="none" viewBox="0 0 24 24" stroke="currentColor" strokeWidth={3}>
-                    <path strokeLinecap="round" strokeLinejoin="round" d="M5 13l4 4L19 7" />
-                  </svg>
-                </div>
-                <span className="text-base text-slate-400">Remember me</span>
-              </label>
-              <Link to="#" className="text-base text-[#a855f7] hover:text-[#d8b4fe] transition-colors">
-                Forgot password?
-              </Link>
-            </motion.div>
-
-            {serverError && (
-              <motion.div
-                initial={{ opacity: 0, y: -8 }}
-                animate={{ opacity: 1, y: 0 }}
-                className="bg-red-500/10 border border-red-500/20 text-red-400 text-sm p-3 rounded-xl"
-              >
-                {serverError}
+                {errors.email && (
+                  <p className="text-red-400 text-xs mt-1.5 flex items-center gap-1">
+                    <span>⚠</span> {errors.email.message}
+                  </p>
+                )}
               </motion.div>
-            )}
 
-            <motion.div variants={itemVariants} className="pt-4">
-              <motion.button
-                type="submit"
-                disabled={isLoading}
-                whileHover={!prefersReduced && !isLoading ? { scale: 1.01 } : {}}
-                whileTap={!prefersReduced && !isLoading ? { scale: 0.98 } : {}}
-                className="w-full flex items-center justify-center gap-2 bg-gradient-to-r from-[#6366f1] to-[#a855f7] text-white rounded-xl py-5 text-base font-semibold transition-all disabled:opacity-60 disabled:cursor-not-allowed shadow-[0_0_24px_rgba(99,102,241,0.35)] hover:shadow-[0_0_32px_rgba(168,85,247,0.45)]"
-              >
-                {isLoading ? 'Signing in...' : 'Sign in'}
-                {!isLoading && <ArrowRight className="w-6 h-6" />}
-              </motion.button>
-            </motion.div>
-          </form>
-        </div>
+              {/* Password field */}
+              <motion.div variants={variants.item}>
+                <label className="block text-xs font-bold text-slate-400 mb-2 tracking-widest uppercase">
+                  Password
+                </label>
+                <div className="relative">
+                  <Lock className="absolute left-3.5 top-1/2 -translate-y-1/2 w-4 h-4 text-slate-500 pointer-events-none" />
+                  <input
+                    type={showPwd ? 'text' : 'password'}
+                    autoComplete="current-password"
+                    placeholder="••••••••••••"
+                    className="w-full bg-[#0c0a1a] border border-white/[0.09] hover:border-white/[0.15] text-white rounded-xl py-3.5 pl-10 pr-11 text-sm outline-none focus:border-[#a855f7]/70 focus:ring-2 focus:ring-[#a855f7]/20 transition-all placeholder:text-slate-600 caret-violet-400"
+                    {...register('password', { required: 'Password is required' })}
+                  />
+                  <button
+                    type="button"
+                    onClick={() => setShowPwd(v => !v)}
+                    className="absolute right-3.5 top-1/2 -translate-y-1/2 text-slate-500 hover:text-slate-300 transition-colors"
+                  >
+                    {showPwd ? <EyeOff className="w-4 h-4" /> : <Eye className="w-4 h-4" />}
+                  </button>
+                </div>
+                {errors.password && (
+                  <p className="text-red-400 text-xs mt-1.5 flex items-center gap-1">
+                    <span>⚠</span> {errors.password.message}
+                  </p>
+                )}
+              </motion.div>
 
-        {/* Bottom Section: Footer Links */}
-        <div className="flex flex-col items-center">
-          <motion.div variants={itemVariants} className="text-center text-base text-slate-500 mb-6">
-            Don't have an account?{' '}
-            <Link to="/register" className="text-[#a855f7] hover:text-[#d8b4fe] transition-colors font-medium">
-              Create one free
-            </Link>
-          </motion.div>
+              {/* Remember me + Forgot */}
+              <motion.div variants={variants.item} className="flex items-center justify-between">
+                <label className="flex items-center gap-2.5 cursor-pointer select-none group">
+                  <div className="relative w-[18px] h-[18px] shrink-0">
+                    <input type="checkbox" className="peer sr-only" defaultChecked />
+                    <div className="w-[18px] h-[18px] rounded-[5px] border border-violet-500/40 bg-violet-900/20 peer-checked:bg-violet-700/40 peer-checked:border-violet-500/60 transition-all" />
+                    <svg className="absolute inset-0 m-auto w-3 h-3 text-violet-300" fill="none" viewBox="0 0 24 24" stroke="currentColor" strokeWidth={3}>
+                      <path strokeLinecap="round" strokeLinejoin="round" d="M5 13l4 4L19 7" />
+                    </svg>
+                  </div>
+                  <span className="text-sm text-slate-400 group-hover:text-slate-300 transition-colors">Remember me</span>
+                </label>
+                <Link to="#" className="text-sm text-violet-400 hover:text-violet-300 transition-colors font-medium">
+                  Forgot password?
+                </Link>
+              </motion.div>
 
-          <motion.div variants={itemVariants} className="flex justify-center">
-            <div className="inline-flex items-center gap-3 px-6 py-3 rounded-full bg-emerald-950/40 border border-emerald-500/20">
-              <ShieldCheck className="w-5 h-5 text-emerald-400" />
-              <span className="text-sm text-emerald-400 font-medium">Your data is secure and encrypted</span>
+              {/* Server error */}
+              {serverError && (
+                <motion.p
+                  initial={{ opacity: 0, y: -4 }}
+                  animate={{ opacity: 1, y: 0 }}
+                  className="text-red-400 text-sm bg-red-500/10 border border-red-500/20 rounded-xl px-4 py-3"
+                >
+                  {serverError}
+                </motion.p>
+              )}
+
+              {/* Submit */}
+              <motion.div variants={variants.item} className="pt-1">
+                <motion.button
+                  type="submit"
+                  disabled={isLoading}
+                  whileHover={!prefersReduced && !isLoading ? { scale: 1.015 } : {}}
+                  whileTap={!prefersReduced && !isLoading ? { scale: 0.985 } : {}}
+                  className="w-full flex items-center justify-center gap-2.5 bg-gradient-to-r from-indigo-500 via-violet-600 to-purple-500 hover:from-indigo-400 hover:via-violet-500 hover:to-purple-400 text-white font-bold rounded-xl py-3.5 text-sm transition-all duration-300 shadow-[0_0_32px_rgba(124,58,237,0.5)] hover:shadow-[0_0_48px_rgba(124,58,237,0.65)] disabled:opacity-50 disabled:cursor-not-allowed disabled:shadow-none"
+                >
+                  {isLoading ? (
+                    <>
+                      <svg className="w-4 h-4 animate-spin" viewBox="0 0 24 24" fill="none">
+                        <circle className="opacity-25" cx="12" cy="12" r="10" stroke="currentColor" strokeWidth="4"/>
+                        <path className="opacity-75" fill="currentColor" d="M4 12a8 8 0 018-8v8z"/>
+                      </svg>
+                      Signing in…
+                    </>
+                  ) : (
+                    <>
+                      Sign in <ArrowRight className="w-4 h-4" />
+                    </>
+                  )}
+                </motion.button>
+              </motion.div>
+
             </div>
-          </motion.div>
-        </div>
+          </form>
 
-      </motion.div>
-    </div>
+          {/* ── Footer ── */}
+          <motion.div variants={variants.item} className="mt-7 pt-6 border-t border-white/[0.06] space-y-4">
+
+            <p className="text-center text-sm text-slate-500">
+              New to HireMinds?{' '}
+              <Link to="/register" className="text-violet-400 hover:text-violet-300 font-semibold transition-colors">
+                Create a free account
+              </Link>
+            </p>
+
+            <div className="flex justify-center">
+              <div className="inline-flex items-center gap-2 px-4 py-2 rounded-full bg-emerald-950/60 border border-emerald-600/25">
+                <ShieldCheck className="w-3.5 h-3.5 text-emerald-400 shrink-0" />
+                <span className="text-xs text-emerald-400 font-medium">256-bit SSL · Your data is always safe</span>
+              </div>
+            </div>
+
+          </motion.div>
+
+        </div>
+      </div>
+    </motion.div>
   )
 }
