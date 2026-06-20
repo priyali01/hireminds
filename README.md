@@ -14,7 +14,7 @@ Currently at **Phase 1** completion, the platform features a fully modular backe
 - **🤖 Gemini AI Fallback Chain**: Deep analysis using Google's Generative AI. Features a robust fallback chain (`gemini-2.5-flash` → `gemini-1.5-flash` → `gemini-1.5-pro`) to ensure high availability.
 - **📊 Detailed Score Breakdown**: Visual scores for Skills, Projects, Education, and Experience.
 - **💡 Actionable Insights**: Returns specific strengths, a one-week fix plan, and missing keywords focused on the Indian job market.
-- **🎨 Premium UI**: A clean, dynamic dashboard built with React 18, standard CSS (Dark Mode Design System), and Redux Toolkit.
+- **🎨 Premium UI**: A clean, dynamic interface built with React 18, Tailwind CSS v3, and Framer Motion. Features a dark mode design system, glassmorphism aesthetics, responsive layouts, and interactive dashboard previews.
 - **🧪 Test-Driven (TDD)**: The backend is covered by a comprehensive suite of unit and integration tests (58/58 passing) using Jest, Supertest, and `mongodb-memory-server`.
 
 ---
@@ -28,7 +28,7 @@ hireminds/
 │   │   ├── pages/               # Login, Register, Onboarding, Dashboard, Resume
 │   │   ├── store/               # Redux Toolkit + RTK Query (silent refresh API)
 │   │   ├── styles/              # Component-specific CSS
-│   │   ├── index.css            # Dark Mode Design System (tokens & base styles)
+│   │   ├── index.css            # Tailwind directives & CSS Design Tokens
 │   │   ├── App.jsx              # React Router v6 (Protected/Public routes)
 │   │   └── main.jsx             # React entry point
 │   └── .env.example             # Client environment template
@@ -52,7 +52,7 @@ hireminds/
 
 ## 🛠️ Tech Stack
 
-- **Frontend**: React 18, Vite, React Router v6, Redux Toolkit (RTK Query), Vanilla CSS (Design Tokens), React Hook Form.
+- **Frontend**: React 18, Vite, React Router v6, Redux Toolkit (RTK Query), Tailwind CSS v3, Framer Motion, React Hook Form.
 - **Backend**: Node.js, Express 5, MongoDB (Mongoose), Zod, Winston, Multer, bcryptjs, jsonwebtoken.
 - **AI**: Google Generative AI (Gemini SDK).
 - **Testing**: Jest, Supertest, MongoDB Memory Server.
