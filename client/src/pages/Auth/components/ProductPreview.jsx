@@ -1,8 +1,7 @@
 import { motion } from 'framer-motion'
-import { FileText, Mic, Briefcase, TrendingUp, Sparkles, Target, ShieldCheck } from 'lucide-react'
+import { FileText, Mic, Briefcase, TrendingUp } from 'lucide-react'
 import MetricCard from './MetricCard'
 import CommandCenter from './CommandCenter'
-import Testimonial from './Testimonial'
 
 export default function ProductPreview() {
   const prefersReduced = window.matchMedia('(prefers-reduced-motion: reduce)').matches
@@ -125,41 +124,9 @@ export default function ProductPreview() {
           className="w-full h-px bg-white/[0.05] mb-4"
         />
 
-        {/* Command Center */}
-        <motion.div variants={itemVariants} className="w-full mb-4">
+        {/* Command Center Preview */}
+        <motion.div variants={itemVariants} className="w-full">
           <CommandCenter />
-        </motion.div>
-
-        {/* Divider */}
-        <motion.div
-          variants={itemVariants}
-          className="w-full h-px bg-white/[0.05] mb-4"
-        />
-
-        {/* Testimonial */}
-        <motion.div variants={itemVariants} className="w-full mb-6">
-          <Testimonial />
-        </motion.div>
-
-        {/* Bottom Strip */}
-        <motion.div
-          variants={itemVariants}
-          className="flex flex-wrap justify-center gap-3"
-        >
-          {[
-            { icon: Sparkles, color: '#a855f7', label: 'AI-Powered Insights' },
-            { icon: Target, color: '#a855f7', label: 'Level-Aware Scoring' },
-            { icon: TrendingUp, color: '#3b82f6', label: 'Personalized Roadmaps' },
-            { icon: ShieldCheck, color: '#ec4899', label: 'Privacy First' },
-          ].map(({ icon: Icon, color, label }) => (
-            <div
-              key={label}
-              className="flex items-center gap-2 px-3.5 py-2 rounded-xl bg-white/[0.03] border border-white/[0.06] text-xs text-slate-400 backdrop-blur-sm"
-            >
-              <Icon className="w-3.5 h-3.5 shrink-0" style={{ color }} />
-              {label}
-            </div>
-          ))}
         </motion.div>
 
       </motion.div>

@@ -60,25 +60,25 @@ export default function LoginForm() {
         {/* ambient inner glow - Fixed centering without negative transforms */}
         <div className="absolute -top-16 inset-x-0 mx-auto w-64 h-32 bg-[#7c3aed]/25 rounded-full blur-3xl pointer-events-none" />
 
-        <div className="relative z-10 w-full max-w-full px-6 sm:px-8 py-10 flex flex-col">
+        <div className="relative z-10 w-full max-w-full px-8 py-10 flex flex-col">
 
           {/* ── Brand ── */}
-          <motion.div variants={variants.item} className="flex flex-col items-center gap-2 mb-8">
-            <div className="flex items-center gap-3">
-              <span className="text-4xl drop-shadow-[0_0_16px_rgba(168,85,247,0.7)]">🧠</span>
-              <span className="text-[1.85rem] font-extrabold tracking-tight text-white leading-none">
+          <motion.div variants={variants.item} className="flex flex-col items-center gap-1.5 mb-5">
+            <div className="flex items-center gap-2.5">
+              <span className="text-3xl drop-shadow-[0_0_16px_rgba(168,85,247,0.7)]">🧠</span>
+              <span className="text-2xl font-extrabold tracking-tight text-white leading-none">
                 Hire<span className="text-[#a855f7]">Minds</span>
               </span>
             </div>
-            <p className="text-[11px] font-semibold tracking-[0.22em] text-slate-500 uppercase">
+            <p className="text-[10px] font-semibold tracking-[0.2em] text-slate-500 uppercase mt-1">
               Your AI Career Companion
             </p>
           </motion.div>
 
           {/* ── Welcome heading ── */}
-          <motion.div variants={variants.item} className="text-center mb-7">
-            <h1 className="text-2xl font-bold text-white mb-1.5">Welcome back 👋</h1>
-            <p className="text-slate-400 text-sm leading-relaxed">
+          <motion.div variants={variants.item} className="text-center mb-5">
+            <h1 className="text-xl font-bold text-white mb-1">Welcome back 👋</h1>
+            <p className="text-slate-400 text-xs leading-relaxed">
               Sign in to continue your career journey
             </p>
           </motion.div>
@@ -89,9 +89,9 @@ export default function LoginForm() {
             type="button"
             whileHover={!prefersReduced ? { scale: 1.015 } : {}}
             whileTap={!prefersReduced ? { scale: 0.985 } : {}}
-            className="w-full flex items-center justify-center gap-3 bg-white/[0.05] hover:bg-white/[0.09] border border-white/[0.12] text-slate-200 text-sm font-semibold rounded-xl py-3.5 transition-all duration-200 mb-5 shadow-sm"
+            className="w-full flex items-center justify-center gap-2.5 bg-white/[0.05] hover:bg-white/[0.09] border border-white/[0.12] text-slate-200 text-sm font-semibold rounded-xl py-2.5 transition-all duration-200 mb-4 shadow-sm"
           >
-            <svg className="w-5 h-5 shrink-0" viewBox="0 0 24 24" fill="none">
+            <svg className="w-4 h-4 shrink-0" viewBox="0 0 24 24" fill="none">
               <path d="M22.56 12.25c0-.78-.07-1.53-.2-2.25H12v4.26h5.92c-.26 1.37-1.04 2.53-2.21 3.31v2.77h3.57c2.08-1.92 3.28-4.74 3.28-8.09z" fill="#4285F4" />
               <path d="M12 23c2.97 0 5.46-.98 7.28-2.66l-3.57-2.77c-.98.66-2.23 1.06-3.71 1.06-2.86 0-5.29-1.93-6.16-4.53H2.18v2.84C3.99 20.53 7.7 23 12 23z" fill="#34A853" />
               <path d="M5.84 14.09c-.22-.66-.35-1.36-.35-2.09s.13-1.43.35-2.09V7.07H2.18C1.43 8.55 1 10.22 1 12s.43 3.45 1.18 4.93l2.85-2.22.81-.62z" fill="#FBBC05" />
@@ -101,28 +101,28 @@ export default function LoginForm() {
           </motion.button>
 
           {/* ── Divider ── */}
-          <motion.div variants={variants.item} className="flex items-center gap-3 mb-6">
+          <motion.div variants={variants.item} className="flex items-center gap-3 mb-4">
             <div className="flex-1 h-px bg-white/[0.07]" />
-            <span className="text-[11px] font-semibold tracking-[0.18em] text-slate-600 uppercase">or email</span>
+            <span className="text-[10px] font-semibold tracking-[0.15em] text-slate-600 uppercase">or email</span>
             <div className="flex-1 h-px bg-white/[0.07]" />
           </motion.div>
 
           {/* ── Form ── */}
           <form onSubmit={handleSubmit(onSubmit)} noValidate>
-            <div className="space-y-5">
+            <div className="space-y-4">
 
               {/* Email field */}
               <motion.div variants={variants.item} className="flex flex-col w-full">
-                <label className="block text-xs font-bold text-slate-400 mb-2 tracking-widest uppercase">
+                <label className="block text-[10px] font-bold text-slate-400 mb-1.5 tracking-widest uppercase">
                   Email address
                 </label>
                 <div className="relative w-full">
-                  <Mail className="absolute left-3.5 top-0 bottom-0 my-auto w-4 h-4 text-slate-500 pointer-events-none" />
+                  <Mail className="absolute left-3 top-0 bottom-0 my-auto w-3.5 h-3.5 text-slate-500 pointer-events-none" />
                   <input
                     type="email"
                     autoComplete="email"
                     placeholder="you@college.ac.in"
-                    className="w-full max-w-full box-border bg-[#0c0a1a] border border-white/[0.09] hover:border-white/[0.15] text-white rounded-xl py-3.5 pl-10 pr-4 text-sm outline-none focus:border-[#a855f7]/70 focus:ring-2 focus:ring-[#a855f7]/20 transition-all placeholder:text-slate-600 caret-violet-400"
+                    className="w-full max-w-full box-border bg-[#0c0a1a] border border-white/[0.09] hover:border-white/[0.15] text-white rounded-xl py-2.5 pl-9 pr-3 text-sm outline-none focus:border-[#a855f7]/70 focus:ring-2 focus:ring-[#a855f7]/20 transition-all placeholder:text-slate-600 caret-violet-400"
                     {...register('email', {
                       required: 'Email is required',
                       pattern: { value: /^\S+@\S+\.\S+$/, message: 'Enter a valid email' },
@@ -130,7 +130,7 @@ export default function LoginForm() {
                   />
                 </div>
                 {errors.email && (
-                  <p className="text-red-400 text-xs mt-1.5 flex items-center gap-1">
+                  <p className="text-red-400 text-[10px] mt-1 flex items-center gap-1">
                     <span>⚠</span> {errors.email.message}
                   </p>
                 )}
@@ -138,46 +138,46 @@ export default function LoginForm() {
 
               {/* Password field */}
               <motion.div variants={variants.item} className="flex flex-col w-full">
-                <label className="block text-xs font-bold text-slate-400 mb-2 tracking-widest uppercase">
+                <label className="block text-[10px] font-bold text-slate-400 mb-1.5 tracking-widest uppercase">
                   Password
                 </label>
                 <div className="relative w-full">
-                  <Lock className="absolute left-3.5 top-0 bottom-0 my-auto w-4 h-4 text-slate-500 pointer-events-none" />
+                  <Lock className="absolute left-3 top-0 bottom-0 my-auto w-3.5 h-3.5 text-slate-500 pointer-events-none" />
                   <input
                     type={showPwd ? 'text' : 'password'}
                     autoComplete="current-password"
                     placeholder="••••••••••••"
-                    className="w-full max-w-full box-border bg-[#0c0a1a] border border-white/[0.09] hover:border-white/[0.15] text-white rounded-xl py-3.5 pl-10 pr-11 text-sm outline-none focus:border-[#a855f7]/70 focus:ring-2 focus:ring-[#a855f7]/20 transition-all placeholder:text-slate-600 caret-violet-400"
+                    className="w-full max-w-full box-border bg-[#0c0a1a] border border-white/[0.09] hover:border-white/[0.15] text-white rounded-xl py-2.5 pl-9 pr-10 text-sm outline-none focus:border-[#a855f7]/70 focus:ring-2 focus:ring-[#a855f7]/20 transition-all placeholder:text-slate-600 caret-violet-400"
                     {...register('password', { required: 'Password is required' })}
                   />
                   <button
                     type="button"
                     onClick={() => setShowPwd(v => !v)}
-                    className="absolute right-3.5 top-0 bottom-0 my-auto flex items-center justify-center w-8 h-full text-slate-500 hover:text-slate-300 transition-colors"
+                    className="absolute right-3 top-0 bottom-0 my-auto flex items-center justify-center w-6 h-full text-slate-500 hover:text-slate-300 transition-colors"
                   >
-                    {showPwd ? <EyeOff className="w-4 h-4" /> : <Eye className="w-4 h-4" />}
+                    {showPwd ? <EyeOff className="w-3.5 h-3.5" /> : <Eye className="w-3.5 h-3.5" />}
                   </button>
                 </div>
                 {errors.password && (
-                  <p className="text-red-400 text-xs mt-1.5 flex items-center gap-1">
+                  <p className="text-red-400 text-[10px] mt-1 flex items-center gap-1">
                     <span>⚠</span> {errors.password.message}
                   </p>
                 )}
               </motion.div>
 
               {/* Remember me + Forgot */}
-              <motion.div variants={variants.item} className="flex flex-wrap gap-4 items-center justify-between w-full">
-                <label className="flex items-center gap-2.5 cursor-pointer select-none group">
-                  <div className="relative w-5 h-5 shrink-0 flex items-center justify-center">
+              <motion.div variants={variants.item} className="flex flex-wrap gap-3 items-center justify-between w-full">
+                <label className="flex items-center gap-2 cursor-pointer select-none group">
+                  <div className="relative w-4 h-4 shrink-0 flex items-center justify-center">
                     <input type="checkbox" className="peer sr-only" defaultChecked />
-                    <div className="w-5 h-5 rounded border border-violet-500/40 bg-violet-900/20 peer-checked:bg-violet-700/40 peer-checked:border-violet-500/60 transition-all" />
-                    <svg className="absolute inset-0 m-auto w-3.5 h-3.5 text-violet-300 pointer-events-none" fill="none" viewBox="0 0 24 24" stroke="currentColor" strokeWidth={3}>
+                    <div className="w-4 h-4 rounded-[4px] border border-violet-500/40 bg-violet-900/20 peer-checked:bg-violet-700/40 peer-checked:border-violet-500/60 transition-all" />
+                    <svg className="absolute inset-0 m-auto w-3 h-3 text-violet-300 pointer-events-none" fill="none" viewBox="0 0 24 24" stroke="currentColor" strokeWidth={3}>
                       <path strokeLinecap="round" strokeLinejoin="round" d="M5 13l4 4L19 7" />
                     </svg>
                   </div>
-                  <span className="text-sm text-slate-400 group-hover:text-slate-300 transition-colors">Remember me</span>
+                  <span className="text-xs text-slate-400 group-hover:text-slate-300 transition-colors">Remember me</span>
                 </label>
-                <Link to="#" className="text-sm text-violet-400 hover:text-violet-300 transition-colors font-medium">
+                <Link to="#" className="text-xs text-violet-400 hover:text-violet-300 transition-colors font-medium">
                   Forgot password?
                 </Link>
               </motion.div>
@@ -187,24 +187,24 @@ export default function LoginForm() {
                 <motion.p
                   initial={{ opacity: 0, y: -4 }}
                   animate={{ opacity: 1, y: 0 }}
-                  className="text-red-400 text-sm bg-red-500/10 border border-red-500/20 rounded-xl px-4 py-3"
+                  className="text-red-400 text-xs bg-red-500/10 border border-red-500/20 rounded-lg px-3 py-2"
                 >
                   {serverError}
                 </motion.p>
               )}
 
               {/* Submit */}
-              <motion.div variants={variants.item} className="pt-1">
+              <motion.div variants={variants.item} className="pt-0.5">
                 <motion.button
                   type="submit"
                   disabled={isLoading}
                   whileHover={!prefersReduced && !isLoading ? { scale: 1.015 } : {}}
                   whileTap={!prefersReduced && !isLoading ? { scale: 0.985 } : {}}
-                  className="w-full flex items-center justify-center gap-2.5 bg-gradient-to-r from-indigo-500 via-violet-600 to-purple-500 hover:from-indigo-400 hover:via-violet-500 hover:to-purple-400 text-white font-bold rounded-xl py-3.5 text-sm transition-all duration-300 shadow-[0_0_32px_rgba(124,58,237,0.5)] hover:shadow-[0_0_48px_rgba(124,58,237,0.65)] disabled:opacity-50 disabled:cursor-not-allowed disabled:shadow-none"
+                  className="w-full flex items-center justify-center gap-2 bg-gradient-to-r from-indigo-500 via-violet-600 to-purple-500 hover:from-indigo-400 hover:via-violet-500 hover:to-purple-400 text-white font-bold rounded-xl py-2.5 text-sm transition-all duration-300 shadow-[0_0_24px_rgba(124,58,237,0.4)] hover:shadow-[0_0_32px_rgba(124,58,237,0.55)] disabled:opacity-50 disabled:cursor-not-allowed disabled:shadow-none"
                 >
                   {isLoading ? (
                     <>
-                      <svg className="w-4 h-4 animate-spin" viewBox="0 0 24 24" fill="none">
+                      <svg className="w-3.5 h-3.5 animate-spin" viewBox="0 0 24 24" fill="none">
                         <circle className="opacity-25" cx="12" cy="12" r="10" stroke="currentColor" strokeWidth="4" />
                         <path className="opacity-75" fill="currentColor" d="M4 12a8 8 0 018-8v8z" />
                       </svg>
@@ -212,7 +212,7 @@ export default function LoginForm() {
                     </>
                   ) : (
                     <>
-                      Sign in <ArrowRight className="w-4 h-4" />
+                      Sign in <ArrowRight className="w-3.5 h-3.5" />
                     </>
                   )}
                 </motion.button>
@@ -222,9 +222,9 @@ export default function LoginForm() {
           </form>
 
           {/* ── Footer ── */}
-          <motion.div variants={variants.item} className="mt-7 pt-6 border-t border-white/[0.06] space-y-4">
+          <motion.div variants={variants.item} className="mt-5 pt-4 border-t border-white/[0.06] space-y-3">
 
-            <p className="text-center text-sm text-slate-500">
+            <p className="text-center text-xs text-slate-500">
               New to HireMinds?{' '}
               <Link to="/register" className="text-violet-400 hover:text-violet-300 font-semibold transition-colors">
                 Create a free account
@@ -232,9 +232,9 @@ export default function LoginForm() {
             </p>
 
             <div className="flex justify-center w-full">
-              <div className="flex flex-row items-center justify-center flex-wrap text-center gap-2 px-4 py-2 rounded-full bg-emerald-950/60 border border-emerald-600/25 max-w-full">
-                <ShieldCheck className="w-3.5 h-3.5 text-emerald-400 shrink-0" />
-                <span className="text-xs text-emerald-400 font-medium whitespace-normal">256-bit SSL · Your data is always safe</span>
+              <div className="flex flex-row items-center justify-center flex-wrap text-center gap-1.5 px-3 py-1.5 rounded-full bg-emerald-950/60 border border-emerald-600/25 max-w-full">
+                <ShieldCheck className="w-3 h-3 text-emerald-400 shrink-0" />
+                <span className="text-[10px] text-emerald-400 font-medium whitespace-normal">256-bit SSL · Data is secure</span>
               </div>
             </div>
 
