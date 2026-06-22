@@ -46,8 +46,7 @@ export default function RegisterPage() {
     <div className="auth-page">
       <div className="auth-card">
         <div className="auth-brand">
-          <div className="brand-icon">🧠</div>
-          <h1 className="brand-name">HireMinds</h1>
+          <img src="/logo.png" alt="HireMinds Logo" className="auth-logo-img" />
           <p className="brand-tagline">Your AI career companion</p>
         </div>
 

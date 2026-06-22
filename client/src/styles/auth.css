@@ -23,14 +23,10 @@
   margin-bottom: var(--space-10);
 }
 
-.brand-icon { font-size: 2rem; }
-
-.brand-name {
-  font-size: 1.5rem;
-  font-weight: 800;
-  background: linear-gradient(135deg, var(--color-primary-light), hsl(280, 80%, 70%));
-  -webkit-background-clip: text;
-  -webkit-text-fill-color: transparent;
+.auth-logo-img {
+  height: 40px;
+  width: auto;
+  object-fit: contain;
 }
 
 .brand-tagline {

@@ -330,6 +330,12 @@ a:hover { text-decoration: underline; }
   font-size: 1.125rem;
 }
 
+.nav-logo-img {
+  height: 32px;
+  width: auto;
+  object-fit: contain;
+}
+
 .nav-links {
   display: flex;
   align-items: center;

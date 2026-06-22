@@ -183,7 +183,7 @@ export default function ResumePage() {
   return (
     <div className="resume-page">
       <nav className="nav">
-        <div className="nav-brand">🧠 HireMinds</div>
+        <div className="nav-brand"><img src="/logo.png" alt="HireMinds" className="nav-logo-img" /></div>
         <div className="nav-links">
           <Link to="/dashboard" className="nav-link">Dashboard</Link>
           <Link to="/resume" className="nav-link active">Resume</Link>

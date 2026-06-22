@@ -49,7 +49,7 @@ export default function DashboardPage() {
   return (
     <div className="dashboard-page">
       <nav className="nav">
-        <div className="nav-brand">🧠 HireMinds</div>
+        <div className="nav-brand"><img src="/logo.png" alt="HireMinds" className="nav-logo-img" /></div>
         <div className="nav-links">
           <Link to="/dashboard" className="nav-link active">Dashboard</Link>
           <Link to="/resume" className="nav-link">Resume</Link>
