@@ -80,6 +80,30 @@ HireMinds is being developed in modular phases. The complete system encompasses 
 
 HireMinds is built as a production-grade **Modular Monolith**, designed for high scalability and solo-maintainability without the overhead of microservices.
 
+```mermaid
+graph TD
+    Client[React + Vite Frontend]
+    API[Express API Server]
+    Queue[BullMQ / Redis]
+    Worker[Background Workers]
+    DB[(MongoDB Atlas)]
+    Cache[(Upstash Redis)]
+    AI[Google Gemini AI]
+    Ext[SerpAPI / Cloudinary / Resend]
+
+    Client <-->|REST API| API
+    Client <--|Server-Sent Events| API
+    
+    API <-->|Read / Write| DB
+    API <-->|Cache layer| Cache
+    API -->|Offload tasks| Queue
+    
+    Queue -->|Process Jobs| Worker
+    Worker <-->|LLM Inference| AI
+    Worker <-->|3rd Party APIs| Ext
+    Worker -->|Update Status| DB
+```
+
 - **Asynchronous Processing Engine**: Heavy tasks (AI prompt execution, PDF parsing, email delivery) are completely decoupled from the HTTP request-response cycle using **BullMQ** and Redis.
 - **Three-Layer Caching Strategy**: 
   - *In-Memory*: Fast local reads for configuration.
