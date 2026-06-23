@@ -6,6 +6,12 @@ Currently at **Phase 1** completion, the platform features a fully modular backe
 
 ---
 
+## 🤔 Why HireMinds?
+
+The Indian job market is highly competitive, especially for freshers. Traditional ATS systems and resume analyzers are heavily biased towards years of experience, often discarding talented freshers who lack an extensive employment history but possess strong project portfolios. **HireMinds** solves this by introducing a **level-aware ATS scoring algorithm** that dynamically weights projects over experience for students, coupled with actionable, AI-driven guidance tailored to their specific career stage.
+
+---
+
 ## 📸 Product Preview
 
 Here is a glimpse into the HireMinds platform, showcasing our dynamic UI and core features:
@@ -91,16 +97,17 @@ graph TD
     AI[Google Gemini AI]
     Ext[SerpAPI / Cloudinary / Resend]
 
-    Client <-->|REST API| API
-    Client <--|Server-Sent Events| API
+    Client -->|REST API Request| API
+    API -->|REST API Response| Client
+    API -.->|Server-Sent Events| Client
     
-    API <-->|Read / Write| DB
-    API <-->|Cache layer| Cache
-    API -->|Offload tasks| Queue
+    API -->|Read / Write| DB
+    API -->|Cache Data| Cache
+    API -->|Enqueue Task| Queue
     
-    Queue -->|Process Jobs| Worker
-    Worker <-->|LLM Inference| AI
-    Worker <-->|3rd Party APIs| Ext
+    Queue -->|Process| Worker
+    Worker -->|Execute Prompt| AI
+    Worker -->|External APIs| Ext
     Worker -->|Update Status| DB
 ```
 
@@ -166,6 +173,8 @@ hireminds/
 - [Node.js](https://nodejs.org/) (v18+ recommended)
 - A **Google Gemini API Key** (Get it from [Google AI Studio](https://aistudio.google.com/))
 - A **MongoDB** database (Local instance or [MongoDB Atlas](https://www.mongodb.com/products/platform/atlas-database))
+- A **Redis** instance for BullMQ workers and Caching (Local or [Upstash Redis](https://upstash.com/))
+- A **Cloudinary** account for secure media & PDF uploads
 
 ### 2. Quick Setup (Root Level)
 
@@ -176,7 +185,7 @@ We have configured root-level scripts so you can install and run the entire appl
    npm run install:all
    ```
 2. **Environment Variables**:
-   - Navigate to the `server/` directory and copy `.env.example` to `.env`. Update your MongoDB URI, JWT Secrets, and Gemini API Key.
+   - Navigate to the `server/` directory and copy `.env.example` to `.env`. Fill in all required values (MongoDB, Redis, Gemini API, Cloudinary, etc.).
    - Navigate to the `client/` directory and copy `.env.example` to `.env`.
 3. **Start the Application**:
    ```bash
@@ -205,3 +214,45 @@ npm test
 - **Phase 5**: Community Hub (MOD-6).
 - **Phase 6**: Business layer, Payments, and Campus tier (MOD-7).
 - **Phase 7**: Fine-tuned custom models and agentic workflow layer.
+
+---
+
+## 🔐 Environment Variables
+
+To run this project locally, you will need to add the following environment variables to your `.env` files.
+
+#### Server (`server/.env`)
+
+| Variable | Description |
+| :--- | :--- |
+| `PORT` | The port your backend runs on (e.g., 3001) |
+| `MONGODB_URI` | Your MongoDB connection string |
+| `JWT_SECRET` | Secret key for signing Access Tokens |
+| `JWT_REFRESH_SECRET` | Secret key for signing Refresh Tokens |
+| `GEMINI_API_KEY` | Google Generative AI API Key |
+| `REDIS_URL` | Upstash Redis connection string |
+| `BULLMQ_REDIS_URL` | Redis URL for BullMQ processing |
+| `CLOUDINARY_URL` | Cloudinary connection string for uploads |
+
+#### Client (`client/.env`)
+
+| Variable | Description |
+| :--- | :--- |
+| `VITE_API_BASE_URL` | The URL of your backend (e.g., `http://localhost:3001/api`) |
+
+---
+
+## 🤝 Contributing
+
+Contributions are always welcome! If you'd like to improve HireMinds, please follow these steps:
+1. Fork the repository.
+2. Create a new branch (`git checkout -b feature/AmazingFeature`).
+3. Commit your changes (`git commit -m 'Add some AmazingFeature'`).
+4. Push to the branch (`git push origin feature/AmazingFeature`).
+5. Open a Pull Request.
+
+---
+
+## 📜 License
+
+Distributed under the MIT License. See `LICENSE` for more information.
