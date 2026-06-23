@@ -3,6 +3,7 @@ import { useDispatch } from 'react-redux'
 import { useNavigate, Link } from 'react-router-dom'
 import { useLoginMutation } from '../../../store/api'
 import { setCredentials } from '../../../store/authSlice'
+import { BrainCircuit, Hand, Mail, Lock, Eye, EyeOff } from 'lucide-react'
 
 export default function LoginForm() {
   const [email, setEmail] = useState('')
@@ -17,9 +18,9 @@ export default function LoginForm() {
   const handleSubmit = async (e) => {
     e.preventDefault()
     try {
-      const user = await login({ email, password }).unwrap()
-      dispatch(setCredentials({ user, token: 'dummy_token' })) // Backend handles cookies
-      if (user.onboardingComplete) {
+      const response = await login({ email, password }).unwrap()
+      dispatch(setCredentials({ user: response.user, accessToken: response.accessToken }))
+      if (response.user.onboardingComplete) {
         navigate('/dashboard', { replace: true })
       } else {
         navigate('/onboarding', { replace: true })
@@ -34,7 +35,7 @@ export default function LoginForm() {
       {/* Top Logo */}
       <div className="flex flex-col items-start mb-10">
         <div className="flex items-center gap-2 mb-1">
-          <span className="text-[#2DD4BF] text-3xl">🧠</span>
+          <BrainCircuit className="text-[#2DD4BF] w-8 h-8" />
           <span className="text-3xl font-bold tracking-tight text-white">HireMinds</span>
         </div>
         <span className="text-[10px] text-[#94A3B8] tracking-[0.2em] uppercase font-medium mt-1">AI Career Companion</span>
@@ -42,7 +43,9 @@ export default function LoginForm() {
 
       {/* Heading */}
       <div className="mb-8">
-        <h1 className="text-2xl font-bold text-white mb-2 tracking-tight">Welcome back 👋</h1>
+        <h1 className="text-2xl font-bold text-white mb-2 tracking-tight flex items-center gap-2">
+          Welcome back <Hand className="w-6 h-6 text-yellow-400" />
+        </h1>
         <p className="text-[#94A3B8] text-sm">Sign in to continue your career journey</p>
       </div>
 
@@ -51,7 +54,7 @@ export default function LoginForm() {
         <div>
           <label className="block text-[13px] text-white mb-2 font-medium">Email address</label>
           <div className="relative">
-            <span className="absolute left-3.5 top-1/2 -translate-y-1/2 text-[#94A3B8] text-sm">✉️</span>
+            <Mail className="absolute left-3.5 top-1/2 -translate-y-1/2 text-[#94A3B8] w-4 h-4" />
             <input 
               type="email" 
               value={email}
@@ -66,7 +69,7 @@ export default function LoginForm() {
         <div>
           <label className="block text-[13px] text-white mb-2 font-medium">Password</label>
           <div className="relative">
-            <span className="absolute left-3.5 top-1/2 -translate-y-1/2 text-[#94A3B8] text-sm">🔒</span>
+            <Lock className="absolute left-3.5 top-1/2 -translate-y-1/2 text-[#94A3B8] w-4 h-4" />
             <input 
               type={showPassword ? "text" : "password"} 
               value={password}
@@ -80,7 +83,7 @@ export default function LoginForm() {
               onClick={() => setShowPassword(!showPassword)}
               className="absolute right-3.5 top-1/2 -translate-y-1/2 text-[#94A3B8] hover:text-white transition-colors"
             >
-              👁️
+              {showPassword ? <EyeOff className="w-4 h-4" /> : <Eye className="w-4 h-4" />}
             </button>
           </div>
         </div>
