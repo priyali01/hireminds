@@ -74,10 +74,14 @@ INSTRUCTIONS:
 3. If they don't have a resume uploaded or interviews completed, encourage them to use those modules in the platform!
 `
 
-    // 3. INIT CHAT SESSION
-    const chat = model.startChat({
-      history: history,
+    // 3. INIT CHAT SESSION WITH CONTEXTUAL MODEL
+    const contextualModel = genAI.getGenerativeModel({
+      model: "gemini-2.5-flash",
       systemInstruction
+    })
+
+    const chat = contextualModel.startChat({
+      history: history
     })
 
     // 4. GET RESPONSE

@@ -46,7 +46,7 @@ export default function ProductPreview() {
           <div className="absolute bottom-[15px] w-[260px] h-14 border-2 border-[#2DD4BF]/80 rounded-[100%] shadow-[0_0_40px_rgba(45,212,191,0.8)] transform perspective-[600px] rotateX-[70deg] bg-[#2DD4BF]/10" />
           <div className="absolute bottom-[22px] w-[220px] h-12 border border-white/50 rounded-[100%] transform perspective-[600px] rotateX-[70deg] bg-white/5" />
           
-          {/* 3D Generated Robot Images - Cross Fade Animation */}
+          {/* 3D Generated Robot Image */}
           <motion.div 
             className="w-[300px] h-[300px] absolute bottom-[25px] z-10"
             style={{ perspective: 1000 }}
@@ -58,50 +58,17 @@ export default function ProductPreview() {
             }} 
             transition={{ repeat: Infinity, duration: 6, ease: "easeInOut" }}
           >
-            <div className="relative w-full h-full">
-              {/* Center Pose */}
-              <motion.img 
-                src="/robot.png" 
-                alt="AI Career Coach Robot Center" 
-                className="w-full h-full object-contain absolute inset-0" 
-                style={{ 
-                  mixBlendMode: 'screen',
-                  filter: 'drop-shadow(0 0 20px rgba(45,212,191,0.6))',
-                  WebkitMaskImage: 'radial-gradient(circle at center, black 50%, transparent 80%)', 
-                  maskImage: 'radial-gradient(circle at center, black 50%, transparent 80%)' 
-                }}
-                animate={{ opacity: [1, 1, 0, 0, 1] }}
-                transition={{ duration: 12, times: [0, 0.3, 0.4, 0.9, 1], repeat: Infinity, ease: "easeInOut" }}
-              />
-              {/* Left Pose */}
-              <motion.img 
-                src="/robot-left.png" 
-                alt="AI Career Coach Robot Left" 
-                className="w-full h-full object-contain absolute inset-0" 
-                style={{ 
-                  mixBlendMode: 'screen',
-                  filter: 'drop-shadow(0 0 20px rgba(45,212,191,0.6))',
-                  WebkitMaskImage: 'radial-gradient(circle at center, black 50%, transparent 80%)', 
-                  maskImage: 'radial-gradient(circle at center, black 50%, transparent 80%)' 
-                }}
-                animate={{ opacity: [0, 0, 1, 1, 0] }}
-                transition={{ duration: 12, times: [0, 0.3, 0.4, 0.6, 0.7], repeat: Infinity, ease: "easeInOut" }}
-              />
-              {/* Right Pose */}
-              <motion.img 
-                src="/robot-right.png" 
-                alt="AI Career Coach Robot Right" 
-                className="w-full h-full object-contain absolute inset-0" 
-                style={{ 
-                  mixBlendMode: 'screen',
-                  filter: 'drop-shadow(0 0 20px rgba(45,212,191,0.6))',
-                  WebkitMaskImage: 'radial-gradient(circle at center, black 50%, transparent 80%)', 
-                  maskImage: 'radial-gradient(circle at center, black 50%, transparent 80%)' 
-                }}
-                animate={{ opacity: [0, 0, 1, 1, 0] }}
-                transition={{ duration: 12, times: [0, 0.6, 0.7, 0.9, 1], repeat: Infinity, ease: "easeInOut" }}
-              />
-            </div>
+            <img 
+              src="/robot.png" 
+              alt="AI Career Coach Robot Center" 
+              className="w-full h-full object-contain" 
+              style={{ 
+                mixBlendMode: 'screen',
+                filter: 'drop-shadow(0 0 20px rgba(45,212,191,0.6))',
+                WebkitMaskImage: 'radial-gradient(circle at center, black 50%, transparent 80%)', 
+                maskImage: 'radial-gradient(circle at center, black 50%, transparent 80%)' 
+              }}
+            />
           </motion.div>
 
           {/* Floating particles */}
