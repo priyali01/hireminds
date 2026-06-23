@@ -5,7 +5,7 @@
   align-items: center;
   justify-content: center;
   padding: var(--space-8);
-  background: var(--color-bg);
+  background: transparent;
 }
 
 .onboarding-card {
@@ -23,8 +23,8 @@
   display: flex;
   align-items: center;
   padding: var(--space-6) var(--space-8);
-  background: var(--color-surface-2);
-  border-bottom: 1px solid var(--color-border);
+  background: rgba(255, 255, 255, 0.03);
+  border-bottom: 1px solid rgba(255, 255, 255, 0.05);
   overflow-x: auto;
   gap: 0;
 }
@@ -125,7 +125,7 @@
 
 .level-card.selected {
   border-color: var(--color-primary);
-  background: hsl(234, 85%, 8%);
+  background: rgba(255, 255, 255, 0.05);
   box-shadow: 0 0 0 1px var(--color-primary);
 }
 
@@ -198,8 +198,8 @@
   justify-content: space-between;
   align-items: center;
   padding: var(--space-6) var(--space-8);
-  border-top: 1px solid var(--color-border);
-  background: var(--color-surface-2);
+  border-top: 1px solid rgba(255, 255, 255, 0.05);
+  background: rgba(255, 255, 255, 0.02);
 }
 
 .step-nav .btn-primary {

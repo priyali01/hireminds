@@ -22,6 +22,7 @@ const AdminDashboard = lazy(() => import('./pages/AdminDashboard'))
 const TPODashboard = lazy(() => import('./pages/TPODashboard'))
 const PricingPage = lazy(() => import('./pages/PricingPage'))
 const CareerAgentPage = lazy(() => import('./pages/CareerAgentPage'))
+import MainLayout from './components/MainLayout'
 
 // Loading fallback
 function PageLoader() {
@@ -95,136 +96,25 @@ export default function App() {
             }
           />
 
-          {/* Protected routes */}
-          <Route
-            path="/dashboard"
-            element={
-              <ProtectedRoute>
-                <DashboardPage />
-              </ProtectedRoute>
-            }
-          />
-          <Route
-            path="/resume"
-            element={
-              <ProtectedRoute>
-                <ResumePage />
-              </ProtectedRoute>
-            }
-          />
-          <Route
-            path="/interview"
-            element={
-              <ProtectedRoute>
-                <InterviewPage />
-              </ProtectedRoute>
-            }
-          />
-          <Route
-            path="/interview/setup"
-            element={
-              <ProtectedRoute>
-                <InterviewSetupPage />
-              </ProtectedRoute>
-            }
-          />
-          <Route
-            path="/interview/session/:id"
-            element={
-              <ProtectedRoute>
-                <InterviewSessionPage />
-              </ProtectedRoute>
-            }
-          />
-          <Route
-            path="/interview/results/:id"
-            element={
-              <ProtectedRoute>
-                <InterviewResultsPage />
-              </ProtectedRoute>
-            }
-          />
-          <Route
-            path="/interview/drive/setup"
-            element={
-              <ProtectedRoute>
-                <DriveSetupPage />
-              </ProtectedRoute>
-            }
-          />
-          <Route
-            path="/interview/drive/:id"
-            element={
-              <ProtectedRoute>
-                {/* Reusing InterviewSessionPage since it scales to handle sections */}
-                <InterviewSessionPage />
-              </ProtectedRoute>
-            }
-          />
-          <Route
-            path="/interview/drive/:id/results"
-            element={
-              <ProtectedRoute>
-                <DriveResultsPage />
-              </ProtectedRoute>
-            }
-          />
-          <Route
-            path="/jobs"
-            element={
-              <ProtectedRoute>
-                <JobsPage />
-              </ProtectedRoute>
-            }
-          />
-          <Route
-            path="/leaderboard"
-            element={
-              <ProtectedRoute>
-                <LeaderboardPage />
-              </ProtectedRoute>
-            }
-          />
-          <Route
-            path="/community"
-            element={
-              <ProtectedRoute>
-                <CommunityFeedPage />
-              </ProtectedRoute>
-            }
-          />
-          <Route
-            path="/admin"
-            element={
-              <ProtectedRoute>
-                <AdminDashboard />
-              </ProtectedRoute>
-            }
-          />
-          <Route
-            path="/tpo/dashboard"
-            element={
-              <ProtectedRoute>
-                <TPODashboard />
-              </ProtectedRoute>
-            }
-          />
-          <Route
-            path="/pricing"
-            element={
-              <ProtectedRoute>
-                <PricingPage />
-              </ProtectedRoute>
-            }
-          />
-          <Route
-            path="/chat"
-            element={
-              <ProtectedRoute>
-                <CareerAgentPage />
-              </ProtectedRoute>
-            }
-          />
+          {/* Protected routes wrapped in MainLayout */}
+          <Route element={<ProtectedRoute><MainLayout /></ProtectedRoute>}>
+            <Route path="/dashboard" element={<DashboardPage />} />
+            <Route path="/resume" element={<ResumePage />} />
+            <Route path="/interview" element={<InterviewPage />} />
+            <Route path="/interview/setup" element={<InterviewSetupPage />} />
+            <Route path="/interview/session/:id" element={<InterviewSessionPage />} />
+            <Route path="/interview/results/:id" element={<InterviewResultsPage />} />
+            <Route path="/interview/drive/setup" element={<DriveSetupPage />} />
+            <Route path="/interview/drive/:id" element={<InterviewSessionPage />} />
+            <Route path="/interview/drive/:id/results" element={<DriveResultsPage />} />
+            <Route path="/jobs" element={<JobsPage />} />
+            <Route path="/leaderboard" element={<LeaderboardPage />} />
+            <Route path="/community" element={<CommunityFeedPage />} />
+            <Route path="/admin" element={<AdminDashboard />} />
+            <Route path="/tpo/dashboard" element={<TPODashboard />} />
+            <Route path="/pricing" element={<PricingPage />} />
+            <Route path="/chat" element={<CareerAgentPage />} />
+          </Route>
 
           {/* Default redirect */}
           <Route path="/" element={<Navigate to="/dashboard" replace />} />

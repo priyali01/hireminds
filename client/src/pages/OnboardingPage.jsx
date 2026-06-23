@@ -93,7 +93,7 @@ export default function OnboardingPage() {
 
   return (
     <div className="onboarding-page">
-      <div className="onboarding-card">
+      <div className="onboarding-card glass-card">
         {/* Step indicator */}
         <div className="step-bar">
           {STEPS.map((label, i) => (
@@ -230,7 +230,7 @@ export default function OnboardingPage() {
           {/* Step 4: Review */}
           {step === 4 && (
             <div className="step-panel">
-              <h2>Looks good! 🎉</h2>
+              <h2 className="gradient-text">Looks good! 🎉</h2>
               <p>Here's what we know about you. You can update this anytime in your profile.</p>
               <div className="review-card">
                 <div className="review-row">

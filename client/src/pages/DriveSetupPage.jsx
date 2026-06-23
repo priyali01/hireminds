@@ -41,7 +41,7 @@ export default function DriveSetupPage() {
       </button>
 
       <div>
-        <h1 style={{ fontSize: '2rem', marginBottom: '0.5rem' }}>Company Mock Drives</h1>
+        <h1 className="gradient-text" style={{ fontSize: '2rem', marginBottom: '0.5rem' }}>Company Mock Drives</h1>
         <p className="text-muted">Simulate actual placement patterns of top IT companies.</p>
       </div>
 
@@ -51,7 +51,7 @@ export default function DriveSetupPage() {
         {COMPANIES.map(company => (
           <div 
             key={company.id}
-            className={`drive-card ${selectedDrive === company.id ? 'selected' : ''}`}
+            className={`drive-card glass-card ${selectedDrive === company.id ? 'selected' : ''}`}
             onClick={() => setSelectedDrive(company.id)}
           >
             <h3 style={{ fontSize: '1.25rem' }}>{company.name}</h3>

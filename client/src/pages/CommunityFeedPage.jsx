@@ -16,18 +16,12 @@ export default function CommunityFeedPage() {
 
   return (
     <div className="dashboard-page">
-      <nav className="nav">
-        <div className="nav-brand">🧠 HireMinds Community</div>
-        <div className="nav-links">
-          <Link to="/dashboard" className="nav-link">Dashboard</Link>
-          <Link to="/leaderboard" className="nav-link">Leaderboard</Link>
-        </div>
-      </nav>
+
 
       <div className="dashboard-layout" style={{ maxWidth: '800px' }}>
         <div className="page-header" style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginBottom: '2rem' }}>
           <div>
-            <h1 className="welcome-title">Interview Experiences</h1>
+            <h1 className="welcome-title gradient-text">Interview Experiences</h1>
             <p className="welcome-subtitle">Learn from others or share your own experience anonymously.</p>
           </div>
           <button className="btn btn-primary" onClick={() => setShowModal(true)}>Share Experience</button>
@@ -45,7 +39,8 @@ export default function CommunityFeedPage() {
               data?.experiences?.map(exp => (
                 <motion.div 
                   key={exp._id}
-                  style={{ background: 'var(--color-surface)', padding: '1.5rem', borderRadius: '1rem', border: '1px solid var(--color-border)' }}
+                  className="glass-card"
+                  style={{ padding: '1.5rem', borderRadius: '1rem' }}
                   initial={{ opacity: 0, y: 10 }}
                   animate={{ opacity: 1, y: 0 }}
                 >
@@ -130,7 +125,7 @@ function SubmissionModal({ onClose }) {
 
   return (
     <div style={{ position: 'fixed', inset: 0, background: 'rgba(0,0,0,0.5)', display: 'flex', alignItems: 'center', justifyContent: 'center', zIndex: 1000, padding: '1rem' }}>
-      <div style={{ background: 'var(--color-surface)', width: '100%', maxWidth: '600px', borderRadius: '1rem', padding: '2rem', maxHeight: '90vh', overflowY: 'auto' }}>
+      <div className="glass-card" style={{ width: '100%', maxWidth: '600px', borderRadius: '1rem', padding: '2rem', maxHeight: '90vh', overflowY: 'auto' }}>
         <h2>Share Interview Experience</h2>
         {msg && <div style={{ padding: '1rem', background: 'var(--color-surface-2)', marginBottom: '1rem', borderRadius: '0.5rem' }}>{msg}</div>}
         <form onSubmit={handleSubmit(onSubmit)} style={{ display: 'flex', flexDirection: 'column', gap: '1rem' }}>

@@ -45,19 +45,12 @@ export default function JobsPage() {
 
   return (
     <div className="dashboard-page">
-      <nav className="nav">
-        <div className="nav-brand">🧠 HireMinds</div>
-        <div className="nav-links">
-          <Link to="/dashboard" className="nav-link">Dashboard</Link>
-          <Link to="/jobs" className="nav-link active">Jobs</Link>
-          <Link to="/interview" className="nav-link">Interviews</Link>
-        </div>
-      </nav>
+
 
       <div className="dashboard-layout" style={{ maxWidth: '1200px' }}>
         <div className="page-header" style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center' }}>
           <div>
-            <h1 className="welcome-title">Application Tracker</h1>
+            <h1 className="welcome-title gradient-text">Application Tracker</h1>
             <p className="welcome-subtitle">Manage your job hunt and analyze JDs</p>
           </div>
           <div style={{ display: 'flex', gap: '1rem' }}>
@@ -73,8 +66,8 @@ export default function JobsPage() {
         {/* Add Job Form Overlay */}
         {showAddForm && (
           <motion.div 
-            className="form-card" 
-            style={{ marginBottom: '2rem', padding: '1.5rem', background: 'var(--color-surface-2)', borderRadius: '1rem' }}
+            className="form-card glass-card" 
+            style={{ marginBottom: '2rem', padding: '1.5rem', borderRadius: '1rem' }}
             initial={{ opacity: 0, height: 0 }}
             animate={{ opacity: 1, height: 'auto' }}
           >
@@ -91,8 +84,8 @@ export default function JobsPage() {
         {/* JD Matcher UI */}
         {showMatchForm && (
           <motion.div 
-            className="form-card" 
-            style={{ marginBottom: '2rem', padding: '1.5rem', background: 'var(--color-surface-2)', borderRadius: '1rem' }}
+            className="form-card glass-card" 
+            style={{ marginBottom: '2rem', padding: '1.5rem', borderRadius: '1rem' }}
             initial={{ opacity: 0, height: 0 }}
             animate={{ opacity: 1, height: 'auto' }}
           >
@@ -113,7 +106,7 @@ export default function JobsPage() {
             </form>
 
             {matchResult && (
-              <div style={{ marginTop: '1.5rem', padding: '1rem', background: 'var(--color-surface)', borderRadius: '0.5rem' }}>
+              <div className="glass-card" style={{ marginTop: '1.5rem', padding: '1rem', borderRadius: '0.5rem' }}>
                 <h4>Match Score: <span style={{ color: matchResult.score > 70 ? 'var(--color-success)' : 'var(--color-error)' }}>{matchResult.score}%</span></h4>
                 <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: '1rem', marginTop: '1rem' }}>
                   <div>

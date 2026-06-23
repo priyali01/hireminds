@@ -74,8 +74,9 @@
 /* Action cards */
 .action-grid {
   display: grid;
-  grid-template-columns: repeat(2, 1fr);
-  gap: var(--space-4);
+  grid-template-columns: repeat(auto-fit, minmax(280px, 1fr));
+  gap: 1.5rem;
+  margin-top: 1.5rem;
 }
 
 .action-card {
@@ -83,8 +84,6 @@
   flex-direction: column;
   gap: var(--space-3);
   padding: var(--space-6);
-  background: var(--color-surface);
-  border: 1px solid var(--color-border);
   border-radius: var(--radius-lg);
   text-decoration: none;
   color: var(--color-text);
@@ -127,10 +126,13 @@
 
 /* Recent analyses */
 .recent-section {
-  background: var(--color-surface);
-  border: 1px solid var(--color-border);
-  border-radius: var(--radius-lg);
   padding: var(--space-6);
+  border-radius: var(--radius-lg);
+  background: rgba(30, 32, 40, 0.6);
+  backdrop-filter: blur(12px);
+  -webkit-backdrop-filter: blur(12px);
+  border: 1px solid rgba(255, 255, 255, 0.05);
+  box-shadow: 0 8px 32px 0 rgba(0, 0, 0, 0.3);
 }
 
 .section-header {
@@ -161,13 +163,16 @@
   justify-content: space-between;
   align-items: center;
   padding: var(--space-4);
-  background: var(--color-surface-2);
+  background: rgba(255, 255, 255, 0.03);
   border-radius: var(--radius-md);
-  border: 1px solid var(--color-border);
-  transition: border-color 0.15s;
+  border: 1px solid rgba(255, 255, 255, 0.05);
+  transition: border-color 0.15s, background 0.15s;
 }
 
-.recent-item:hover { border-color: var(--color-primary); }
+.recent-item:hover { 
+  border-color: var(--color-primary); 
+  background: rgba(255, 255, 255, 0.08);
+}
 
 .recent-name {
   font-size: 0.9375rem;

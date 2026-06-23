@@ -25,7 +25,7 @@ export default function InterviewResultsPage() {
       <div style={{ display: 'flex', gap: '2rem', marginBottom: '2rem', alignItems: 'flex-start' }}>
         
         {/* Overall Score Card */}
-        <div className="card" style={{ flex: '0 0 300px', textAlign: 'center', padding: '3rem 2rem' }}>
+        <div className="card glass-card" style={{ flex: '0 0 300px', textAlign: 'center', padding: '3rem 2rem' }}>
           <h2 style={{ fontSize: '1.25rem', marginBottom: '1rem', color: 'var(--color-text-muted)' }}>Overall Score</h2>
           <div style={{ fontSize: '4rem', fontWeight: 800, lineHeight: 1 }} className={scoreClass}>
             {session.overallScore?.toFixed(1) || '0.0'}
@@ -38,7 +38,7 @@ export default function InterviewResultsPage() {
         </div>
 
         {/* Summary Data */}
-        <div className="card" style={{ flex: 1 }}>
+        <div className="card glass-card" style={{ flex: 1 }}>
           <h2 style={{ marginBottom: '1.5rem' }}>Session Details</h2>
           <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: '1.5rem' }}>
             <div>
@@ -68,7 +68,7 @@ export default function InterviewResultsPage() {
           const ans = answers.find(a => a.questionIndex === idx)
           
           return (
-            <div key={idx} className="card">
+            <div key={idx} className="card glass-card">
               <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'flex-start', marginBottom: '1rem' }}>
                 <h3 style={{ fontSize: '1.125rem', paddingRight: '2rem' }}>{idx + 1}. {q.text}</h3>
                 {ans && (

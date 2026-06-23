@@ -48,10 +48,10 @@ function ATSResult({ result, resumeId }) {
   return (
     <div className="result-grid">
       {/* Overall score */}
-      <div className="card result-score-card">
+      <div className="card result-score-card glass-card">
         <p className="result-section-label">ATS Score</p>
         <div className="overall-score">
-          <span className={`score-big ${scoreClass}`}>{result.overall}</span>
+          <span className={`score-big gradient-text ${scoreClass}`}>{result.overall}</span>
           <span className="score-denom">/100</span>
         </div>
         <span className={`badge badge-${result.overall >= 80 ? 'green' : result.overall >= 50 ? 'yellow' : 'red'}`}>
@@ -182,18 +182,12 @@ export default function ResumePage() {
 
   return (
     <div className="resume-page">
-      <nav className="nav">
-        <div className="nav-brand"><img src="/logo.png" alt="HireMinds" className="nav-logo-img" /></div>
-        <div className="nav-links">
-          <Link to="/dashboard" className="nav-link">Dashboard</Link>
-          <Link to="/resume" className="nav-link active">Resume</Link>
-        </div>
-      </nav>
+
 
       <div className="resume-layout">
         {/* Upload panel */}
-        <div className="upload-panel">
-          <h1 className="page-title">Resume Analyser</h1>
+        <div className="upload-panel glass-card" style={{ padding: 'var(--space-6)', borderRadius: 'var(--radius-lg)' }}>
+          <h1 className="page-title gradient-text">Resume Analyser</h1>
           <p className="page-subtitle">
             Level-aware ATS scoring — freshers compared to freshers, not senior engineers.
           </p>

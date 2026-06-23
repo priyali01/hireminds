@@ -15,20 +15,12 @@ export default function LeaderboardPage() {
 
   return (
     <div className="dashboard-page">
-      <nav className="nav">
-        <div className="nav-brand">🧠 HireMinds</div>
-        <div className="nav-links">
-          <Link to="/dashboard" className="nav-link">Dashboard</Link>
-          <Link to="/resume" className="nav-link">Resume</Link>
-          <Link to="/jobs" className="nav-link">Jobs</Link>
-          <Link to="/leaderboard" className="nav-link active">Leaderboard</Link>
-        </div>
-      </nav>
+
 
       <div className="dashboard-layout" style={{ maxWidth: '800px' }}>
         <div className="page-header" style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginBottom: '2rem' }}>
           <div>
-            <h1 className="welcome-title">Top Achievers 🏆</h1>
+            <h1 className="welcome-title gradient-text">Top Achievers 🏆</h1>
             <p className="welcome-subtitle">Climb the ranks by practicing interviews and uploading resumes.</p>
           </div>
           <div style={{ display: 'flex', gap: '0.5rem', background: 'var(--color-surface-2)', padding: '0.25rem', borderRadius: '0.5rem' }}>
@@ -79,7 +71,7 @@ export default function LeaderboardPage() {
           </motion.div>
         )}
 
-        <div className="leaderboard-list" style={{ background: 'var(--color-surface)', borderRadius: '1rem', border: '1px solid var(--color-border)', overflow: 'hidden' }}>
+        <div className="leaderboard-list glass-card" style={{ borderRadius: '1rem', overflow: 'hidden' }}>
           {isLoading ? (
             <div style={{ padding: '2rem', textAlign: 'center' }}>Loading ranks...</div>
           ) : (

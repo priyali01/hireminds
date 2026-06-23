@@ -10,7 +10,7 @@ export default function InterviewPage() {
     <div className="page-container" style={{ padding: '2rem' }}>
       <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginBottom: '2rem' }}>
         <div>
-          <h1 style={{ fontSize: '2rem', marginBottom: '0.5rem' }}>Interview Preparation</h1>
+          <h1 className="gradient-text" style={{ fontSize: '2rem', marginBottom: '0.5rem' }}>Interview Preparation</h1>
           <p className="text-muted">Practice with AI, or simulate full placement drives.</p>
         </div>
         <div style={{ display: 'flex', gap: '1rem' }}>
@@ -23,7 +23,7 @@ export default function InterviewPage() {
         </div>
       </div>
 
-      <div className="card" style={{ marginBottom: '2rem' }}>
+      <div className="card glass-card" style={{ marginBottom: '2rem' }}>
         <h2 style={{ marginBottom: '1.5rem' }}>Session History</h2>
         
         {isLoading ? (
@@ -40,7 +40,7 @@ export default function InterviewPage() {
             {data.sessions.map((session) => (
               <div 
                 key={session._id} 
-                className="card" 
+                className="card glass-card" 
                 style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', padding: '1rem' }}
               >
                 <div>

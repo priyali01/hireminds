@@ -59,11 +59,12 @@
 
 /* Drop zone */
 .drop-zone {
-  border: 2px dashed var(--color-border);
+  border: 2px dashed rgba(255, 255, 255, 0.2);
   border-radius: var(--radius-lg);
   padding: var(--space-10);
   text-align: center;
   cursor: pointer;
+  background: rgba(18, 20, 26, 0.4);
   transition: all 0.2s;
   margin-bottom: var(--space-4);
 }
@@ -71,7 +72,8 @@
 .drop-zone:hover,
 .drop-zone.drag-over {
   border-color: var(--color-primary);
-  background: hsl(234, 85%, 5%);
+  background: rgba(30, 32, 40, 0.8);
+  box-shadow: var(--shadow-glow);
 }
 
 .drop-zone.has-file {
@@ -314,7 +316,10 @@
 .strengths-card .result-list li::before { content: '✓'; color: var(--color-score-high); }
 
 /* Fix plan */
-.fix-plan-card { background: hsl(234, 85%, 5%); border-color: hsl(234, 85%, 20%); }
+.fix-plan-card { 
+  background: rgba(30, 32, 40, 0.6); 
+  border-color: var(--color-primary-dark); 
+}
 
 .fix-plan-list {
   list-style: none;

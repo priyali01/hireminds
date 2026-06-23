@@ -85,20 +85,15 @@ export default function PricingPage() {
 
   return (
     <div className="dashboard-page">
-      <nav className="nav">
-        <div className="nav-brand">💎 Upgrade</div>
-        <div className="nav-links">
-          <Link to="/dashboard" className="nav-link">Back to Dashboard</Link>
-        </div>
-      </nav>
+
 
       <div className="dashboard-layout" style={{ maxWidth: '900px', textAlign: 'center' }}>
-        <h1 className="welcome-title">Supercharge Your Career</h1>
+        <h1 className="welcome-title gradient-text">Supercharge Your Career</h1>
         <p className="welcome-subtitle">Unlock advanced AI mocks and higher usage quotas.</p>
 
         <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: '2rem', marginTop: '3rem' }}>
           
-          <div style={{ background: 'var(--color-surface)', padding: '2rem', borderRadius: '1rem', border: '1px solid var(--color-border)', display: 'flex', flexDirection: 'column' }}>
+          <div className="glass-card" style={{ padding: '2rem', borderRadius: '1rem', display: 'flex', flexDirection: 'column' }}>
             <h2 style={{ fontSize: '1.5rem', marginBottom: '0.5rem' }}>Pro Plan</h2>
             <div style={{ fontSize: '2.5rem', fontWeight: 'bold', margin: '1rem 0' }}>₹999<span style={{ fontSize: '1rem', color: 'var(--color-text-muted)', fontWeight: 'normal' }}>/month</span></div>
             <ul style={{ textAlign: 'left', listStyle: 'none', padding: 0, margin: '1rem 0 2rem 0', flex: 1 }}>

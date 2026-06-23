@@ -20,8 +20,8 @@ export default function DriveResultsPage() {
         ← Back to Interviews
       </button>
 
-      <div className="card" style={{ textAlign: 'center', padding: '3rem 2rem', marginBottom: '2rem' }}>
-        <h1 style={{ marginBottom: '0.5rem' }}>{session.company} Mock Drive Results</h1>
+      <div className="card glass-card" style={{ textAlign: 'center', padding: '3rem 2rem', marginBottom: '2rem' }}>
+        <h1 className="gradient-text" style={{ fontSize: '2rem', marginBottom: '1rem' }}>{session.company} Mock Drive Results</h1>
         <p className="text-muted" style={{ marginBottom: '2rem' }}>Completed on {new Date(session.completedAt).toLocaleDateString()}</p>
 
         <div style={{ display: 'flex', justifyContent: 'center', gap: '4rem', marginBottom: '2rem' }}>
@@ -43,7 +43,7 @@ export default function DriveResultsPage() {
       <h2 style={{ marginBottom: '1.5rem' }}>Section Performance</h2>
       <div style={{ display: 'grid', gridTemplateColumns: 'repeat(auto-fit, minmax(250px, 1fr))', gap: '1.5rem', marginBottom: '2rem' }}>
         {results?.sectionScores?.map((sec, idx) => (
-          <div key={idx} className="card" style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center' }}>
+          <div key={idx} className="card glass-card" style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center' }}>
             <span style={{ fontWeight: 500 }}>{sec.sectionName}</span>
             <span className={`badge ${sec.score >= 80 ? 'badge-green' : sec.score >= 50 ? 'badge-yellow' : 'badge-red'}`}>
               {sec.score.toFixed(0)}%
@@ -52,7 +52,7 @@ export default function DriveResultsPage() {
         ))}
       </div>
 
-      <div className="card">
+      <div className="card glass-card">
         <h2 style={{ marginBottom: '1rem' }}>Study Plan</h2>
         <ul style={{ paddingLeft: '1.5rem', color: 'var(--color-text-muted)', display: 'flex', flexDirection: 'column', gap: '0.5rem' }}>
           {results?.studyPlan?.map((plan, idx) => (

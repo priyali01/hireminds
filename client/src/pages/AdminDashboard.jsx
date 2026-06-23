@@ -16,15 +16,10 @@ export default function AdminDashboard() {
 
   return (
     <div className="dashboard-page">
-      <nav className="nav">
-        <div className="nav-brand">🛠️ Admin Portal</div>
-        <div className="nav-links">
-          <Link to="/dashboard" className="nav-link">Exit to Dashboard</Link>
-        </div>
-      </nav>
+
 
       <div className="dashboard-layout">
-        <h1 className="welcome-title">Moderation Queue</h1>
+        <h1 className="welcome-title gradient-text">Moderation Queue</h1>
         <p className="welcome-subtitle">Approve or reject community submissions. Reject if real names are used.</p>
 
         {isLoading ? (
@@ -37,7 +32,7 @@ export default function AdminDashboard() {
               </div>
             ) : (
               data?.queue?.map(exp => (
-                <div key={exp._id} style={{ background: 'var(--color-surface)', padding: '1.5rem', borderRadius: '1rem', border: '1px solid var(--color-border)' }}>
+                <div key={exp._id} className="glass-card" style={{ padding: '1.5rem', borderRadius: '1rem' }}>
                   <div style={{ display: 'flex', justifyContent: 'space-between', marginBottom: '1rem' }}>
                     <div>
                       <h3 style={{ margin: 0 }}>{exp.company} - {exp.role}</h3>

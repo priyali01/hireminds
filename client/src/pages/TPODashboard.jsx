@@ -8,12 +8,7 @@ export default function TPODashboard() {
 
   return (
     <div className="dashboard-page">
-      <nav className="nav">
-        <div className="nav-brand">🏢 Campus TPO Portal</div>
-        <div className="nav-links">
-          <Link to="/dashboard" className="nav-link">Exit</Link>
-        </div>
-      </nav>
+
 
       <div className="dashboard-layout">
         {isLoading ? (
@@ -24,25 +19,25 @@ export default function TPODashboard() {
           </div>
         ) : (
           <motion.div initial={{ opacity: 0 }} animate={{ opacity: 1 }}>
-            <h1 className="welcome-title">{data.college} Analytics</h1>
+            <h1 className="welcome-title gradient-text">{data.college} Analytics</h1>
             <p className="welcome-subtitle">Monitor student engagement and interview readiness.</p>
 
             <div style={{ display: 'grid', gridTemplateColumns: 'repeat(auto-fit, minmax(200px, 1fr))', gap: '1.5rem', marginTop: '2rem' }}>
-              <div className="stat-card">
+              <div className="stat-card glass-card">
                 <h3>Total Students</h3>
-                <div className="stat-value">{data.metrics.totalStudents}</div>
+                <div className="stat-value gradient-text">{data.metrics.totalStudents}</div>
               </div>
-              <div className="stat-card">
+              <div className="stat-card glass-card">
                 <h3>Mock Interviews Taken</h3>
-                <div className="stat-value">{data.metrics.totalMockInterviews}</div>
+                <div className="stat-value gradient-text">{data.metrics.totalMockInterviews}</div>
               </div>
-              <div className="stat-card">
+              <div className="stat-card glass-card">
                 <h3>Average Score</h3>
-                <div className="stat-value">{data.metrics.averagePoints} pts</div>
+                <div className="stat-value gradient-text">{data.metrics.averagePoints} pts</div>
               </div>
             </div>
 
-            <div style={{ marginTop: '3rem', background: 'var(--color-surface)', padding: '2rem', borderRadius: '1rem', border: '1px solid var(--color-border)' }}>
+            <div className="glass-card" style={{ marginTop: '3rem', padding: '2rem', borderRadius: '1rem' }}>
               <h2>Top Performers</h2>
               <table style={{ width: '100%', textAlign: 'left', borderCollapse: 'collapse', marginTop: '1rem' }}>
                 <thead>

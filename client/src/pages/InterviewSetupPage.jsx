@@ -35,8 +35,8 @@ export default function InterviewSetupPage() {
         ← Back to Interviews
       </button>
 
-      <div className="card">
-        <h1 style={{ fontSize: '1.5rem', marginBottom: '1.5rem' }}>Setup Interview Session</h1>
+      <div className="card glass-card">
+        <h1 className="gradient-text" style={{ fontSize: '1.5rem', marginBottom: '1.5rem' }}>Setup Interview Session</h1>
         
         {error && <div className="server-error" style={{ marginBottom: '1rem' }}>{error}</div>}
 

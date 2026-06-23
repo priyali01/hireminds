@@ -1,19 +1,71 @@
-import { useSelector, useDispatch } from 'react-redux'
+import { useSelector } from 'react-redux'
 import { Link, useNavigate } from 'react-router-dom'
 import { selectCurrentUser } from '../store/authSlice'
-import { clearCredentials } from '../store/authSlice'
-import { useLogoutMutation, useGetResumeHistoryQuery } from '../store/api'
-import DashboardNewsFeed from '../components/DashboardNewsFeed'
+import { useGetResumeHistoryQuery } from '../store/api'
 import DashboardCalendarWidget from '../components/DashboardCalendarWidget'
 import '../styles/dashboard.css'
 
-function StatCard({ label, value, icon, color }) {
+const CircularProgress = ({ percentage, size = 120, strokeWidth = 10, title, subtitle }) => {
+  const radius = (size - strokeWidth) / 2
+  const circumference = radius * 2 * Math.PI
+  const offset = circumference - ((percentage || 0) / 100) * circumference
+
   return (
-    <div className="stat-card">
-      <div className="stat-icon" style={{ color }}>{icon}</div>
-      <div className="stat-info">
-        <p className="stat-value">{value ?? '—'}</p>
-        <p className="stat-label">{label}</p>
+    <div style={{ position: 'relative', width: size, height: size, display: 'flex', alignItems: 'center', justifyContent: 'center' }}>
+      <svg width={size} height={size} style={{ transform: 'rotate(-90deg)' }}>
+        <circle
+          cx={size / 2}
+          cy={size / 2}
+          r={radius}
+          stroke="var(--color-surface-2)"
+          strokeWidth={strokeWidth}
+          fill="none"
+        />
+        <circle
+          cx={size / 2}
+          cy={size / 2}
+          r={radius}
+          stroke="var(--color-primary)"
+          strokeWidth={strokeWidth}
+          fill="none"
+          strokeDasharray={circumference}
+          strokeDashoffset={offset}
+          strokeLinecap="round"
+          style={{ transition: 'stroke-dashoffset 1s ease-out' }}
+        />
+      </svg>
+      <div style={{ position: 'absolute', textAlign: 'center' }}>
+        <div style={{ fontSize: size > 100 ? '1.75rem' : '1.25rem', fontWeight: 800 }}>{percentage || 0}%</div>
+        {title && <div style={{ fontSize: '0.65rem', color: 'var(--color-text-muted)', textTransform: 'uppercase', letterSpacing: '0.5px' }}>{title}</div>}
+        {subtitle && <div style={{ fontSize: '0.65rem', color: 'var(--color-text-muted)' }}>{subtitle}</div>}
+      </div>
+    </div>
+  )
+}
+
+function MiniStatList({ icon, label, value }) {
+  return (
+    <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', padding: '0.5rem 0', borderBottom: '1px solid rgba(255,255,255,0.05)' }}>
+      <div style={{ display: 'flex', alignItems: 'center', gap: '0.75rem' }}>
+        <div style={{ background: 'rgba(255,255,255,0.05)', padding: '0.35rem', borderRadius: '50%', color: 'var(--color-primary-light)' }}>{icon}</div>
+        <span style={{ fontSize: '0.875rem', color: 'var(--color-text-muted)' }}>{label}</span>
+      </div>
+      <span style={{ fontWeight: 600, color: 'var(--color-primary-light)' }}>{value}</span>
+    </div>
+  )
+}
+
+function StatCard({ title, value, subtitle, icon, trend }) {
+  return (
+    <div className="glass-card" style={{ padding: '1.5rem', borderRadius: '1rem', display: 'flex', flexDirection: 'column' }}>
+      <div style={{ display: 'flex', alignItems: 'center', gap: '0.75rem', marginBottom: '1rem' }}>
+        <div style={{ background: 'rgba(255,255,255,0.05)', padding: '0.5rem', borderRadius: '50%', color: 'var(--color-primary-light)', display: 'flex', alignItems: 'center', justifyContent: 'center' }}>{icon}</div>
+        <h3 style={{ fontSize: '0.875rem', margin: 0, fontWeight: 500, color: 'var(--color-text-muted)' }}>{title}</h3>
+      </div>
+      <div style={{ fontSize: '2rem', fontWeight: 800, margin: '0 0 0.25rem 0' }}>{value}</div>
+      <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center' }}>
+        <span style={{ fontSize: '0.75rem', color: 'var(--color-text-faint)' }}>{subtitle}</span>
+        {trend && <span style={{ color: 'var(--color-primary)', fontSize: '1rem' }}>{trend}</span>}
       </div>
     </div>
   )
@@ -21,23 +73,11 @@ function StatCard({ label, value, icon, color }) {
 
 export default function DashboardPage() {
   const user = useSelector(selectCurrentUser)
-  const dispatch = useDispatch()
   const navigate = useNavigate()
-  const [logout] = useLogoutMutation()
   const { data: historyData } = useGetResumeHistoryQuery()
 
   const latestResume = historyData?.resumes?.[0]
-  const latestScore = latestResume?.atsScore?.overall
-
-  const handleLogout = async () => {
-    try {
-      await logout().unwrap()
-    } catch {
-      // Even if server logout fails, clear client state
-    }
-    dispatch(clearCredentials())
-    navigate('/login', { replace: true })
-  }
+  const latestScore = latestResume?.atsScore?.overall || 0
 
   const greeting = () => {
     const hour = new Date().getHours()
@@ -48,135 +88,171 @@ export default function DashboardPage() {
 
   return (
     <div className="dashboard-page">
-      <nav className="nav">
-        <div className="nav-brand"><img src="/logo.png" alt="HireMinds" className="nav-logo-img" /></div>
-        <div className="nav-links">
-          <Link to="/dashboard" className="nav-link active">Dashboard</Link>
-          <Link to="/resume" className="nav-link">Resume</Link>
-          <Link to="/jobs" className="nav-link">Jobs</Link>
-          <Link to="/interview" className="nav-link">Interviews</Link>
-          <Link to="/leaderboard" className="nav-link">Leaderboard</Link>
-          <Link to="/community" className="nav-link">Community</Link>
-          <Link to="/chat" className="nav-link" style={{ color: '#8b5cf6', fontWeight: 'bold' }}>🤖 AI Coach</Link>
-          <Link to="/pricing" className="nav-link" style={{ color: '#f59e0b', fontWeight: 'bold' }}>⭐ Upgrade</Link>
-        </div>
-        <button onClick={handleLogout} className="btn btn-ghost btn-sm" id="logout-btn">
-          Sign out
-        </button>
-      </nav>
-
-      <div className="dashboard-layout">
-        {/* Welcome */}
-        <div className="welcome-section">
-          <h1 className="welcome-title">
-            {greeting()}, {user?.fullName?.split(' ')[0]} 👋
-          </h1>
-          <p className="welcome-subtitle">
-            {user?.onboardingComplete
-              ? `Targeting ${user.targetRoles?.[0] || 'your dream role'} · ${user.level || 'fresher'}`
-              : 'Complete your profile to get personalised recommendations.'}
-          </p>
-        </div>
-
-        {/* Quick stats */}
-        <div className="stats-grid">
-          <StatCard
-            label="ATS Score"
-            value={latestScore ? `${latestScore}/100` : null}
-            icon="🎯"
-            color="var(--color-primary-light)"
-          />
-          <StatCard
-            label="Career level"
-            value={user?.level ? user.level.charAt(0).toUpperCase() + user.level.slice(1) : null}
-            icon="📈"
-            color="var(--color-score-mid)"
-          />
-          <StatCard
-            label="Points"
-            value={user?.points || 0}
-            icon="🏆"
-            color="var(--color-score-high)"
-          />
-          <StatCard
-            label="Streak"
-            value={user?.currentStreak ? `${user.currentStreak} 🔥` : '0'}
-            icon="⚡"
-            color="#ff4500"
-          />
-        </div>
-
-        {/* Main action cards */}
-        <div className="action-grid" style={{ display: 'grid', gridTemplateColumns: 'repeat(auto-fit, minmax(280px, 1fr))', gap: '1.5rem', marginTop: '1.5rem' }}>
-          <Link to="/resume" className="action-card" id="action-resume" style={{ padding: '1.5rem', background: 'var(--color-surface)', border: '1px solid var(--color-border)', borderRadius: '1rem', textDecoration: 'none', color: 'inherit', display: 'flex', flexDirection: 'column', gap: '1rem' }}>
-            <div className="action-icon" style={{ fontSize: '2rem' }}>📄</div>
-            <h3 className="action-title" style={{ margin: 0 }}>Analyse your resume</h3>
-            <p className="action-desc" style={{ color: 'var(--color-text-muted)', fontSize: '0.875rem', margin: 0 }}>
-              Get a level-aware ATS score, see missing keywords, and get a one-week fix plan.
+      <div className="dashboard-layout" style={{ maxWidth: '1200px' }}>
+        
+        {/* HERO SECTION */}
+        <div className="glass-card" style={{ padding: '2.5rem', borderRadius: '1.5rem', display: 'flex', gap: '2rem', flexWrap: 'wrap', alignItems: 'center', background: 'linear-gradient(135deg, rgba(16, 185, 129, 0.1) 0%, rgba(10, 20, 18, 0.8) 100%)' }}>
+          <div style={{ flex: '1 1 400px' }}>
+            <h1 style={{ fontSize: '2.5rem', marginBottom: '0.5rem' }}>{greeting()}, <span className="gradient-text">{user?.fullName?.split(' ')[0] || 'Guest'} 👋</span></h1>
+            <p style={{ fontSize: '1.125rem', color: 'var(--color-text-muted)', marginBottom: '1rem' }}>
+              You're <strong style={{ color: 'var(--color-primary-light)' }}>{latestScore}%</strong> interview-ready.
             </p>
-          </Link>
-
-          <Link to="/interview" className="action-card" id="action-interview" style={{ padding: '1.5rem', background: 'var(--color-surface)', border: '1px solid var(--color-border)', borderRadius: '1rem', textDecoration: 'none', color: 'inherit', display: 'flex', flexDirection: 'column', gap: '1rem' }}>
-            <div className="action-icon" style={{ fontSize: '2rem' }}>🎤</div>
-            <h3 className="action-title" style={{ margin: 0 }}>Mock Interview</h3>
-            <p className="action-desc" style={{ color: 'var(--color-text-muted)', fontSize: '0.875rem', margin: 0 }}>
-              Practice with AI-generated technical, HR, and behavioral questions.
+            <p style={{ fontSize: '0.875rem', color: 'var(--color-text-faint)', marginBottom: '2rem', maxWidth: '400px' }}>
+              Complete your ATS analysis to unlock 23 personalized frontend opportunities.
             </p>
-          </Link>
+            <div style={{ display: 'flex', gap: '1rem' }}>
+              <button className="btn btn-primary" onClick={() => navigate('/resume')} style={{ padding: '0.75rem 1.5rem' }}>📄 Analyze Resume</button>
+              <button className="btn" style={{ background: 'transparent', border: '1px solid var(--color-border)', padding: '0.75rem 1.5rem' }} onClick={() => navigate('/interview')}>🎤 Start AI Interview</button>
+            </div>
+          </div>
           
-          <div className="action-card action-coming-soon" id="action-trainer" style={{ padding: '1.5rem', background: 'var(--color-surface)', border: '1px dashed var(--color-border)', opacity: 0.7, borderRadius: '1rem', display: 'flex', flexDirection: 'column', gap: '1rem' }}>
-            <div className="action-icon" style={{ fontSize: '2rem' }}>🏋️</div>
-            <h3 className="action-title" style={{ margin: 0 }}>Personal Trainer</h3>
-            <p className="action-desc" style={{ color: 'var(--color-text-muted)', fontSize: '0.875rem', margin: 0 }}>
-              Weekly AI-generated learning goals based on your readiness score.
+          <div style={{ display: 'flex', alignItems: 'center', gap: '3rem', flexWrap: 'wrap' }}>
+            <CircularProgress percentage={latestScore} size={160} strokeWidth={12} title="Interview" subtitle="Readiness" />
+            
+            <div style={{ minWidth: '200px' }}>
+              <MiniStatList icon="🎯" label="ATS Score" value={`${latestScore}/100`} />
+              <MiniStatList icon="🎤" label="Interviews" value={user?.metrics?.interviews || 12} />
+              <MiniStatList icon="💼" label="Job Matches" value="23" />
+              <MiniStatList icon="📈" label="Skills Improved" value="12" />
+            </div>
+          </div>
+        </div>
+
+        {/* QUICK STATS GRID */}
+        <div style={{ display: 'grid', gridTemplateColumns: 'repeat(auto-fit, minmax(240px, 1fr))', gap: '1.5rem' }}>
+          <StatCard title="ATS Score" value={`${latestScore}/100`} subtitle="Great progress! 🎉" icon="🎯" trend="📈" />
+          <StatCard title="Job Matches" value="23" subtitle="New matches available" icon="💼" trend="📈" />
+          <StatCard title="Interview Score" value="92/100" subtitle="Excellent! 🔥" icon="🎤" trend="📈" />
+          <StatCard title="Skills Improved" value="12" subtitle="Keep it up! 💪" icon="📈" trend="📈" />
+        </div>
+
+        {/* MIDDLE 3-COLUMN GRID */}
+        <div style={{ display: 'grid', gridTemplateColumns: 'repeat(auto-fit, minmax(320px, 1fr))', gap: '1.5rem' }}>
+          
+          {/* AI Career Coach */}
+          <div className="glass-card" style={{ padding: '1.5rem', borderRadius: '1rem', display: 'flex', flexDirection: 'column' }}>
+            <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginBottom: '1.5rem' }}>
+              <div style={{ display: 'flex', alignItems: 'center', gap: '0.5rem' }}>
+                <span style={{ color: 'var(--color-primary-light)' }}>🤖</span>
+                <h3 style={{ margin: 0, fontSize: '1rem' }}>AI Career Coach</h3>
+              </div>
+              <span className="badge badge-primary" style={{ background: 'rgba(16, 185, 129, 0.1)', color: 'var(--color-primary-light)' }}>New</span>
+            </div>
+            
+            <p style={{ fontSize: '0.875rem', color: 'var(--color-text-muted)', marginBottom: '1rem', lineHeight: 1.6 }}>
+              Your resume is missing some in-demand skills for Frontend Developer roles.
             </p>
-            <span className="badge badge-blue" style={{ alignSelf: 'flex-start' }}>Coming soon</span>
+            <ul style={{ paddingLeft: '1.5rem', fontSize: '0.875rem', color: 'var(--color-text-muted)', marginBottom: '1.5rem', display: 'flex', flexDirection: 'column', gap: '0.5rem' }}>
+              <li>TypeScript</li>
+              <li>Next.js</li>
+              <li>Jest</li>
+              <li>Tailwind CSS</li>
+            </ul>
+            <p style={{ fontSize: '0.875rem', color: 'var(--color-text-muted)', marginBottom: '1.5rem' }}>
+              Adding these skills can increase your match score by <strong style={{ color: 'var(--color-primary-light)' }}>14%</strong>.
+            </p>
+            <button className="btn" style={{ background: 'rgba(16, 185, 129, 0.1)', color: 'var(--color-primary)', width: '100%', marginTop: 'auto', border: '1px solid rgba(16, 185, 129, 0.2)' }} onClick={() => navigate('/resume')}>✨ Improve My Resume</button>
           </div>
-        </div>
 
-        {/* Recent analyses */}
-        {historyData?.resumes?.length > 0 && (
-          <div className="recent-section">
-            <div className="section-header">
-              <h2 className="section-title">Recent analyses</h2>
-              <Link to="/resume" className="section-link">View all →</Link>
+          {/* Resume Health */}
+          <div className="glass-card" style={{ padding: '1.5rem', borderRadius: '1rem' }}>
+            <h3 style={{ margin: '0 0 1.5rem 0', fontSize: '1rem' }}>Resume Health</h3>
+            <div style={{ display: 'flex', gap: '1.5rem', alignItems: 'center' }}>
+              <CircularProgress percentage={latestScore || 84} size={100} strokeWidth={8} title="Overall" />
+              <div style={{ flex: 1, display: 'flex', flexDirection: 'column', gap: '1rem' }}>
+                <div>
+                  <div style={{ display: 'flex', justifyContent: 'space-between', fontSize: '0.75rem', marginBottom: '0.25rem' }}><span>ATS Score</span><span>84/100</span></div>
+                  <div style={{ height: '4px', background: 'rgba(255,255,255,0.1)', borderRadius: '2px', overflow: 'hidden' }}><div style={{ width: '84%', height: '100%', background: 'var(--color-primary)' }}></div></div>
+                </div>
+                <div>
+                  <div style={{ display: 'flex', justifyContent: 'space-between', fontSize: '0.75rem', marginBottom: '0.25rem' }}><span>Projects</span><span>90/100</span></div>
+                  <div style={{ height: '4px', background: 'rgba(255,255,255,0.1)', borderRadius: '2px', overflow: 'hidden' }}><div style={{ width: '90%', height: '100%', background: 'var(--color-primary)' }}></div></div>
+                </div>
+                <div>
+                  <div style={{ display: 'flex', justifyContent: 'space-between', fontSize: '0.75rem', marginBottom: '0.25rem' }}><span>Skills</span><span>75/100</span></div>
+                  <div style={{ height: '4px', background: 'rgba(255,255,255,0.1)', borderRadius: '2px', overflow: 'hidden' }}><div style={{ width: '75%', height: '100%', background: 'var(--color-primary)' }}></div></div>
+                </div>
+                <div>
+                  <div style={{ display: 'flex', justifyContent: 'space-between', fontSize: '0.75rem', marginBottom: '0.25rem' }}><span>Experience</span><span>82/100</span></div>
+                  <div style={{ height: '4px', background: 'rgba(255,255,255,0.1)', borderRadius: '2px', overflow: 'hidden' }}><div style={{ width: '82%', height: '100%', background: 'var(--color-primary)' }}></div></div>
+                </div>
+              </div>
             </div>
-            <div className="recent-list">
-              {historyData.resumes.slice(0, 3).map((r) => {
-                const score = r.atsScore?.overall
-                const scoreColor = score >= 80 ? 'score-high' : score >= 50 ? 'score-mid' : 'score-low'
-                return (
-                  <div key={r._id} className="recent-item">
-                    <div className="recent-meta">
-                      <p className="recent-name">{r.pdfMeta?.originalFilename || 'Manual entry'}</p>
-                      <p className="recent-date">{new Date(r.createdAt).toLocaleDateString('en-IN')}</p>
-                    </div>
-                    <div className="recent-score">
-                      <span className={`score-big-sm ${scoreColor}`}>{score}</span>
-                      <span className="score-denom-sm">/100</span>
-                    </div>
+            <button className="btn btn-ghost" style={{ width: '100%', marginTop: '1.5rem', border: '1px solid rgba(255,255,255,0.05)' }} onClick={() => navigate('/resume')}>📈 View Full Analysis</button>
+          </div>
+
+          {/* Recommended Jobs */}
+          <div className="glass-card" style={{ padding: '1.5rem', borderRadius: '1rem' }}>
+            <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginBottom: '1.5rem' }}>
+              <h3 style={{ margin: 0, fontSize: '1rem' }}>Recommended Jobs</h3>
+              <span style={{ fontSize: '0.875rem', color: 'var(--color-primary-light)', cursor: 'pointer' }} onClick={() => navigate('/jobs')}>View all</span>
+            </div>
+            <div style={{ display: 'flex', flexDirection: 'column', gap: '1rem' }}>
+              {[
+                { role: 'Frontend Developer Intern', company: 'Google', location: 'Bangalore, India', match: 87, icon: 'G', color: '#ea4335' },
+                { role: 'React Developer', company: 'Microsoft', location: 'Remote', match: 82, icon: 'M', color: '#00a4ef' },
+                { role: 'Frontend Engineer', company: 'Swiggy', location: 'Bangalore, India', match: 78, icon: 'S', color: '#fc8019' }
+              ].map((job, i) => (
+                <div key={i} style={{ display: 'flex', alignItems: 'center', gap: '1rem', padding: '0.5rem 0', borderBottom: i < 2 ? '1px solid rgba(255,255,255,0.05)' : 'none' }}>
+                  <div style={{ width: '32px', height: '32px', borderRadius: '8px', background: 'var(--color-surface-2)', display: 'flex', alignItems: 'center', justifyContent: 'center', fontWeight: 'bold', color: job.color }}>{job.icon}</div>
+                  <div style={{ flex: 1 }}>
+                    <div style={{ fontSize: '0.875rem', fontWeight: 600 }}>{job.role}</div>
+                    <div style={{ fontSize: '0.75rem', color: 'var(--color-text-muted)' }}>{job.company} • {job.location}</div>
                   </div>
-                )
-              })}
+                  <div style={{ display: 'flex', alignItems: 'center', gap: '0.5rem' }}>
+                    <span style={{ fontSize: '0.75rem', color: 'var(--color-primary-light)', fontWeight: 600 }}>{job.match}% Match</span>
+                    <span style={{ color: 'var(--color-text-muted)', cursor: 'pointer' }}>🔖</span>
+                  </div>
+                </div>
+              ))}
             </div>
           </div>
-        )}
-
-        {/* Dashboard Widgets */}
-        <div className="widgets-grid" style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: '1.5rem', marginTop: '2rem' }}>
-          <DashboardNewsFeed />
-          <DashboardCalendarWidget />
         </div>
 
-        {/* Empty state if no analyses */}
-        {!historyData?.resumes?.length && (
-          <div className="dashboard-empty">
-            <p className="empty-text">No resume analyses yet.</p>
-            <Link to="/resume" className="btn btn-primary">
-              Analyse your first resume →
-            </Link>
+        {/* BOTTOM 2-COLUMN GRID */}
+        <div style={{ display: 'grid', gridTemplateColumns: 'repeat(auto-fit, minmax(400px, 1fr))', gap: '1.5rem' }}>
+          
+          <DashboardCalendarWidget />
+
+          <div className="glass-card" style={{ padding: '1.5rem', borderRadius: '1rem' }}>
+            <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginBottom: '1.5rem' }}>
+              <h3 style={{ margin: 0, fontSize: '1rem' }}>Recent Activity</h3>
+              <span style={{ fontSize: '0.875rem', color: 'var(--color-primary-light)', cursor: 'pointer' }} onClick={() => navigate('/resume')}>View all</span>
+            </div>
+            
+            <div style={{ display: 'flex', flexDirection: 'column', gap: '1.25rem' }}>
+              {historyData?.resumes?.slice(0,1).map(r => (
+                <div key={r._id} style={{ display: 'flex', gap: '1rem', alignItems: 'flex-start' }}>
+                  <div style={{ padding: '0.5rem', background: 'rgba(255,255,255,0.05)', borderRadius: '50%', color: 'var(--color-text-muted)' }}>📄</div>
+                  <div style={{ flex: 1 }}>
+                    <div style={{ fontSize: '0.875rem', fontWeight: 600 }}>Resume analyzed</div>
+                    <div style={{ fontSize: '0.75rem', color: 'var(--color-text-muted)' }}>Your resume scored {r.atsScore?.overall || 0} out of 100</div>
+                  </div>
+                  <span style={{ fontSize: '0.75rem', color: 'var(--color-text-faint)' }}>{new Date(r.createdAt).toLocaleDateString('en-IN')}</span>
+                </div>
+              ))}
+              
+              <div style={{ display: 'flex', gap: '1rem', alignItems: 'flex-start' }}>
+                <div style={{ padding: '0.5rem', background: 'rgba(255,255,255,0.05)', borderRadius: '50%', color: 'var(--color-text-muted)' }}>💼</div>
+                <div style={{ flex: 1 }}>
+                  <div style={{ fontSize: '0.875rem', fontWeight: 600 }}>New job matches found</div>
+                  <div style={{ fontSize: '0.75rem', color: 'var(--color-text-muted)' }}>We found 23 new jobs for you</div>
+                </div>
+                <span style={{ fontSize: '0.75rem', color: 'var(--color-text-faint)' }}>5h ago</span>
+              </div>
+              
+              <div style={{ display: 'flex', gap: '1rem', alignItems: 'flex-start' }}>
+                <div style={{ padding: '0.5rem', background: 'rgba(255,255,255,0.05)', borderRadius: '50%', color: 'var(--color-text-muted)' }}>🎤</div>
+                <div style={{ flex: 1 }}>
+                  <div style={{ fontSize: '0.875rem', fontWeight: 600 }}>Mock interview completed</div>
+                  <div style={{ fontSize: '0.75rem', color: 'var(--color-text-muted)' }}>Great job! You scored 92 out of 100</div>
+                </div>
+                <span style={{ fontSize: '0.75rem', color: 'var(--color-text-faint)' }}>1d ago</span>
+              </div>
+            </div>
           </div>
-        )}
+        </div>
+
       </div>
     </div>
   )

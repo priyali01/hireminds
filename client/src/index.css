@@ -8,10 +8,10 @@
    =========================== */
 :root {
   /* Brand colors */
-  --color-primary: hsl(234, 85%, 62%);
-  --color-primary-dark: hsl(234, 85%, 52%);
-  --color-primary-light: hsl(234, 85%, 72%);
-  --color-primary-ghost: hsl(234, 85%, 96%);
+  --color-primary: hsl(165, 80%, 45%);
+  --color-primary-dark: hsl(165, 80%, 35%);
+  --color-primary-light: hsl(165, 80%, 65%);
+  --color-primary-ghost: hsl(165, 80%, 10%);
 
   /* Semantic score colors */
   --color-score-high: hsl(145, 63%, 42%);
@@ -19,13 +19,13 @@
   --color-score-low: hsl(0, 72%, 51%);
 
   /* Neutrals */
-  --color-bg: hsl(222, 20%, 8%);
-  --color-surface: hsl(222, 18%, 12%);
-  --color-surface-2: hsl(222, 16%, 16%);
-  --color-border: hsl(222, 14%, 22%);
-  --color-text: hsl(220, 14%, 96%);
-  --color-text-muted: hsl(220, 10%, 60%);
-  --color-text-faint: hsl(220, 8%, 40%);
+  --color-bg: hsl(165, 30%, 4%);
+  --color-surface: hsl(165, 20%, 7%);
+  --color-surface-2: hsl(165, 16%, 10%);
+  --color-border: hsl(165, 14%, 15%);
+  --color-text: hsl(165, 14%, 96%);
+  --color-text-muted: hsl(165, 10%, 60%);
+  --color-text-faint: hsl(165, 8%, 40%);
 
   /* Status */
   --color-success: hsl(145, 63%, 42%);
@@ -56,7 +56,7 @@
   --shadow-sm: 0 1px 2px rgba(0,0,0,0.3);
   --shadow-md: 0 4px 16px rgba(0,0,0,0.4);
   --shadow-lg: 0 8px 32px rgba(0,0,0,0.5);
-  --shadow-glow: 0 0 40px hsl(234, 85%, 62%, 0.25);
+  --shadow-glow: 0 0 40px hsl(165, 80%, 45%, 0.25);
 
   /* Typography */
   --font-sans: 'Inter', -apple-system, BlinkMacSystemFont, sans-serif;
@@ -75,7 +75,8 @@ html { font-size: 16px; }
 
 body {
   font-family: var(--font-sans);
-  background-color: var(--color-bg);
+  background: radial-gradient(circle at 50% -20%, hsl(165, 60%, 12%), hsl(165, 30%, 4%) 80%);
+  background-attachment: fixed;
   color: var(--color-text);
   line-height: 1.6;
   -webkit-font-smoothing: antialiased;
@@ -268,8 +269,11 @@ a:hover { text-decoration: underline; }
    CARD
    =========================== */
 .card {
-  background: var(--color-surface);
-  border: 1px solid var(--color-border);
+  background: rgba(30, 32, 40, 0.6);
+  backdrop-filter: blur(12px);
+  -webkit-backdrop-filter: blur(12px);
+  border: 1px solid rgba(255, 255, 255, 0.05);
+  box-shadow: 0 8px 32px 0 rgba(0, 0, 0, 0.3);
   border-radius: var(--radius-lg);
   padding: var(--space-6);
 }
@@ -315,8 +319,10 @@ a:hover { text-decoration: underline; }
   align-items: center;
   justify-content: space-between;
   padding: var(--space-4) var(--space-8);
-  background: var(--color-surface);
-  border-bottom: 1px solid var(--color-border);
+  background: rgba(18, 20, 26, 0.8);
+  backdrop-filter: blur(16px);
+  -webkit-backdrop-filter: blur(16px);
+  border-bottom: 1px solid rgba(255, 255, 255, 0.05);
   position: sticky;
   top: 0;
   z-index: 50;
@@ -370,6 +376,28 @@ a:hover { text-decoration: underline; }
 .badge-yellow { background: hsl(38, 92%, 10%); color: hsl(38, 92%, 60%); }
 .badge-red { background: hsl(0, 72%, 10%); color: hsl(0, 72%, 65%); }
 .badge-blue { background: hsl(234, 85%, 10%); color: hsl(234, 85%, 70%); }
+
+/* ===========================
+   UTILITIES & TYPOGRAPHY
+   =========================== */
+.gradient-text {
+  background: linear-gradient(135deg, hsl(165, 80%, 65%), hsl(165, 80%, 45%));
+  -webkit-background-clip: text;
+  -webkit-text-fill-color: transparent;
+}
+.gradient-text-success {
+  background: linear-gradient(135deg, hsl(145, 63%, 65%), hsl(145, 63%, 45%));
+  -webkit-background-clip: text;
+  -webkit-text-fill-color: transparent;
+}
+
+.glass-card {
+  background: linear-gradient(180deg, rgba(10, 20, 18, 0.6) 40%, rgba(20, 184, 166, 0.25) 100%);
+  backdrop-filter: blur(12px);
+  -webkit-backdrop-filter: blur(12px);
+  border: 1px solid rgba(255, 255, 255, 0.05);
+  box-shadow: 0 8px 32px 0 rgba(0, 0, 0, 0.3);
+}
 
 /* ===========================
    SKELETON LOADING
