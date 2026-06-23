@@ -2,8 +2,22 @@ import { useSelector } from 'react-redux'
 import { Link, useNavigate } from 'react-router-dom'
 import { selectCurrentUser } from '../store/authSlice'
 import { useGetResumeHistoryQuery } from '../store/api'
+import { motion } from 'framer-motion'
 import DashboardCalendarWidget from '../components/DashboardCalendarWidget'
 import '../styles/dashboard.css'
+
+const containerVariants = {
+  hidden: { opacity: 0 },
+  show: {
+    opacity: 1,
+    transition: { staggerChildren: 0.1 }
+  }
+}
+
+const itemVariants = {
+  hidden: { opacity: 0, y: 20 },
+  show: { opacity: 1, y: 0, transition: { type: 'spring', stiffness: 100, damping: 15 } }
+}
 
 const CircularProgress = ({ percentage, size = 120, strokeWidth = 10, title, subtitle }) => {
   const radius = (size - strokeWidth) / 2
@@ -57,7 +71,7 @@ function MiniStatList({ icon, label, value }) {
 
 function StatCard({ title, value, subtitle, icon, trend }) {
   return (
-    <div className="glass-card" style={{ padding: '1.5rem', borderRadius: '1rem', display: 'flex', flexDirection: 'column' }}>
+    <motion.div variants={itemVariants} whileHover={{ y: -5 }} className="glass-card" style={{ padding: '1.5rem', borderRadius: '1rem', display: 'flex', flexDirection: 'column' }}>
       <div style={{ display: 'flex', alignItems: 'center', gap: '0.75rem', marginBottom: '1rem' }}>
         <div style={{ background: 'rgba(255,255,255,0.05)', padding: '0.5rem', borderRadius: '50%', color: 'var(--color-primary-light)', display: 'flex', alignItems: 'center', justifyContent: 'center' }}>{icon}</div>
         <h3 style={{ fontSize: '0.875rem', margin: 0, fontWeight: 500, color: 'var(--color-text-muted)' }}>{title}</h3>
@@ -67,7 +81,7 @@ function StatCard({ title, value, subtitle, icon, trend }) {
         <span style={{ fontSize: '0.75rem', color: 'var(--color-text-faint)' }}>{subtitle}</span>
         {trend && <span style={{ color: 'var(--color-primary)', fontSize: '1rem' }}>{trend}</span>}
       </div>
-    </div>
+    </motion.div>
   )
 }
 
@@ -87,11 +101,11 @@ export default function DashboardPage() {
   }
 
   return (
-    <div className="dashboard-page">
+    <motion.div className="dashboard-page" initial="hidden" animate="show" variants={containerVariants}>
       <div className="dashboard-layout" style={{ maxWidth: '1200px' }}>
         
         {/* HERO SECTION */}
-        <div className="glass-card" style={{ padding: '2.5rem', borderRadius: '1.5rem', display: 'flex', gap: '2rem', flexWrap: 'wrap', alignItems: 'center', background: 'linear-gradient(135deg, rgba(16, 185, 129, 0.1) 0%, rgba(10, 20, 18, 0.8) 100%)' }}>
+        <motion.div variants={itemVariants} className="glass-card" style={{ padding: '2.5rem', borderRadius: '1.5rem', display: 'flex', gap: '2rem', flexWrap: 'wrap', alignItems: 'center', background: 'linear-gradient(135deg, rgba(16, 185, 129, 0.1) 0%, rgba(10, 20, 18, 0.8) 100%)' }}>
           <div style={{ flex: '1 1 400px' }}>
             <h1 style={{ fontSize: '2.5rem', marginBottom: '0.5rem' }}>{greeting()}, <span className="gradient-text">{user?.fullName?.split(' ')[0] || 'Guest'} 👋</span></h1>
             <p style={{ fontSize: '1.125rem', color: 'var(--color-text-muted)', marginBottom: '1rem' }}>
@@ -116,7 +130,7 @@ export default function DashboardPage() {
               <MiniStatList icon="📈" label="Skills Improved" value="12" />
             </div>
           </div>
-        </div>
+        </motion.div>
 
         {/* QUICK STATS GRID */}
         <div style={{ display: 'grid', gridTemplateColumns: 'repeat(auto-fit, minmax(240px, 1fr))', gap: '1.5rem' }}>
@@ -127,10 +141,10 @@ export default function DashboardPage() {
         </div>
 
         {/* MIDDLE 3-COLUMN GRID */}
-        <div style={{ display: 'grid', gridTemplateColumns: 'repeat(auto-fit, minmax(320px, 1fr))', gap: '1.5rem' }}>
+        <motion.div variants={containerVariants} style={{ display: 'grid', gridTemplateColumns: 'repeat(auto-fit, minmax(320px, 1fr))', gap: '1.5rem' }}>
           
           {/* AI Career Coach */}
-          <div className="glass-card" style={{ padding: '1.5rem', borderRadius: '1rem', display: 'flex', flexDirection: 'column' }}>
+          <motion.div variants={itemVariants} className="glass-card" style={{ padding: '1.5rem', borderRadius: '1rem', display: 'flex', flexDirection: 'column' }}>
             <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginBottom: '1.5rem' }}>
               <div style={{ display: 'flex', alignItems: 'center', gap: '0.5rem' }}>
                 <span style={{ color: 'var(--color-primary-light)' }}>🤖</span>
@@ -152,10 +166,10 @@ export default function DashboardPage() {
               Adding these skills can increase your match score by <strong style={{ color: 'var(--color-primary-light)' }}>14%</strong>.
             </p>
             <button className="btn" style={{ background: 'rgba(16, 185, 129, 0.1)', color: 'var(--color-primary)', width: '100%', marginTop: 'auto', border: '1px solid rgba(16, 185, 129, 0.2)' }} onClick={() => navigate('/resume')}>✨ Improve My Resume</button>
-          </div>
+          </motion.div>
 
           {/* Resume Health */}
-          <div className="glass-card" style={{ padding: '1.5rem', borderRadius: '1rem' }}>
+          <motion.div variants={itemVariants} className="glass-card" style={{ padding: '1.5rem', borderRadius: '1rem' }}>
             <h3 style={{ margin: '0 0 1.5rem 0', fontSize: '1rem' }}>Resume Health</h3>
             <div style={{ display: 'flex', gap: '1.5rem', alignItems: 'center' }}>
               <CircularProgress percentage={latestScore || 84} size={100} strokeWidth={8} title="Overall" />
@@ -179,10 +193,10 @@ export default function DashboardPage() {
               </div>
             </div>
             <button className="btn btn-ghost" style={{ width: '100%', marginTop: '1.5rem', border: '1px solid rgba(255,255,255,0.05)' }} onClick={() => navigate('/resume')}>📈 View Full Analysis</button>
-          </div>
+          </motion.div>
 
           {/* Recommended Jobs */}
-          <div className="glass-card" style={{ padding: '1.5rem', borderRadius: '1rem' }}>
+          <motion.div variants={itemVariants} className="glass-card" style={{ padding: '1.5rem', borderRadius: '1rem' }}>
             <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginBottom: '1.5rem' }}>
               <h3 style={{ margin: 0, fontSize: '1rem' }}>Recommended Jobs</h3>
               <span style={{ fontSize: '0.875rem', color: 'var(--color-primary-light)', cursor: 'pointer' }} onClick={() => navigate('/jobs')}>View all</span>
@@ -206,15 +220,15 @@ export default function DashboardPage() {
                 </div>
               ))}
             </div>
-          </div>
-        </div>
+          </motion.div>
+        </motion.div>
 
         {/* BOTTOM 2-COLUMN GRID */}
-        <div style={{ display: 'grid', gridTemplateColumns: 'repeat(auto-fit, minmax(400px, 1fr))', gap: '1.5rem' }}>
+        <motion.div variants={containerVariants} style={{ display: 'grid', gridTemplateColumns: 'repeat(auto-fit, minmax(400px, 1fr))', gap: '1.5rem' }}>
           
           <DashboardCalendarWidget />
 
-          <div className="glass-card" style={{ padding: '1.5rem', borderRadius: '1rem' }}>
+          <motion.div variants={itemVariants} className="glass-card" style={{ padding: '1.5rem', borderRadius: '1rem' }}>
             <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginBottom: '1.5rem' }}>
               <h3 style={{ margin: 0, fontSize: '1rem' }}>Recent Activity</h3>
               <span style={{ fontSize: '0.875rem', color: 'var(--color-primary-light)', cursor: 'pointer' }} onClick={() => navigate('/resume')}>View all</span>
@@ -250,10 +264,10 @@ export default function DashboardPage() {
                 <span style={{ fontSize: '0.75rem', color: 'var(--color-text-faint)' }}>1d ago</span>
               </div>
             </div>
-          </div>
-        </div>
+          </motion.div>
+        </motion.div>
 
       </div>
-    </div>
+    </motion.div>
   )
 }

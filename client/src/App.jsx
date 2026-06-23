@@ -22,6 +22,7 @@ const AdminDashboard = lazy(() => import('./pages/AdminDashboard'))
 const TPODashboard = lazy(() => import('./pages/TPODashboard'))
 const PricingPage = lazy(() => import('./pages/PricingPage'))
 const CareerAgentPage = lazy(() => import('./pages/CareerAgentPage'))
+const ProfilePage = lazy(() => import('./pages/ProfilePage'))
 import MainLayout from './components/MainLayout'
 
 // Loading fallback
@@ -114,6 +115,7 @@ export default function App() {
             <Route path="/tpo/dashboard" element={<TPODashboard />} />
             <Route path="/pricing" element={<PricingPage />} />
             <Route path="/chat" element={<CareerAgentPage />} />
+            <Route path="/profile" element={<ProfilePage />} />
           </Route>
 
           {/* Default redirect */}

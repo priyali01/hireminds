@@ -3,9 +3,22 @@ import { motion } from 'framer-motion'
 import { useCreateJobMutation, useMatchJDMutation, useGetJobsQuery } from '../store/api'
 import '../styles/dashboard.css'
 
+const containerVariants = {
+  hidden: { opacity: 0 },
+  show: {
+    opacity: 1,
+    transition: { staggerChildren: 0.1 }
+  }
+}
+
+const itemVariants = {
+  hidden: { opacity: 0, y: 20 },
+  show: { opacity: 1, y: 0, transition: { type: 'spring', stiffness: 100, damping: 15 } }
+}
+
 function StatCard({ icon, title, count, color, accentColor }) {
   return (
-    <div className="glass-card" style={{ 
+    <motion.div variants={itemVariants} whileHover={{ y: -5 }} className="glass-card" style={{ 
       padding: '1.5rem', 
       borderRadius: '1rem', 
       position: 'relative',
@@ -36,7 +49,7 @@ function StatCard({ icon, title, count, color, accentColor }) {
           <path d="M0,40 Q10,30 20,35 T40,20 T60,25 T80,10 T100,5" fill="none" stroke={`rgb(${color})`} strokeWidth="2" strokeLinecap="round"/>
         </svg>
       </div>
-    </div>
+    </motion.div>
   )
 }
 
@@ -111,7 +124,7 @@ export default function JobsPage() {
   const offerCount = jobs.filter(j => j.status === 'offer').length
 
   return (
-    <div className="dashboard-page" style={{ padding: '2rem' }}>
+    <motion.div className="dashboard-page" style={{ padding: '2rem' }} initial="hidden" animate="show" variants={containerVariants}>
       <div className="dashboard-layout" style={{ maxWidth: '1200px', margin: '0 auto' }}>
         
         {/* Header */}
@@ -202,12 +215,12 @@ export default function JobsPage() {
         )}
 
         {/* Stats Grid */}
-        <div style={{ display: 'grid', gridTemplateColumns: 'repeat(4, 1fr)', gap: '1.5rem', marginBottom: '2rem' }}>
+        <motion.div variants={containerVariants} style={{ display: 'grid', gridTemplateColumns: 'repeat(4, 1fr)', gap: '1.5rem', marginBottom: '2rem' }}>
           <StatCard icon="🔖" title="Saved" count={savedCount} color="200, 200, 200" accentColor="var(--color-text-muted)" />
           <StatCard icon="↗️" title="Applied" count={appliedCount} color="96, 165, 250" accentColor="#3B82F6" />
           <StatCard icon="👥" title="Interviewing" count={interviewingCount} color="16, 185, 129" accentColor="#10B981" />
           <StatCard icon="🏆" title="Offer" count={offerCount} color="251, 191, 36" accentColor="#F59E0B" />
-        </div>
+        </motion.div>
 
         {/* Filters Area */}
         <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginBottom: '1.5rem' }}>
@@ -237,7 +250,7 @@ export default function JobsPage() {
             <span className="spinner" />
           </div>
         ) : jobs.length > 0 ? (
-          <div className="glass-card" style={{ borderRadius: '1rem', overflow: 'hidden' }}>
+          <motion.div variants={itemVariants} className="glass-card" style={{ borderRadius: '1rem', overflow: 'hidden' }}>
             {/* Table Header */}
             <div style={{ display: 'grid', gridTemplateColumns: '2fr 2fr 1fr 1fr 1fr 40px', padding: '1rem 1.5rem', borderBottom: '1px solid rgba(255,255,255,0.05)', fontSize: '0.75rem', color: 'var(--color-text-muted)', fontWeight: 600, textTransform: 'uppercase', letterSpacing: '0.05em' }}>
               <div>Job Role</div>
@@ -249,9 +262,9 @@ export default function JobsPage() {
             </div>
             
             {/* Table Rows */}
-            <div>
+            <motion.div variants={containerVariants} initial="hidden" animate="show">
               {jobs.map(job => (
-                <div key={job._id} style={{ display: 'grid', gridTemplateColumns: '2fr 2fr 1fr 1fr 1fr 40px', padding: '1.25rem 1.5rem', borderBottom: '1px solid rgba(255,255,255,0.02)', alignItems: 'center', transition: 'background 0.2s', cursor: 'pointer' }} className="table-row-hover">
+                <motion.div variants={itemVariants} key={job._id} style={{ display: 'grid', gridTemplateColumns: '2fr 2fr 1fr 1fr 1fr 40px', padding: '1.25rem 1.5rem', borderBottom: '1px solid rgba(255,255,255,0.02)', alignItems: 'center', transition: 'background 0.2s', cursor: 'pointer' }} className="table-row-hover">
                   
                   {/* Role + Icon */}
                   <div style={{ display: 'flex', alignItems: 'center', gap: '1rem' }}>
@@ -296,14 +309,14 @@ export default function JobsPage() {
                     <button className="btn btn-ghost" style={{ padding: '0.5rem', color: 'var(--color-text-muted)' }}>⋮</button>
                   </div>
 
-                </div>
+                </motion.div>
               ))}
-            </div>
+            </motion.div>
             
             <div style={{ padding: '1rem', display: 'flex', justifyContent: 'center', borderTop: '1px solid rgba(255,255,255,0.05)' }}>
               <button className="btn btn-ghost" style={{ fontSize: '0.875rem', color: 'var(--color-text-muted)' }}>Load more ⌄</button>
             </div>
-          </div>
+          </motion.div>
         ) : (
           /* Empty State */
           <div className="glass-card" style={{ padding: '6rem 2rem', borderRadius: '1rem', display: 'flex', flexDirection: 'column', alignItems: 'center', justifyContent: 'center', textAlign: 'center' }}>
@@ -330,6 +343,6 @@ export default function JobsPage() {
         )}
 
       </div>
-    </div>
+    </motion.div>
   )
 }

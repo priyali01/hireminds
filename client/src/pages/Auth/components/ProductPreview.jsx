@@ -1,135 +1,100 @@
 import { motion } from 'framer-motion'
-import { FileText, Mic, Briefcase, TrendingUp } from 'lucide-react'
-import MetricCard from './MetricCard'
-import CommandCenter from './CommandCenter'
+
+function GlowingRobot() {
+  return (
+    <div className="relative w-[340px] h-[340px] flex flex-col items-center justify-center mx-auto mb-12 z-10">
+      {/* Background Glow */}
+      <div className="absolute inset-0 bg-[#2DD4BF]/20 blur-[100px] rounded-full pointer-events-none" />
+      
+      {/* Platform Rings */}
+      <div className="absolute bottom-0 w-[340px] h-20 border-[3px] border-[#2DD4BF]/40 rounded-[100%] shadow-[0_0_30px_rgba(45,212,191,0.5)] transform perspective-[600px] rotateX-[70deg]" />
+      <div className="absolute bottom-[15px] w-[260px] h-14 border-2 border-[#2DD4BF]/80 rounded-[100%] shadow-[0_0_40px_rgba(45,212,191,0.8)] transform perspective-[600px] rotateX-[70deg] bg-[#2DD4BF]/10" />
+      <div className="absolute bottom-[22px] w-[220px] h-12 border border-white/50 rounded-[100%] transform perspective-[600px] rotateX-[70deg] bg-white/5" />
+      
+      {/* 3D Generated Robot Image */}
+      <motion.div 
+        className="w-[300px] h-[300px] absolute bottom-[25px] z-10"
+        style={{ perspective: 1000 }}
+        animate={{ 
+          y: [0, -20, 0],
+          rotateZ: [-2, 2, -2],
+          rotateY: [-15, 15, -15],
+          scale: [1, 1.02, 1]
+        }} 
+        transition={{ repeat: Infinity, duration: 6, ease: "easeInOut" }}
+      >
+        <img 
+          src="/robot.png" 
+          alt="AI Career Coach Robot" 
+          className="w-full h-full object-contain" 
+          style={{ 
+            mixBlendMode: 'screen', // Perfectly removes solid black background
+            filter: 'drop-shadow(0 0 20px rgba(45,212,191,0.6))',
+            WebkitMaskImage: 'radial-gradient(circle at center, black 50%, transparent 80%)', 
+            maskImage: 'radial-gradient(circle at center, black 50%, transparent 80%)' 
+          }}
+        />
+      </motion.div>
+
+      {/* Floating particles */}
+      <div className="absolute top-[10%] left-[5%] w-1.5 h-1.5 bg-[#2DD4BF] rounded-full animate-pulse blur-[1px]" />
+      <div className="absolute top-[30%] right-[10%] w-1 h-1 bg-white rounded-full animate-pulse blur-[1px]" />
+      <div className="absolute bottom-[50%] left-[15%] w-1.5 h-1.5 bg-[#14B8A6] rounded-full animate-pulse blur-[1px]" />
+      <div className="absolute bottom-[40%] right-[20%] w-1 h-1 bg-[#2DD4BF] rounded-full animate-pulse blur-[1px]" />
+    </div>
+  )
+}
+
+function PipelineStep({ icon, title, desc, isActive }) {
+  return (
+    <div className="flex flex-col items-center text-center relative z-10 px-2">
+      <div className={`w-12 h-12 rounded-full border-2 bg-[#0B1110] flex items-center justify-center mb-3 relative z-20 ${isActive ? 'border-[#2DD4BF] shadow-[0_0_15px_rgba(45,212,191,0.5)]' : 'border-white/10'}`}>
+        <span className="text-xl" style={{ filter: isActive ? 'drop-shadow(0 0 5px #2DD4BF)' : 'none', opacity: isActive ? 1 : 0.5 }}>{icon}</span>
+      </div>
+      <h4 className="text-[13px] font-bold text-white mb-0.5" style={{ opacity: isActive ? 1 : 0.7 }}>{title}</h4>
+      <p className="text-[11px] text-[#94A3B8] leading-tight">{desc}</p>
+    </div>
+  )
+}
 
 export default function ProductPreview() {
-  const prefersReduced = window.matchMedia('(prefers-reduced-motion: reduce)').matches
-
-  const metrics = [
-    {
-      icon: FileText,
-      score: "84",
-      scoreSuffix: "/100",
-      title: "ATS Score",
-      label: "Great Progress! 🎉",
-      trendColor: "#a855f7",
-      sparklineDelay: 0.6,
-      pathData: "M0 25 L20 20 L40 28 L60 15 L80 18 L100 5",
-      glowColor: "rgba(168,85,247,0.3)"
-    },
-    {
-      icon: Mic,
-      score: "92",
-      scoreSuffix: "/100",
-      title: "Interview Score",
-      label: "Excellent! 🔥",
-      trendColor: "#3b82f6",
-      sparklineDelay: 0.75,
-      pathData: "M0 20 L20 22 L40 18 L60 10 L80 12 L100 4",
-      glowColor: "rgba(59,130,246,0.3)"
-    },
-    {
-      icon: Briefcase,
-      score: "76",
-      scoreSuffix: "/100",
-      title: "Job Match",
-      label: "Good Match 👍",
-      trendColor: "#22c55e",
-      sparklineDelay: 0.9,
-      pathData: "M0 15 L20 18 L40 14 L60 20 L80 10 L100 12",
-      glowColor: "rgba(34,197,94,0.3)"
-    },
-    {
-      icon: TrendingUp,
-      score: "12",
-      scoreSuffix: "",
-      title: "Skills Improved",
-      label: "Keep it up! 🚀",
-      trendColor: "#ec4899",
-      sparklineDelay: 1.05,
-      pathData: "M0 28 L20 22 L40 24 L60 16 L80 18 L100 8",
-      glowColor: "rgba(236,72,153,0.3)"
-    }
-  ]
-
-  const containerVariants = {
-    hidden: { opacity: 0 },
-    show: {
-      opacity: 1,
-      transition: {
-        staggerChildren: prefersReduced ? 0 : 0.08,
-        delayChildren: prefersReduced ? 0 : 0.2
-      }
-    }
-  }
-
-  const itemVariants = {
-    hidden: { opacity: 0, y: prefersReduced ? 0 : 20 },
-    show: { opacity: 1, y: 0, transition: { duration: prefersReduced ? 0.01 : 0.45 } }
-  }
-
   return (
-    <div className="relative w-full flex flex-col justify-center items-center mx-auto z-10 py-12 px-4">
-      <motion.div
-        variants={containerVariants}
-        initial="hidden"
-        animate="show"
-        className="w-full flex flex-col items-center text-center"
-      >
+    <div className="w-full h-full flex flex-col justify-center items-center max-w-[800px] mx-auto py-8 relative z-10">
+      
+      {/* Centered Content Wrapper to prevent cut-offs */}
+      <div className="flex flex-col items-center w-full">
+        {/* Header - Improved Slogan */}
+        <div className="mb-6 text-center">
+          <h2 className="text-[3.25rem] font-bold text-white leading-[1.1] mb-4 tracking-tight">
+            Master the Interview.<br />
+            <span className="text-[#2DD4BF] drop-shadow-[0_0_15px_rgba(45,212,191,0.2)]">Secure the Offer.</span>
+          </h2>
+          <p className="text-[#94A3B8] text-[1.05rem] max-w-md mx-auto">
+            Your personal AI career coach, guiding you from resume to placement.
+          </p>
+        </div>
 
-        {/* Pill Badge */}
-        <motion.div
-          variants={itemVariants}
-          className="inline-flex items-center gap-2 px-4 py-1.5 rounded-full bg-[#4c1d95]/20 border border-[#4c1d95]/40 text-slate-300 text-xs font-medium backdrop-blur-md mb-5"
-        >
-          <div className="w-3 h-3 rounded-full bg-[#a855f7] flex items-center justify-center">
-            <div className="w-1.5 h-1.5 bg-white rounded-full" />
+        {/* Robot Showcase */}
+        <GlowingRobot />
+
+        {/* Minimal Pipeline Container */}
+        <div className="relative max-w-[600px] mx-auto w-full mb-8">
+          {/* Connecting Line */}
+          <div className="absolute top-[24px] left-[10%] right-[10%] h-[1px] bg-gradient-to-r from-[#2DD4BF] to-white/10 z-0" />
+          
+          <div className="flex justify-between relative z-10">
+            <PipelineStep icon="📄" title="Resume" desc="Analyze" isActive={true} />
+            <PipelineStep icon="🎤" title="Interview" desc="Practice" isActive={false} />
+            <PipelineStep icon="💼" title="Jobs" desc="Match" isActive={false} />
+            <PipelineStep icon="🏆" title="Placement" desc="Achieve" isActive={false} />
           </div>
-          <span>AI-Powered • Student-Focused • Results-Driven</span>
-        </motion.div>
+        </div>
+      </div>
 
-        {/* Hero Text */}
-        <motion.h1
-          variants={itemVariants}
-          className="text-4xl lg:text-[2.75rem] font-bold tracking-tight leading-tight mb-3"
-        >
-          <span className="text-white">Improve. </span>
-          <span className="text-[#3b82f6]">Practice. </span>
-          <span className="text-[#d946ef]">Get Hired.</span>
-        </motion.h1>
-
-        <motion.p
-          variants={itemVariants}
-          className="text-slate-400 text-sm lg:text-[0.95rem] leading-relaxed max-w-md mb-8"
-        >
-          Level-aware ATS scoring, smart feedback, and AI mock interviews — everything in one place.
-        </motion.p>
-
-        {/* 4 Metric Cards */}
-        <motion.div
-          variants={itemVariants}
-          className="grid grid-cols-2 md:grid-cols-4 gap-3 w-full mb-4"
-        >
-          {metrics.map((m, i) => (
-            <motion.div key={i} variants={itemVariants}>
-              <MetricCard {...m} />
-            </motion.div>
-          ))}
-        </motion.div>
-
-        {/* Divider */}
-        <motion.div
-          variants={itemVariants}
-          className="w-full h-px bg-white/[0.05] mb-4"
-        />
-
-        {/* Command Center Preview */}
-        <motion.div variants={itemVariants} className="w-full">
-          <CommandCenter />
-        </motion.div>
-
-      </motion.div>
+      {/* Minimal Footer */}
+      <div className="text-center mt-auto text-[11px] text-[#94A3B8]/60">
+        © 2025 HireMinds. All rights reserved.
+      </div>
     </div>
   )
 }

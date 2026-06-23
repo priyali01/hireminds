@@ -7,7 +7,21 @@ import {
   useSubmitResumeFeedbackMutation,
 } from '../store/api'
 import { Link } from 'react-router-dom'
+import { motion } from 'framer-motion'
 import '../styles/resume.css'
+
+const containerVariants = {
+  hidden: { opacity: 0 },
+  show: {
+    opacity: 1,
+    transition: { staggerChildren: 0.1 }
+  }
+}
+
+const itemVariants = {
+  hidden: { opacity: 0, y: 20 },
+  show: { opacity: 1, y: 0, transition: { type: 'spring', stiffness: 100, damping: 15 } }
+}
 
 function ScoreColor({ score }) {
   if (score >= 80) return 'score-high'
@@ -195,12 +209,12 @@ export default function ResumePage() {
   }
 
   return (
-    <div className="resume-page" style={{ padding: 'var(--space-8)' }}>
+    <motion.div className="resume-page" style={{ padding: 'var(--space-8)' }} initial="hidden" animate="show" variants={containerVariants}>
 
       <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: '2rem', maxWidth: '1200px', margin: '0 auto' }}>
         
         {/* Upload panel (Left Column) */}
-        <div className="upload-panel glass-card" style={{ padding: '2.5rem', borderRadius: '1.5rem', display: 'flex', flexDirection: 'column' }}>
+        <motion.div variants={itemVariants} className="upload-panel glass-card" style={{ padding: '2.5rem', borderRadius: '1.5rem', display: 'flex', flexDirection: 'column' }}>
           <h1 className="page-title" style={{ fontSize: '2rem', marginBottom: '0.5rem' }}>
             Resume <span className="gradient-text">Analyser</span>✨
           </h1>
@@ -330,10 +344,10 @@ export default function ResumePage() {
               <div style={{ fontSize: '0.7rem', color: 'var(--color-text-faint)' }}>Stand out to recruiters</div>
             </div>
           </div>
-        </div>
+        </motion.div>
 
         {/* Results / Info panel (Right Column) */}
-        <div className="results-panel glass-card" style={{ padding: '3rem', borderRadius: '1.5rem', display: 'flex', flexDirection: 'column', justifyContent: 'center' }}>
+        <motion.div variants={itemVariants} className="results-panel glass-card" style={{ padding: '3rem', borderRadius: '1.5rem', display: 'flex', flexDirection: 'column', justifyContent: 'center' }}>
           {result ? (
             <ATSResult result={result} resumeId={resumeId} />
           ) : (
@@ -377,9 +391,9 @@ export default function ResumePage() {
 
             </div>
           )}
-        </div>
+        </motion.div>
 
       </div>
-    </div>
+    </motion.div>
   )
 }
