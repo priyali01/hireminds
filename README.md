@@ -6,6 +6,36 @@ Currently at **Phase 1** completion, the platform features a fully modular backe
 
 ---
 
+## 📸 Product Preview
+
+Here is a glimpse into the HireMinds platform, showcasing our dynamic UI and core features:
+
+### Secure Authentication & Onboarding
+![Login Page](./client/public/visuals%20(14).png)
+*A sleek, secure login portal featuring our AI companion robot, designed to give users a premium entry experience into their career journey.*
+
+### Comprehensive Dashboard
+![Dashboard](./client/public/visuals%20(5).png)
+*The central hub providing an at-a-glance view of the user's Interview Readiness, ATS Score, current streak, and recommended jobs.*
+
+### Personalized AI Career Coach
+![AI Coach](./client/public/visuals%20(1).png)
+*A 24/7 available AI Career Coach powered by Gemini, offering tailored advice based on the candidate's resume, goals, and interview history.*
+
+### Mock Interview Simulator
+![Interview Simulator](./client/public/visuals%20(3).png)
+*Real-time mock interview environment simulating technical and HR rounds, complete with timed questions to build pressure resilience.*
+
+### Deep Resume Analysis
+![Resume Analysis](./client/public/visuals%20(8).png)
+*Actionable, line-by-line feedback on the user's uploaded resume, highlighting missing metrics, weak verbs, and formatting issues.*
+
+### Community Knowledge Hub
+![Community Hub](./client/public/visuals%20(13).png)
+*A collaborative space where students share interview experiences, placement tips, and company insights.*
+
+---
+
 ## ✨ Comprehensive Feature Scope
 
 HireMinds is being developed in modular phases. The complete system encompasses the following core modules:

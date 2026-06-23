@@ -17,21 +17,21 @@ export default function ProductPreview() {
 
       {/* Main Container */}
       <div className="relative w-full max-w-2xl mx-auto flex flex-col items-center">
-        
+
         {/* Title Section */}
         <div className="text-center mb-8 z-20">
-          <motion.div 
+          <motion.div
             initial={{ opacity: 0, y: -20 }}
             animate={{ opacity: 1, y: 0 }}
             className="inline-block px-4 py-1.5 rounded-full border border-[#2DD4BF]/30 bg-[#2DD4BF]/10 text-[#2DD4BF] text-xs font-bold tracking-widest uppercase mb-6 shadow-[0_0_15px_rgba(45,212,191,0.2)]"
           >
             HireMinds Platform
           </motion.div>
-          <motion.h2 
+          <motion.h2
             initial={{ opacity: 0 }} animate={{ opacity: 1 }} transition={{ delay: 0.1 }}
             className="text-[42px] leading-tight font-extrabold text-white mb-4"
           >
-            Master the Interview.<br/>
+            Master the Interview.<br />
             <span className="text-transparent bg-clip-text bg-gradient-to-r from-[#2DD4BF] to-[#3B82F6] drop-shadow-[0_0_15px_rgba(45,212,191,0.4)]">
               Secure the Offer.
             </span>
@@ -40,33 +40,33 @@ export default function ProductPreview() {
 
         {/* Mascot / Robot Container */}
         <div className="relative w-full h-[400px] flex items-center justify-center mb-6">
-          
+
           {/* Animated Platform Rings */}
           <div className="absolute bottom-[10px] w-[300px] h-16 border-2 border-[#2DD4BF]/40 rounded-[100%] shadow-[0_0_50px_rgba(45,212,191,0.4)] transform perspective-[600px] rotateX-[70deg] animate-pulse" />
           <div className="absolute bottom-[15px] w-[260px] h-14 border-2 border-[#2DD4BF]/80 rounded-[100%] shadow-[0_0_40px_rgba(45,212,191,0.8)] transform perspective-[600px] rotateX-[70deg] bg-[#2DD4BF]/10" />
           <div className="absolute bottom-[22px] w-[220px] h-12 border border-white/50 rounded-[100%] transform perspective-[600px] rotateX-[70deg] bg-white/5" />
-          
+
           {/* 3D Generated Robot Image */}
-          <motion.div 
+          <motion.div
             className="w-[300px] h-[300px] absolute bottom-[25px] z-10"
             style={{ perspective: 1000 }}
-            animate={{ 
+            animate={{
               y: [0, -20, 0],
               rotateZ: [-2, 2, -2],
               rotateY: [-15, 15, -15],
               scale: [1, 1.02, 1]
-            }} 
+            }}
             transition={{ repeat: Infinity, duration: 6, ease: "easeInOut" }}
           >
-            <img 
-              src="/robot.png" 
-              alt="AI Career Coach Robot Center" 
-              className="w-full h-full object-contain" 
-              style={{ 
+            <img
+              src="/robot.png"
+              alt="AI Career Coach Robot Center"
+              className="w-full h-full object-contain"
+              style={{
                 mixBlendMode: 'screen',
                 filter: 'drop-shadow(0 0 20px rgba(45,212,191,0.6))',
-                WebkitMaskImage: 'radial-gradient(circle at center, black 50%, transparent 80%)', 
-                maskImage: 'radial-gradient(circle at center, black 50%, transparent 80%)' 
+                WebkitMaskImage: 'radial-gradient(circle at center, black 50%, transparent 80%)',
+                maskImage: 'radial-gradient(circle at center, black 50%, transparent 80%)'
               }}
             />
           </motion.div>

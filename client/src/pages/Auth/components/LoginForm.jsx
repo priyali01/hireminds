@@ -3,7 +3,7 @@ import { useDispatch } from 'react-redux'
 import { useNavigate, Link } from 'react-router-dom'
 import { useLoginMutation } from '../../../store/api'
 import { setCredentials } from '../../../store/authSlice'
-import { BrainCircuit, Hand, Mail, Lock, Eye, EyeOff } from 'lucide-react'
+import { Hand, Mail, Lock, Eye, EyeOff } from 'lucide-react'
 
 export default function LoginForm() {
   const [email, setEmail] = useState('')
@@ -34,9 +34,8 @@ export default function LoginForm() {
     <div className="flex flex-col justify-center h-full w-full max-w-[360px] mx-auto py-8">
       {/* Top Logo */}
       <div className="flex flex-col items-start mb-10">
-        <div className="flex items-center gap-2 mb-1">
-          <BrainCircuit className="text-[#2DD4BF] w-8 h-8" />
-          <span className="text-3xl font-bold tracking-tight text-white">HireMinds</span>
+        <div className="flex items-center mb-1">
+          <img src="/logo.png" alt="HireMinds Logo" className="h-10 object-contain" />
         </div>
         <span className="text-[10px] text-[#94A3B8] tracking-[0.2em] uppercase font-medium mt-1">AI Career Companion</span>
       </div>
