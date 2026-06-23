@@ -14,21 +14,43 @@ Here is a glimpse into the HireMinds platform, showcasing our dynamic UI and cor
 ![Login Page](./client/public/visuals%20(14).png)
 *A sleek, secure login portal featuring our AI companion robot, designed to give users a premium entry experience into their career journey.*
 
-### Comprehensive Dashboard
+### Comprehensive Dashboard & Tracking
 ![Dashboard](./client/public/visuals%20(5).png)
 *The central hub providing an at-a-glance view of the user's Interview Readiness, ATS Score, current streak, and recommended jobs.*
 
+![Application Tracker](./client/public/visuals%20(10).png)
+*Manage your job hunt and analyze your journey with the Application Tracker.*
+
+![Leaderboard](./client/public/visuals%20(12).png)
+*Climb the ranks by practicing interviews and uploading resumes, competing globally and on campus.*
+
 ### Personalized AI Career Coach
-![AI Coach](./client/public/visuals%20(1).png)
+![AI Coach Chat](./client/public/visuals%20(1).png)
 *A 24/7 available AI Career Coach powered by Gemini, offering tailored advice based on the candidate's resume, goals, and interview history.*
 
+![AI Coach Feedback](./client/public/visuals%20(2).png)
+*Context-aware suggestions and guidance for resume enhancement and interview preparation.*
+
 ### Mock Interview Simulator
-![Interview Simulator](./client/public/visuals%20(3).png)
+![Interview Center](./client/public/visuals%20(11).png)
+*The AI Interview Center tracks your placement readiness and highlights areas like DBMS and OS for improvement.*
+
+![Mock Interview](./client/public/visuals%20(3).png)
 *Real-time mock interview environment simulating technical and HR rounds, complete with timed questions to build pressure resilience.*
 
 ### Deep Resume Analysis
-![Resume Analysis](./client/public/visuals%20(8).png)
+![Resume Upload](./client/public/visuals%20(4).png)
+*Level-aware ATS scoring tailored for freshers—simply upload your PDF resume to get started.*
+
+![Score Breakdown 1](./client/public/visuals%20(6).png)
+![Score Breakdown 2](./client/public/visuals%20(7).png)
+*Instant ATS scoring out of 100 with detailed section breakdowns for Skills, Projects, Education, and Experience.*
+
+![Line-by-line Feedback](./client/public/visuals%20(8).png)
 *Actionable, line-by-line feedback on the user's uploaded resume, highlighting missing metrics, weak verbs, and formatting issues.*
+
+![Keywords & Fix Plan](./client/public/visuals%20(9).png)
+*Identifies missing keywords (e.g., Docker, CI/CD) and generates a personalized one-week fix plan to improve the score.*
 
 ### Community Knowledge Hub
 ![Community Hub](./client/public/visuals%20(13).png)
