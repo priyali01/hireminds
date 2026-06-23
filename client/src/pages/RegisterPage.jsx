@@ -44,13 +44,13 @@ export default function RegisterPage() {
 
   return (
     <div className="auth-page">
-      <div className="auth-card">
+      <div className="auth-card glass-card" style={{ borderRadius: '1.5rem', margin: 'auto' }}>
         <div className="auth-brand">
           <img src="/logo.png" alt="HireMinds Logo" className="auth-logo-img" />
           <p className="brand-tagline">Your AI career companion</p>
         </div>
 
-        <h2 className="auth-title">Create your account</h2>
+        <h2 className="auth-title">Create your <span className="gradient-text">account</span>✨</h2>
         <p className="auth-subtitle">Free forever. No credit card needed.</p>
 
         <form onSubmit={handleSubmit(onSubmit)} className="auth-form" noValidate>

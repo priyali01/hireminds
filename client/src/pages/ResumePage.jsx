@@ -84,7 +84,7 @@ function ATSResult({ result, resumeId }) {
       </div>
 
       {/* Breakdown */}
-      <div className="card">
+      <div className="card glass-card">
         <h3 className="result-section-title">Section breakdown</h3>
         <div className="breakdown-list">
           {Object.entries(result.breakdown || {})
@@ -97,7 +97,7 @@ function ATSResult({ result, resumeId }) {
 
       {/* Strengths */}
       {result.strengths?.length > 0 && (
-        <div className="card strengths-card">
+        <div className="card strengths-card glass-card">
           <h3 className="result-section-title">✅ What's working</h3>
           <ul className="result-list">
             {result.strengths.map((s, i) => <li key={i}>{s}</li>)}
@@ -107,7 +107,7 @@ function ATSResult({ result, resumeId }) {
 
       {/* Feedback / improvements */}
       {result.feedback?.length > 0 && (
-        <div className="card">
+        <div className="card glass-card">
           <h3 className="result-section-title">💡 What to improve</h3>
           <ul className="result-list">
             {result.feedback.map((f, i) => <li key={i}>{f}</li>)}
@@ -117,7 +117,7 @@ function ATSResult({ result, resumeId }) {
 
       {/* Missing keywords */}
       {result.missingKeywords?.length > 0 && (
-        <div className="card">
+        <div className="card glass-card">
           <h3 className="result-section-title">🔍 Missing keywords</h3>
           <div className="chip-grid">
             {result.missingKeywords.map((k, i) => (
@@ -129,7 +129,7 @@ function ATSResult({ result, resumeId }) {
 
       {/* One-week fix plan */}
       {result.oneWeekFixPlan?.length > 0 && (
-        <div className="card fix-plan-card">
+        <div className="card fix-plan-card glass-card">
           <h3 className="result-section-title">📅 One-week fix plan</h3>
           <ol className="fix-plan-list">
             {result.oneWeekFixPlan.map((step, i) => (
@@ -138,6 +138,20 @@ function ATSResult({ result, resumeId }) {
           </ol>
         </div>
       )}
+    </div>
+  )
+}
+
+function FeatureItem({ icon, title, desc }) {
+  return (
+    <div style={{ display: 'flex', gap: '1.25rem', alignItems: 'flex-start' }}>
+      <div style={{ padding: '0.75rem', background: 'rgba(16, 185, 129, 0.05)', border: '1px solid rgba(16, 185, 129, 0.1)', borderRadius: '0.75rem', color: 'var(--color-primary-light)', fontSize: '1.25rem' }}>
+        {icon}
+      </div>
+      <div>
+        <h4 style={{ margin: '0 0 0.25rem 0', fontSize: '1rem', fontWeight: 600 }}>{title}</h4>
+        <p style={{ margin: 0, fontSize: '0.875rem', color: 'var(--color-text-muted)', lineHeight: 1.5 }}>{desc}</p>
+      </div>
     </div>
   )
 }
@@ -181,27 +195,39 @@ export default function ResumePage() {
   }
 
   return (
-    <div className="resume-page">
+    <div className="resume-page" style={{ padding: 'var(--space-8)' }}>
 
-
-      <div className="resume-layout">
-        {/* Upload panel */}
-        <div className="upload-panel glass-card" style={{ padding: 'var(--space-6)', borderRadius: 'var(--radius-lg)' }}>
-          <h1 className="page-title gradient-text">Resume Analyser</h1>
-          <p className="page-subtitle">
-            Level-aware ATS scoring — freshers compared to freshers, not senior engineers.
+      <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: '2rem', maxWidth: '1200px', margin: '0 auto' }}>
+        
+        {/* Upload panel (Left Column) */}
+        <div className="upload-panel glass-card" style={{ padding: '2.5rem', borderRadius: '1.5rem', display: 'flex', flexDirection: 'column' }}>
+          <h1 className="page-title" style={{ fontSize: '2rem', marginBottom: '0.5rem' }}>
+            Resume <span className="gradient-text">Analyser</span>✨
+          </h1>
+          <p className="page-subtitle" style={{ fontSize: '1rem', color: 'var(--color-text-muted)', marginBottom: '2rem', maxWidth: '90%' }}>
+            Level-aware ATS scoring — tailored for freshers.<br />Find what's missing. Fix it. Get hired.
           </p>
 
           {/* Level selector */}
-          <div className="level-selector">
-            <p className="form-label">I'm a</p>
-            <div className="level-tabs">
+          <div className="level-selector" style={{ marginBottom: '2rem' }}>
+            <p className="form-label" style={{ fontSize: '0.875rem', marginBottom: '0.75rem', color: 'var(--color-text-muted)' }}>I'm a</p>
+            <div className="level-tabs" style={{ display: 'flex', gap: '0.5rem' }}>
               {['fresher', 'intermediate', 'experienced'].map((l) => (
                 <button
                   key={l}
                   id={`level-tab-${l}`}
                   onClick={() => setLevel(l)}
                   className={`level-tab ${level === l ? 'active' : ''}`}
+                  style={{
+                    padding: '0.5rem 1.25rem',
+                    borderRadius: '2rem',
+                    border: level === l ? '1px solid transparent' : '1px solid rgba(255,255,255,0.1)',
+                    background: level === l ? 'var(--color-primary)' : 'transparent',
+                    color: level === l ? '#000' : 'var(--color-text-muted)',
+                    fontWeight: level === l ? 600 : 400,
+                    cursor: 'pointer',
+                    transition: 'all 0.2s'
+                  }}
                 >
                   {l.charAt(0).toUpperCase() + l.slice(1)}
                 </button>
@@ -221,18 +247,30 @@ export default function ResumePage() {
               setDragOver(false)
               handleFile(e.dataTransfer.files[0])
             }}
+            style={{
+              border: '2px dashed rgba(16, 185, 129, 0.3)',
+              borderRadius: '1rem',
+              padding: '3rem 2rem',
+              textAlign: 'center',
+              background: dragOver ? 'rgba(16, 185, 129, 0.05)' : 'rgba(255, 255, 255, 0.02)',
+              cursor: 'pointer',
+              transition: 'all 0.2s',
+              marginBottom: '1.5rem'
+            }}
           >
             {file ? (
-              <div className="file-selected">
-                <span className="file-icon">📄</span>
-                <span className="file-name">{file.name}</span>
-                <span className="file-size">{(file.size / 1024).toFixed(0)} KB</span>
+              <div className="file-selected" style={{ display: 'flex', flexDirection: 'column', alignItems: 'center', gap: '0.5rem' }}>
+                <span className="file-icon" style={{ fontSize: '2.5rem' }}>📄</span>
+                <span className="file-name" style={{ fontWeight: 500, color: 'var(--color-primary-light)' }}>{file.name}</span>
+                <span className="file-size" style={{ fontSize: '0.875rem', color: 'var(--color-text-faint)' }}>{(file.size / 1024).toFixed(0)} KB</span>
               </div>
             ) : (
-              <div className="drop-prompt">
-                <span className="drop-icon">⬆️</span>
-                <p className="drop-text">Click or drag & drop your resume</p>
-                <p className="drop-hint">PDF only · Max 5MB</p>
+              <div className="drop-prompt" style={{ display: 'flex', flexDirection: 'column', alignItems: 'center', gap: '0.5rem' }}>
+                <div style={{ width: '48px', height: '48px', borderRadius: '50%', background: 'rgba(16, 185, 129, 0.1)', color: 'var(--color-primary-light)', display: 'flex', alignItems: 'center', justifyContent: 'center', fontSize: '1.5rem', marginBottom: '0.5rem' }}>
+                  ↑
+                </div>
+                <p className="drop-text" style={{ fontSize: '1rem', fontWeight: 600, margin: 0 }}>Click or drag & drop your resume</p>
+                <p className="drop-hint" style={{ fontSize: '0.875rem', color: 'var(--color-text-muted)', margin: 0 }}>PDF only • Max 5MB</p>
               </div>
             )}
             <input
@@ -241,59 +279,106 @@ export default function ResumePage() {
               accept="application/pdf"
               className="hidden"
               onChange={(e) => handleFile(e.target.files[0])}
+              style={{ display: 'none' }}
             />
           </div>
 
-          {error && <div className="server-error" style={{ marginTop: '1rem' }}>{error}</div>}
+          {error && <div className="server-error" style={{ marginBottom: '1.5rem', color: '#ef4444' }}>{error}</div>}
 
           <button
             id="analyze-btn"
             onClick={handleAnalyze}
             disabled={!file || isAnalyzing}
-            className="btn btn-primary btn-full"
-            style={{ marginTop: '1rem' }}
+            className="btn btn-primary"
+            style={{ 
+              width: '100%', 
+              padding: '1rem', 
+              fontSize: '1rem', 
+              borderRadius: '0.75rem',
+              display: 'flex',
+              justifyContent: 'center',
+              alignItems: 'center',
+              gap: '0.5rem',
+              opacity: (!file || isAnalyzing) ? 0.7 : 1
+            }}
           >
             {isAnalyzing ? (
-              <span className="btn-loading">
+              <span className="btn-loading" style={{ display: 'flex', alignItems: 'center', gap: '0.5rem' }}>
                 <span className="spinner" />
-                Analysing with AI...
+                Analysing...
               </span>
-            ) : 'Analyse Resume'}
+            ) : (
+              <>✨ Analyse Resume</>
+            )}
           </button>
+          
+          <div style={{ textAlign: 'center', marginTop: '1rem', marginBottom: '2rem' }}>
+            <span style={{ fontSize: '0.75rem', color: 'var(--color-text-muted)' }}>🔒 Your data is secure and never shared.</span>
+          </div>
 
-          {/* History */}
-          {historyData?.resumes?.length > 0 && (
-            <div className="history-section">
-              <h3 className="history-title">Past analyses</h3>
-              <div className="history-list">
-                {historyData.resumes.slice(0, 5).map((r) => (
-                  <div key={r._id} className="history-item">
-                    <div>
-                      <p className="history-filename">{r.pdfMeta?.originalFilename || 'Manual entry'}</p>
-                      <p className="history-date">{new Date(r.createdAt).toLocaleDateString('en-IN')}</p>
-                    </div>
-                    <span className={`score-badge ${ScoreColor({ score: r.atsScore.overall })}`}>
-                      {r.atsScore.overall}/100
-                    </span>
-                  </div>
-                ))}
-              </div>
+          <div style={{ display: 'flex', justifyContent: 'space-between', borderTop: '1px solid rgba(255,255,255,0.05)', paddingTop: '1.5rem', marginTop: 'auto' }}>
+            <div style={{ display: 'flex', flexDirection: 'column', gap: '0.25rem' }}>
+              <div style={{ display: 'flex', alignItems: 'center', gap: '0.25rem', fontSize: '0.75rem', fontWeight: 600 }}><span style={{ color: 'var(--color-primary-light)' }}>🛡️</span> ATS Optimized</div>
+              <div style={{ fontSize: '0.7rem', color: 'var(--color-text-faint)' }}>Get a score that matters</div>
             </div>
-          )}
+            <div style={{ display: 'flex', flexDirection: 'column', gap: '0.25rem' }}>
+              <div style={{ display: 'flex', alignItems: 'center', gap: '0.25rem', fontSize: '0.75rem', fontWeight: 600 }}><span style={{ color: 'var(--color-primary-light)' }}>✨</span> AI-Powered Insights</div>
+              <div style={{ fontSize: '0.7rem', color: 'var(--color-text-faint)' }}>Actionable suggestions</div>
+            </div>
+            <div style={{ display: 'flex', flexDirection: 'column', gap: '0.25rem' }}>
+              <div style={{ display: 'flex', alignItems: 'center', gap: '0.25rem', fontSize: '0.75rem', fontWeight: 600 }}><span style={{ color: 'var(--color-primary-light)' }}>📈</span> Faster Shortlisting</div>
+              <div style={{ fontSize: '0.7rem', color: 'var(--color-text-faint)' }}>Stand out to recruiters</div>
+            </div>
+          </div>
         </div>
 
-        {/* Results panel */}
-        <div className="results-panel">
+        {/* Results / Info panel (Right Column) */}
+        <div className="results-panel glass-card" style={{ padding: '3rem', borderRadius: '1.5rem', display: 'flex', flexDirection: 'column', justifyContent: 'center' }}>
           {result ? (
             <ATSResult result={result} resumeId={resumeId} />
           ) : (
-            <div className="results-empty">
-              <div className="empty-illustration">📊</div>
-              <h3>Your analysis will appear here</h3>
-              <p>Upload your resume and click "Analyse Resume" to get started.</p>
+            <div className="results-empty" style={{ display: 'flex', flexDirection: 'column', gap: '3rem' }}>
+              
+              <div style={{ display: 'flex', flexDirection: 'column', alignItems: 'center', textAlign: 'center', gap: '1.5rem' }}>
+                {/* Styled illustration matching screenshot */}
+                <div style={{ position: 'relative', width: '120px', height: '140px', margin: '0 auto' }}>
+                  {/* Document shape */}
+                  <div style={{ position: 'absolute', top: 0, left: '10px', right: '10px', bottom: '20px', background: 'rgba(255,255,255,0.05)', borderRadius: '8px', border: '1px solid rgba(255,255,255,0.1)' }}>
+                    {/* Corner fold */}
+                    <div style={{ position: 'absolute', top: 0, right: 0, width: '30px', height: '30px', background: 'rgba(16, 185, 129, 0.4)', borderRadius: '0 8px 0 8px' }}></div>
+                    {/* Text lines */}
+                    <div style={{ position: 'absolute', top: '30px', left: '20px', width: '50%', height: '4px', background: 'rgba(255,255,255,0.2)', borderRadius: '2px' }}></div>
+                    <div style={{ position: 'absolute', top: '45px', left: '20px', width: '70%', height: '4px', background: 'rgba(255,255,255,0.2)', borderRadius: '2px' }}></div>
+                    <div style={{ position: 'absolute', top: '60px', left: '20px', width: '40%', height: '4px', background: 'rgba(255,255,255,0.2)', borderRadius: '2px' }}></div>
+                  </div>
+                  {/* Glowing bars overlapping */}
+                  <div style={{ position: 'absolute', bottom: 0, left: 0, width: '15px', height: '45px', background: 'var(--color-primary)', borderRadius: '4px', boxShadow: '0 0 15px var(--color-primary)' }}></div>
+                  <div style={{ position: 'absolute', bottom: 0, left: '25px', width: '15px', height: '70px', background: 'var(--color-primary-light)', borderRadius: '4px', boxShadow: '0 0 15px var(--color-primary-light)' }}></div>
+                  <div style={{ position: 'absolute', bottom: 0, left: '50px', width: '15px', height: '30px', background: 'var(--color-primary)', borderRadius: '4px', boxShadow: '0 0 15px var(--color-primary)' }}></div>
+                  <div style={{ position: 'absolute', bottom: 0, left: '75px', width: '15px', height: '55px', background: 'var(--color-primary-light)', borderRadius: '4px', boxShadow: '0 0 15px var(--color-primary-light)' }}></div>
+                  <div style={{ position: 'absolute', bottom: 0, left: '100px', width: '15px', height: '85px', background: 'var(--color-primary)', borderRadius: '4px', boxShadow: '0 0 15px var(--color-primary)' }}></div>
+                </div>
+
+                <div>
+                  <h3 style={{ fontSize: '1.5rem', marginBottom: '0.5rem' }}>Your analysis will appear here</h3>
+                  <p style={{ color: 'var(--color-text-muted)', margin: 0, lineHeight: 1.5 }}>
+                    Upload your resume and click<br />
+                    <span style={{ color: 'var(--color-primary-light)' }}>"Analyse Resume"</span> to get started.
+                  </p>
+                </div>
+              </div>
+
+              <div style={{ display: 'flex', flexDirection: 'column', gap: '2rem', padding: '0 1rem' }}>
+                <FeatureItem icon="🎯" title="Instant ATS Score" desc="See how well your resume performs against ATS filters." />
+                <FeatureItem icon="🔍" title="Keyword Insights" desc="Discover missing keywords and optimize your resume." />
+                <FeatureItem icon="💡" title="Smart Suggestions" desc="AI-recommended changes to improve your chances." />
+                <FeatureItem icon="🎖️" title="Stand Out" desc="Build a resume that gets noticed by top recruiters." />
+              </div>
+
             </div>
           )}
         </div>
+
       </div>
     </div>
   )

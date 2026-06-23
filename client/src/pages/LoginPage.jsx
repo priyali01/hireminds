@@ -31,13 +31,13 @@ export default function LoginPage() {
 
   return (
     <div className="auth-page">
-      <div className="auth-card">
+      <div className="auth-card glass-card" style={{ borderRadius: '1.5rem', margin: 'auto' }}>
         <div className="auth-brand">
           <img src="/logo.png" alt="HireMinds Logo" className="auth-logo-img" />
           <p className="brand-tagline">Your AI career companion</p>
         </div>
 
-        <h2 className="auth-title">Welcome back</h2>
+        <h2 className="auth-title">Welcome <span className="gradient-text">back</span>✨</h2>
         <p className="auth-subtitle">Sign in to your account</p>
 
         <form onSubmit={handleSubmit(onSubmit)} className="auth-form" noValidate>
