@@ -1,6 +1,8 @@
+import { useState } from 'react'
 import { useSelector } from 'react-redux'
 import { selectCurrentUser } from '../store/authSlice'
-import { motion } from 'framer-motion'
+import { motion, AnimatePresence } from 'framer-motion'
+import ProfileEditModal from '../components/ProfileEditModal'
 import '../styles/dashboard.css'
 
 const containerVariants = {
@@ -18,6 +20,7 @@ const itemVariants = {
 
 export default function ProfilePage() {
   const user = useSelector(selectCurrentUser)
+  const [isModalOpen, setIsModalOpen] = useState(false)
 
   if (!user) return null
 
@@ -33,10 +36,14 @@ export default function ProfilePage() {
             </h1>
             <p style={{ color: 'var(--color-text-muted)', margin: 0 }}>Manage your personal details and preferences</p>
           </div>
-          <button className="btn btn-primary" onClick={() => alert('Edit profile functionality coming soon!')}>
+          <button className="btn btn-primary" onClick={() => setIsModalOpen(true)}>
             Edit Profile
           </button>
         </div>
+
+        <AnimatePresence>
+          {isModalOpen && <ProfileEditModal user={user} onClose={() => setIsModalOpen(false)} />}
+        </AnimatePresence>
 
         <div style={{ display: 'grid', gridTemplateColumns: '1fr 2fr', gap: '2rem' }}>
           

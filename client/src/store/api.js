@@ -119,6 +119,19 @@ export const api = createApi({
       invalidatesTags: ['User'],
     }),
 
+    // --- User endpoints ---
+    updateProfile: builder.mutation({
+      query: (body) => ({ url: '/users/profile', method: 'PUT', body }),
+      invalidatesTags: ['User'],
+    }),
+    changePassword: builder.mutation({
+      query: (body) => ({ url: '/users/change-password', method: 'POST', body }),
+    }),
+    deleteAccount: builder.mutation({
+      query: () => ({ url: '/users/account', method: 'DELETE' }),
+      invalidatesTags: ['User', 'Resume', 'Interview', 'Job'],
+    }),
+
     // --- Resume endpoints ---
     analyzeResumeText: builder.mutation({
       query: (body) => ({ url: '/resumes/analyze', method: 'POST', body }),
@@ -297,6 +310,9 @@ export const {
   useLogoutMutation,
   useGetMeQuery,
   useCompleteOnboardingMutation,
+  useUpdateProfileMutation,
+  useChangePasswordMutation,
+  useDeleteAccountMutation,
   useAnalyzeResumeTextMutation,
   useUploadAndAnalyzeResumeMutation,
   useGetResumeHistoryQuery,

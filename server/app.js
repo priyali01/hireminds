@@ -78,6 +78,9 @@ const { requireAuth } = require('./middleware/auth.middleware')
 const { trackDailyStreak } = require('./middleware/streak.middleware')
 const { enforceQuotasLazily } = require('./middleware/quota.middleware')
 
+const userRoutes = require('./routes/user.routes')
+app.use('/users', requireAuth, enforceQuotasLazily, trackDailyStreak, userRoutes)
+
 // Gamification & Quota trackers for all protected API routes
 app.use('/resumes', requireAuth, enforceQuotasLazily, trackDailyStreak, resumeRoutes)
 const interviewRoutes = require('./routes/interview.routes')

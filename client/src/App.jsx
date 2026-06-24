@@ -4,6 +4,7 @@ import { selectIsAuthenticated, selectCurrentUser } from './store/authSlice'
 import { lazy, Suspense } from 'react'
 
 // Lazy-loaded pages for code splitting
+const LandingPage = lazy(() => import('./pages/LandingPage'))
 const LoginPage = lazy(() => import('./pages/Auth/LoginPage'))
 const RegisterPage = lazy(() => import('./pages/RegisterPage'))
 const OnboardingPage = lazy(() => import('./pages/OnboardingPage'))
@@ -118,9 +119,11 @@ export default function App() {
             <Route path="/profile" element={<ProfilePage />} />
           </Route>
 
-          {/* Default redirect */}
-          <Route path="/" element={<Navigate to="/dashboard" replace />} />
-          <Route path="*" element={<Navigate to="/dashboard" replace />} />
+          {/* Landing Page */}
+          <Route path="/" element={<LandingPage />} />
+
+          {/* Catch all redirect */}
+          <Route path="*" element={<Navigate to="/" replace />} />
         </Routes>
       </Suspense>
     </BrowserRouter>

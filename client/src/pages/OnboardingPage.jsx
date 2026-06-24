@@ -68,9 +68,7 @@ export default function OnboardingPage() {
   const canNext = () => {
     if (step === 0) return !!form.level
     if (step === 1) return form.targetRoles.length > 0
-    if (step === 2) return form.skills.length > 0
-    if (step === 3) return form.college.trim().length > 0 && form.branch.trim().length > 0
-    return true
+    return true // Skills and College are now optional
   }
 
   const handleFinish = async () => {
@@ -157,7 +155,7 @@ export default function OnboardingPage() {
           {/* Step 2: Skills */}
           {step === 2 && (
             <div className="step-panel">
-              <h2>What are your top skills?</h2>
+              <h2>What are your top skills? <span style={{ fontSize: '1rem', color: 'var(--color-text-muted)', fontWeight: 'normal' }}>(Optional)</span></h2>
               <p>Select from common ones or add your own. Up to 20 skills.</p>
               <div className="chip-grid">
                 {POPULAR_SKILLS.map((skill) => (
@@ -190,7 +188,7 @@ export default function OnboardingPage() {
           {/* Step 3: College */}
           {step === 3 && (
             <div className="step-panel">
-              <h2>Your education</h2>
+              <h2>Your education <span style={{ fontSize: '1rem', color: 'var(--color-text-muted)', fontWeight: 'normal' }}>(Optional)</span></h2>
               <p>Helps us understand your academic background and tailor recommendations.</p>
               <div className="form-group">
                 <label className="form-label">College / University</label>
@@ -243,19 +241,19 @@ export default function OnboardingPage() {
                 </div>
                 <div className="review-row">
                   <span className="review-key">Skills</span>
-                  <span className="review-val">{form.skills.slice(0, 5).join(', ')}{form.skills.length > 5 ? ` +${form.skills.length - 5} more` : ''}</span>
+                  <span className="review-val">{form.skills.length > 0 ? `${form.skills.slice(0, 5).join(', ')}${form.skills.length > 5 ? ` +${form.skills.length - 5} more` : ''}` : 'Not specified'}</span>
                 </div>
                 <div className="review-row">
                   <span className="review-key">College</span>
-                  <span className="review-val">{form.college}</span>
+                  <span className="review-val">{form.college || 'Not specified'}</span>
                 </div>
                 <div className="review-row">
                   <span className="review-key">Branch</span>
-                  <span className="review-val">{form.branch}</span>
+                  <span className="review-val">{form.branch || 'Not specified'}</span>
                 </div>
                 <div className="review-row">
                   <span className="review-key">Graduation</span>
-                  <span className="review-val">{form.graduationYear}</span>
+                  <span className="review-val">{form.graduationYear || 'Not specified'}</span>
                 </div>
               </div>
             </div>
@@ -271,15 +269,21 @@ export default function OnboardingPage() {
               ← Back
             </button>
           )}
-          {step < STEPS.length - 1 ? (
-            <button
-              onClick={() => setStep((s) => s + 1)}
-              disabled={!canNext()}
-              className="btn btn-primary"
-            >
-              Continue →
-            </button>
-          ) : (
+          <div style={{ marginLeft: 'auto', display: 'flex', gap: '1rem' }}>
+            {(step === 2 || step === 3) && (
+              <button onClick={() => setStep((s) => s + 1)} className="btn btn-ghost">
+                Skip for now
+              </button>
+            )}
+            {step < STEPS.length - 1 ? (
+              <button
+                onClick={() => setStep((s) => s + 1)}
+                disabled={!canNext()}
+                className="btn btn-primary"
+              >
+                Continue →
+              </button>
+            ) : (
             <button
               id="finish-onboarding"
               onClick={handleFinish}
@@ -289,6 +293,7 @@ export default function OnboardingPage() {
               {isLoading ? 'Setting up your account...' : 'Let\'s go 🚀'}
             </button>
           )}
+          </div>
         </div>
       </div>
     </div>
