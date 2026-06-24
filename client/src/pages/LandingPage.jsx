@@ -103,7 +103,7 @@ export default function LandingPage() {
               <motion.div
                 key={i}
                 initial={{ opacity: 0 }}
-                animate={{ opacity: Math.random() * 0.5 + 0.2 }}
+                animate={{ opacity: (i % 5) * 0.1 + 0.2 }}
                 transition={{ duration: 2, repeat: Infinity, repeatType: 'reverse', delay: i * 0.1 }}
                 className="w-16 h-16 bg-white/5 border border-white/5 rounded-xl flex items-center justify-center backdrop-blur-sm shrink-0"
               >
