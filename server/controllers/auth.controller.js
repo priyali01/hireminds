@@ -122,13 +122,19 @@ async function me(req, res, next) {
 async function completeOnboarding(req, res, next) {
   try {
     const data = onboardingSchema.parse(req.body)
+    const update = {
+      level: data.level,
+      targetRoles: data.targetRoles,
+      skills: data.skills || [],
+      onboardingComplete: true,
+    }
+    if (data.college) update.college = data.college
+    if (data.branch) update.branch = data.branch
+    if (data.graduationYear) update.graduationYear = data.graduationYear
 
     const user = await User.findByIdAndUpdate(
       req.user.userId,
-      {
-        ...data,
-        onboardingComplete: true,
-      },
+      update,
       { new: true, runValidators: true }
     )
 

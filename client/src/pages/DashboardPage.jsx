@@ -118,6 +118,13 @@ export default function DashboardPage() {
             <p style={{ fontSize: '0.875rem', color: 'var(--color-text-faint)', marginBottom: '2rem', maxWidth: '400px' }}>
               Complete your ATS analysis to unlock 23 personalized frontend opportunities.
             </p>
+            {(!user?.skills?.length || !user?.college) && (
+              <div style={{ fontSize: '0.875rem', color: 'var(--color-text-faint)', marginBottom: '1rem', maxWidth: '460px' }}>
+                Skills and education are optional. Add them on your profile when you want a closer analysis.
+                {' '}
+                <button type="button" className="btn btn-ghost btn-sm" onClick={() => navigate('/profile')}>Complete profile</button>
+              </div>
+            )}
             <div style={{ display: 'flex', gap: '1rem' }}>
               <button className="btn btn-primary" onClick={() => navigate('/resume')} style={{ padding: '0.75rem 1.5rem' }}>📄 Analyze Resume</button>
               <button className="btn" style={{ background: 'transparent', border: '1px solid var(--color-border)', padding: '0.75rem 1.5rem' }} onClick={() => navigate('/interview')}>🎤 Start AI Interview</button>

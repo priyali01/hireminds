@@ -37,9 +37,18 @@ export default function ProfilePage() {
             <p style={{ color: 'var(--color-text-muted)', margin: 0 }}>Manage your personal details and preferences</p>
           </div>
           <button className="btn btn-primary" onClick={() => setIsModalOpen(true)}>
-            Edit Profile
+            {user.skills?.length && user.college ? 'Edit Profile' : 'Complete profile'}
           </button>
         </div>
+
+        {(!user.skills?.length || !user.college || !user.branch || !user.graduationYear) && (
+          <motion.div variants={itemVariants} className="glass-card" style={{ padding: '1.25rem 1.5rem', borderRadius: '1rem', marginBottom: '1.5rem' }}>
+            <h2 style={{ margin: '0 0 0.35rem 0', fontSize: '1.05rem' }}>Optional details for a closer analysis</h2>
+            <p style={{ margin: 0, color: 'var(--color-text-muted)', fontSize: '0.9rem' }}>
+              Career stage and target role are enough to start. Add skills, college, branch, or graduation year here when you want them included. Resume scoring still works without them.
+            </p>
+          </motion.div>
+        )}
 
         <AnimatePresence>
           {isModalOpen && <ProfileEditModal user={user} onClose={() => setIsModalOpen(false)} />}
