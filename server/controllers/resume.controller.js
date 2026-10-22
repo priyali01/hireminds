@@ -1,6 +1,6 @@
 const multer = require('multer')
-const pdfParse = require('pdf-parse-fork')
 const Resume = require('../models/resume.model')
+const { extractResumeText } = require('../services/ats/extract')
 const User = require('../models/user.model')
 const { analyseResume } = require('../services/ats.service')
 const { normalizeLevel } = require('../services/ats.rules')
@@ -103,15 +103,8 @@ async function uploadAndAnalyze(req, res, next) {
 
     const level = normalizeLevel(req.body.level || req.user?.level || 'fresher')
 
-    // Extract text from PDF buffer
-    const pdfData = await pdfParse(req.file.buffer)
-    const resumeText = pdfData.text?.trim()
-
-    if (!resumeText || resumeText.length < 50) {
-      throw new ValidationError('Could not extract text from PDF', [
-        { field: 'resume', message: 'The PDF appears to have no extractable text. Try a text-based PDF.' },
-      ])
-    }
+    const extracted = await extractResumeText(req.file)
+    const resumeText = extracted.text
 
     const atsResult = await analyseResume(resumeText, level)
 

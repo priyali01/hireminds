@@ -1,12 +1,7 @@
 import { useState, useRef } from 'react'
-import { useSelector } from 'react-redux'
-import { selectCurrentUser } from '../store/authSlice'
-import {
-  useUploadAndAnalyzeResumeMutation,
-  useSubmitResumeFeedbackMutation,
-} from '../store/api'
-import { Link } from 'react-router-dom'
+import { useAssessResumeMutation } from '../store/api'
 import { motion } from 'framer-motion'
+import AtsReport from '../components/AtsReport'
 import '../styles/resume.css'
 
 const containerVariants = {
@@ -20,202 +15,6 @@ const containerVariants = {
 const itemVariants = {
   hidden: { opacity: 0, y: 20 },
   show: { opacity: 1, y: 0, transition: { type: 'spring', stiffness: 100, damping: 15 } }
-}
-
-function ScoreColor({ score }) {
-  if (score >= 80) return 'score-high'
-  if (score >= 50) return 'score-mid'
-  return 'score-low'
-}
-
-function ScoreBar({ value, label, note }) {
-  const color = ScoreColor({ score: value })
-  return (
-    <div className="score-bar-row">
-      <div className="score-bar-meta">
-        <span className="score-bar-label">{label}</span>
-        <span className={`score-bar-value ${color}`}>{value}/100</span>
-      </div>
-      <div className="score-bar-track">
-        <div
-          className={`score-bar-fill bg-${color}`}
-          style={{ width: `${value}%` }}
-        />
-      </div>
-      {note && <p className="score-bar-note">{note}</p>}
-    </div>
-  )
-}
-
-const CHECK_GROUPS = [
-  { id: 'search', title: 'Compatibility · can a parser read it' },
-  { id: 'headings', title: 'Compatibility · standard headings' },
-  { id: 'impact', title: 'Compatibility · bullets and proof' },
-  { id: 'skillcoverage', title: 'Compatibility · skills' },
-  { id: 'projects', title: 'Level score · projects' },
-  { id: 'skills', title: 'Level score · skills' },
-  { id: 'education', title: 'Level score · education' },
-  { id: 'experience', title: 'Level score · experience' },
-  { id: 'certifications', title: 'Level score · certifications' },
-]
-
-function ATSResult({ result, resumeId }) {
-  const [feedback, setFeedback] = useState(null)
-  const [submitFeedback] = useSubmitResumeFeedbackMutation()
-
-  const handleFeedback = async (thumbsUp) => {
-    setFeedback(thumbsUp ? 'up' : 'down')
-    await submitFeedback({ resumeId, thumbsUp }).catch(() => {})
-  }
-
-  const compatibility = result.compatibility ?? result.overall
-  const compatClass = ScoreColor({ score: compatibility })
-  const levelClass = ScoreColor({ score: result.overall })
-  const levelName = result.level || 'fresher'
-  const weights = result.weights || {}
-
-  return (
-    <div className="result-grid">
-      <div className="score-pair">
-        <div className="card result-score-card glass-card">
-          <p className="result-section-label">ATS compatibility</p>
-          <div className="overall-score">
-            <span className={`score-big ${compatClass}`}>{compatibility}</span>
-            <span className="score-denom">/100</span>
-          </div>
-          <p className="score-explain">
-            Compare this number with a generic online ATS checker. It counts contact details, standard headings, bullets, metrics, and skills. It is not a match to one job description.
-          </p>
-        </div>
-        <div className="card result-score-card glass-card">
-          <p className="result-section-label">HireMinds {levelName} score</p>
-          <div className="overall-score">
-            <span className={`score-big ${levelClass}`}>{result.overall}</span>
-            <span className="score-denom">/100</span>
-          </div>
-          <p className="score-explain">{result.formula}</p>
-        </div>
-      </div>
-      <p className="model-tag">Scored in code from the checklist below. The same resume always gets the same numbers. An online checker will be close on compatibility and will disagree with the fresher score when it punishes missing experience.</p>
-
-      <div className="card glass-card">
-        <h3 className="result-section-title">Level score, section by section</h3>
-        <div className="breakdown-list">
-          {Object.entries(result.breakdown || {}).map(([key, val]) => {
-            const weight = Math.round((weights[key] || 0) * 100)
-            return (
-              <ScoreBar
-                key={key}
-                value={val}
-                label={`${key.charAt(0).toUpperCase() + key.slice(1)} · ${weight}% of the level score`}
-                note={weight === 0 ? 'Shown so you can see it. It adds nothing at this level.' : ''}
-              />
-            )
-          })}
-        </div>
-      </div>
-
-      {result.compatibilityBreakdown && (
-        <div className="card glass-card">
-          <h3 className="result-section-title">Compatibility, piece by piece</h3>
-          <p className="score-explain">Searchability 30%, headings 25%, impact 25%, skills 20%.</p>
-          <div className="breakdown-list">
-            {Object.entries(result.compatibilityBreakdown).map(([key, val]) => (
-              <ScoreBar key={key} value={val} label={key.charAt(0).toUpperCase() + key.slice(1)} />
-            ))}
-          </div>
-        </div>
-      )}
-
-      <div className="card glass-card">
-        <h3 className="result-section-title">Every check</h3>
-        {CHECK_GROUPS.map((group) => {
-          const items = (result.checks || []).filter((item) => item.group === group.id)
-          if (!items.length) return null
-          const earned = items.reduce((sum, item) => sum + item.earned, 0)
-          const max = items.reduce((sum, item) => sum + item.max, 0)
-          return (
-            <div key={group.id} className="check-group">
-              <div className="check-group-title">
-                <span>{group.title}</span>
-                <span>{earned}/{max}</span>
-              </div>
-              {items.map((item) => (
-                <div key={item.id} className={`check-row ${item.passed ? 'check-pass' : 'check-miss'}`}>
-                  <div className="check-row-top">
-                    <span className="check-mark">{item.passed ? 'Pass' : 'Fix'}</span>
-                    <span className="check-label">{item.label}</span>
-                    <span className="check-points">{item.earned}/{item.max}</span>
-                  </div>
-                  <p className="check-detail">{item.detail}</p>
-                </div>
-              ))}
-            </div>
-          )
-        })}
-        <div className="feedback-row">
-          <span className="feedback-label">Was this helpful?</span>
-          <button
-            id="thumb-up"
-            onClick={() => handleFeedback(true)}
-            className={`thumb-btn ${feedback === 'up' ? 'active' : ''}`}
-            title="Helpful"
-          >👍</button>
-          <button
-            id="thumb-down"
-            onClick={() => handleFeedback(false)}
-            className={`thumb-btn ${feedback === 'down' ? 'active' : ''}`}
-            title="Not helpful"
-          >👎</button>
-        </div>
-      </div>
-
-      {/* Strengths */}
-      {result.strengths?.length > 0 && (
-        <div className="card strengths-card glass-card">
-          <h3 className="result-section-title">✅ What's working</h3>
-          <ul className="result-list">
-            {result.strengths.map((s, i) => <li key={i}>{s}</li>)}
-          </ul>
-        </div>
-      )}
-
-      {/* Feedback / improvements */}
-      {result.feedback?.length > 0 && (
-        <div className="card glass-card">
-          <h3 className="result-section-title">💡 What to improve</h3>
-          <ul className="result-list">
-            {result.feedback.map((f, i) => <li key={i}>{f}</li>)}
-          </ul>
-        </div>
-      )}
-
-      {/* Missing keywords */}
-      <div className="card glass-card">
-        <h3 className="result-section-title">Common keywords not on this resume</h3>
-        <p className="score-explain">{result.keywordNote}</p>
-        {result.missingKeywords?.length > 0 && (
-          <div className="chip-grid">
-            {result.missingKeywords.map((k) => (
-              <span key={k} className="chip">{k}</span>
-            ))}
-          </div>
-        )}
-      </div>
-
-      {/* One-week fix plan */}
-      {result.oneWeekFixPlan?.length > 0 && (
-        <div className="card fix-plan-card glass-card">
-          <h3 className="result-section-title">📅 One-week fix plan</h3>
-          <ol className="fix-plan-list">
-            {result.oneWeekFixPlan.map((step, i) => (
-              <li key={i}>{step}</li>
-            ))}
-          </ol>
-        </div>
-      )}
-    </div>
-  )
 }
 
 function FeatureItem({ icon, title, desc }) {
@@ -232,47 +31,47 @@ function FeatureItem({ icon, title, desc }) {
   )
 }
 
+function acceptedResume(file) {
+  if (!file) return false
+  const name = file.name.toLowerCase()
+  return name.endsWith('.pdf') || name.endsWith('.docx')
+}
+
 export default function ResumePage() {
-  const user = useSelector(selectCurrentUser)
-  const [uploadAndAnalyze, { isLoading: isAnalyzing }] = useUploadAndAnalyzeResumeMutation()
+  const [assessResume, { isLoading: isAnalyzing }] = useAssessResumeMutation()
 
   const [file, setFile] = useState(null)
-  const [level, setLevel] = useState(({
-    fresher: 'fresher',
-    junior: 'intermediate',
-    intermediate: 'intermediate',
-    mid: 'experienced',
-    senior: 'experienced',
-    experienced: 'experienced',
-  })[user?.level] || 'fresher')
-  const [result, setResult] = useState(null)
-  const [resumeId, setResumeId] = useState(null)
+  const [jobDescription, setJobDescription] = useState('')
+  const [assessment, setAssessment] = useState(null)
   const [error, setError] = useState(null)
   const [dragOver, setDragOver] = useState(false)
   const fileInputRef = useRef()
 
   const handleFile = (f) => {
-    if (f?.type !== 'application/pdf') {
-      setError('Only PDF files are accepted.')
+    if (!acceptedResume(f)) {
+      setError('Upload a PDF or DOCX resume. Scans and old .doc files are not scored.')
       return
     }
     setFile(f)
     setError(null)
-    setResult(null)
   }
 
   const handleAnalyze = async () => {
     if (!file) return
+    if (jobDescription.trim().length < 40) {
+      setError('Paste the job description. It needs at least a few lines so required skills can be found.')
+      return
+    }
     setError(null)
     const formData = new FormData()
     formData.append('resume', file)
-    formData.append('level', level)
+    formData.append('jobDescription', jobDescription)
     try {
-      const res = await uploadAndAnalyze(formData).unwrap()
-      setResult(res.score)
-      setResumeId(res.resumeId)
+      const res = await assessResume(formData).unwrap()
+      setAssessment(res.assessment)
     } catch (err) {
-      setError(err.data?.message || 'Analysis failed. Please try again.')
+      setAssessment(null)
+      setError(err.data?.details?.[0]?.message || err.data?.message || 'Analysis failed. Please try again.')
     }
   }
 
@@ -286,36 +85,17 @@ export default function ResumePage() {
           <h1 className="page-title" style={{ fontSize: '2rem', marginBottom: '0.5rem' }}>
             Resume <span className="gradient-text">Analyser</span>✨
           </h1>
-          <p className="page-subtitle" style={{ fontSize: '1rem', color: 'var(--color-text-muted)', marginBottom: '2rem', maxWidth: '90%' }}>
-            Two scores from the text of your PDF. Compatibility is the one to compare with an online checker. The level score is HireMinds, and a fresher is not marked down for having no job.
+          <p className="page-subtitle" style={{ fontSize: '1rem', color: 'var(--color-text-muted)', marginBottom: '1rem', maxWidth: '90%' }}>
+            Paste a job description and upload a text PDF or DOCX. The score is calculated on this server from evidence in your resume. It is not an employer ATS.
           </p>
-
-          {/* Level selector */}
-          <div className="level-selector" style={{ marginBottom: '2rem' }}>
-            <p className="form-label" style={{ fontSize: '0.875rem', marginBottom: '0.75rem', color: 'var(--color-text-muted)' }}>I'm a</p>
-            <div className="level-tabs" style={{ display: 'flex', gap: '0.5rem' }}>
-              {['fresher', 'intermediate', 'experienced'].map((l) => (
-                <button
-                  key={l}
-                  id={`level-tab-${l}`}
-                  onClick={() => setLevel(l)}
-                  className={`level-tab ${level === l ? 'active' : ''}`}
-                  style={{
-                    padding: '0.5rem 1.25rem',
-                    borderRadius: '2rem',
-                    border: level === l ? '1px solid transparent' : '1px solid rgba(255,255,255,0.1)',
-                    background: level === l ? 'var(--color-primary)' : 'transparent',
-                    color: level === l ? '#000' : 'var(--color-text-muted)',
-                    fontWeight: level === l ? 600 : 400,
-                    cursor: 'pointer',
-                    transition: 'all 0.2s'
-                  }}
-                >
-                  {l.charAt(0).toUpperCase() + l.slice(1)}
-                </button>
-              ))}
-            </div>
-          </div>
+          <label className="form-label" htmlFor="job-description" style={{ fontSize: '0.875rem', color: 'var(--color-text-muted)' }}>Job description</label>
+          <textarea
+            id="job-description"
+            className="jd-input"
+            value={jobDescription}
+            onChange={(e) => setJobDescription(e.target.value)}
+            placeholder="Paste the role requirements, preferred skills, and responsibilities."
+          />
 
           {/* Drop zone */}
           <div
@@ -352,13 +132,13 @@ export default function ResumePage() {
                   ↑
                 </div>
                 <p className="drop-text" style={{ fontSize: '1rem', fontWeight: 600, margin: 0 }}>Click or drag & drop your resume</p>
-                <p className="drop-hint" style={{ fontSize: '0.875rem', color: 'var(--color-text-muted)', margin: 0 }}>PDF only • Max 5MB</p>
+                <p className="drop-hint" style={{ fontSize: '0.875rem', color: 'var(--color-text-muted)', margin: 0 }}>PDF or DOCX • Max 5MB • text files, not scans</p>
               </div>
             )}
             <input
               ref={fileInputRef}
               type="file"
-              accept="application/pdf"
+              accept=".pdf,.docx,application/pdf,application/vnd.openxmlformats-officedocument.wordprocessingml.document"
               className="hidden"
               onChange={(e) => handleFile(e.target.files[0])}
               style={{ display: 'none' }}
@@ -370,7 +150,7 @@ export default function ResumePage() {
           <button
             id="analyze-btn"
             onClick={handleAnalyze}
-            disabled={!file || isAnalyzing}
+            disabled={!file || jobDescription.trim().length < 40 || isAnalyzing}
             className="btn btn-primary"
             style={{ 
               width: '100%', 
@@ -381,7 +161,7 @@ export default function ResumePage() {
               justifyContent: 'center',
               alignItems: 'center',
               gap: '0.5rem',
-              opacity: (!file || isAnalyzing) ? 0.7 : 1
+              opacity: (!file || jobDescription.trim().length < 40 || isAnalyzing) ? 0.7 : 1
             }}
           >
             {isAnalyzing ? (
@@ -390,7 +170,7 @@ export default function ResumePage() {
                 Analysing...
               </span>
             ) : (
-              <>✨ Analyse Resume</>
+              <>{assessment ? 'Rescan' : 'Score against this job'}</>
             )}
           </button>
           
@@ -400,24 +180,24 @@ export default function ResumePage() {
 
           <div style={{ display: 'flex', justifyContent: 'space-between', borderTop: '1px solid rgba(255,255,255,0.05)', paddingTop: '1.5rem', marginTop: 'auto' }}>
             <div style={{ display: 'flex', flexDirection: 'column', gap: '0.25rem' }}>
-              <div style={{ display: 'flex', alignItems: 'center', gap: '0.25rem', fontSize: '0.75rem', fontWeight: 600 }}><span style={{ color: 'var(--color-primary-light)' }}>🛡️</span> ATS Optimized</div>
-              <div style={{ fontSize: '0.7rem', color: 'var(--color-text-faint)' }}>Get a score that matters</div>
+              <div style={{ display: 'flex', alignItems: 'center', gap: '0.25rem', fontSize: '0.75rem', fontWeight: 600 }}><span style={{ color: 'var(--color-primary-light)' }}>🛡️</span> Local scoring</div>
+              <div style={{ fontSize: '0.7rem', color: 'var(--color-text-faint)' }}>Calculated on this server</div>
             </div>
             <div style={{ display: 'flex', flexDirection: 'column', gap: '0.25rem' }}>
-              <div style={{ display: 'flex', alignItems: 'center', gap: '0.25rem', fontSize: '0.75rem', fontWeight: 600 }}><span style={{ color: 'var(--color-primary-light)' }}>✨</span> AI-Powered Insights</div>
-              <div style={{ fontSize: '0.7rem', color: 'var(--color-text-faint)' }}>Actionable suggestions</div>
+              <div style={{ display: 'flex', alignItems: 'center', gap: '0.25rem', fontSize: '0.75rem', fontWeight: 600 }}><span style={{ color: 'var(--color-primary-light)' }}>✨</span> Evidence</div>
+              <div style={{ fontSize: '0.7rem', color: 'var(--color-text-faint)' }}>Shows where each skill was found</div>
             </div>
             <div style={{ display: 'flex', flexDirection: 'column', gap: '0.25rem' }}>
-              <div style={{ display: 'flex', alignItems: 'center', gap: '0.25rem', fontSize: '0.75rem', fontWeight: 600 }}><span style={{ color: 'var(--color-primary-light)' }}>📈</span> Faster Shortlisting</div>
-              <div style={{ fontSize: '0.7rem', color: 'var(--color-text-faint)' }}>Stand out to recruiters</div>
+              <div style={{ display: 'flex', alignItems: 'center', gap: '0.25rem', fontSize: '0.75rem', fontWeight: 600 }}><span style={{ color: 'var(--color-primary-light)' }}>📈</span> Practice gate</div>
+              <div style={{ fontSize: '0.7rem', color: 'var(--color-text-faint)' }}>Opens at 75 on this rubric</div>
             </div>
           </div>
         </motion.div>
 
         {/* Results / Info panel (Right Column) */}
-        <motion.div variants={itemVariants} className="results-panel glass-card" style={{ padding: '2rem', borderRadius: '1.5rem', display: 'flex', flexDirection: 'column', justifyContent: result ? 'flex-start' : 'center' }}>
-          {result ? (
-            <ATSResult result={result} resumeId={resumeId} />
+        <motion.div variants={itemVariants} className="results-panel glass-card" style={{ padding: '2rem', borderRadius: '1.5rem', display: 'flex', flexDirection: 'column', justifyContent: assessment ? 'flex-start' : 'center' }}>
+          {assessment ? (
+            <AtsReport assessment={assessment} />
           ) : (
             <div className="results-empty" style={{ display: 'flex', flexDirection: 'column', gap: '3rem' }}>
               
@@ -444,17 +224,17 @@ export default function ResumePage() {
                 <div>
                   <h3 style={{ fontSize: '1.5rem', marginBottom: '0.5rem' }}>Your analysis will appear here</h3>
                   <p style={{ color: 'var(--color-text-muted)', margin: 0, lineHeight: 1.5 }}>
-                    Upload your resume and click<br />
-                    <span style={{ color: 'var(--color-primary-light)' }}>"Analyse Resume"</span> to get started.
+                    Paste a job description, upload a text resume, and click<br />
+                    <span style={{ color: 'var(--color-primary-light)' }}>Score against this job</span>.
                   </p>
                 </div>
               </div>
 
               <div style={{ display: 'flex', flexDirection: 'column', gap: '2rem', padding: '0 1rem' }}>
-                <FeatureItem icon="🎯" title="Instant ATS Score" desc="See how well your resume performs against ATS filters." />
-                <FeatureItem icon="🔍" title="Keyword Insights" desc="Discover missing keywords and optimize your resume." />
-                <FeatureItem icon="💡" title="Smart Suggestions" desc="AI-recommended changes to improve your chances." />
-                <FeatureItem icon="🎖️" title="Stand Out" desc="Build a resume that gets noticed by top recruiters." />
+                <FeatureItem icon="🎯" title="Practice match score" desc="See how this resume lines up with the job description you pasted." />
+                <FeatureItem icon="🔍" title="Required skill gaps" desc="See required skills that were not found in the resume." />
+                <FeatureItem icon="💡" title="What to fix" desc="Missing required skills and unverified experience, with a rescan after you edit the file." />
+                <FeatureItem icon="🎖️" title="A checklist, not a promise" desc="Use the gaps before you apply. This number is not an employer ATS result." />
               </div>
 
             </div>

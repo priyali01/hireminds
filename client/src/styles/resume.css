@@ -461,6 +461,36 @@
   margin-top: 0.75rem;
 }
 
+.gate-status {
+  margin: 0;
+  font-size: 0.875rem;
+  font-weight: 600;
+}
+
+.gate-open { color: var(--color-score-high); }
+.gate-locked { color: var(--color-score-low, #f87171); }
+
+.ats-block { margin-top: 0.75rem; }
+.ats-block-title {
+  margin: 0 0 0.35rem;
+  font-size: 0.8125rem;
+  color: var(--color-text-faint);
+}
+
+.jd-input {
+  width: 100%;
+  min-height: 140px;
+  resize: vertical;
+  margin-bottom: 1rem;
+  padding: 0.75rem;
+  border-radius: 0.75rem;
+  border: 1px solid rgba(255, 255, 255, 0.12);
+  background: rgba(255, 255, 255, 0.03);
+  color: inherit;
+  font: inherit;
+  line-height: 1.45;
+}
+
 .chip {
   font-size: 0.75rem;
   padding: 0.25rem 0.6rem;

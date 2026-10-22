@@ -93,6 +93,7 @@ export default function DashboardPage() {
   const latestResume = historyData?.resumes?.[0]
   const latestScore = latestResume?.atsScore?.overall
   const latestCompatibility = latestResume?.atsScore?.compatibility
+  const scoreLabel = latestScore == null ? '—' : `${latestScore}/100`
 
   const greeting = () => {
     const hour = new Date().getHours()
@@ -127,7 +128,7 @@ export default function DashboardPage() {
             <CircularProgress percentage={latestScore} size={160} strokeWidth={12} title="Interview" subtitle="Readiness" />
             
             <div style={{ minWidth: '200px' }}>
-              <MiniStatList icon="🎯" label="ATS Score" value={`${latestScore}/100`} />
+              <MiniStatList icon="🎯" label="Level score" value={scoreLabel} />
               <MiniStatList icon="🎤" label="Interviews" value={user?.metrics?.interviews || 12} />
               <MiniStatList icon="💼" label="Job Matches" value="23" />
               <MiniStatList icon="📈" label="Skills Improved" value="12" />
@@ -137,7 +138,7 @@ export default function DashboardPage() {
 
         {/* QUICK STATS GRID */}
         <div style={{ display: 'grid', gridTemplateColumns: 'repeat(auto-fit, minmax(240px, 1fr))', gap: '1.5rem' }}>
-          <StatCard title="ATS Score" value={`${latestScore}/100`} subtitle="Great progress! 🎉" icon="🎯" trend="📈" />
+          <StatCard title="Level score" value={scoreLabel} subtitle={latestScore == null ? 'Score a resume to see this' : 'From the last resume upload'} icon="🎯" trend="📈" />
           <StatCard title="Job Matches" value="23" subtitle="New matches available" icon="💼" trend="📈" />
           <StatCard title="Interview Score" value="92/100" subtitle="Excellent! 🔥" icon="🎤" trend="📈" />
           <StatCard title="Skills Improved" value="12" subtitle="Keep it up! 💪" icon="📈" trend="📈" />
