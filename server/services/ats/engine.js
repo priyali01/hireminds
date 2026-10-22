@@ -9,7 +9,9 @@ const { classifyDegree, classifyYears, groupEligibility } = require('./eligibili
 /**
  * Job match assumptions for rubric h02:
  * - A technical skill is scored once, in required skills or in preferred keywords, never both.
- * - Evidence strength depends on where it was found, not how many times it appears.
+ * - Evidence strength depends on how the skill is used, not how many times it appears.
+ *   A work bullet scores 100, a bare name in that section scores 70, a skills-list
+ *   mention scores 60, and any other mention scores 40. The strongest line wins.
  * - Project and experience points come from having dated, described work. They do not add the skill hit again.
  * - Responsibility points use the remaining words after skill names and stopwords are removed.
  * - Soft skills are their own 5% category.
@@ -50,31 +52,71 @@ function contentWords(phrase) {
   return [...new Set(tokens)].filter((word) => !STOPWORDS.has(word) && !skillToken(word, SKILL_DICTIONARY.concat(SOFT_SKILLS)))
 }
 
-function evidenceFor(skill, resume) {
-  const buckets = [
-    ['projects', resume.sections.projects || '', 100],
-    ['experience', resume.sections.experience || '', 100],
-    ['skills', resume.sections.skills || '', 60],
-    ['other', resume.text, 40],
-  ]
+function demonstratedUse(line) {
+  const words = line.match(/[A-Za-z0-9+.#]+/g) || []
+  const bullet = /^\s*(?:[-•*]|\d+[.)])/.test(line)
+  return words.length >= 6 || (bullet && words.length >= 4)
+}
 
-  for (const [section, text, credit] of buckets) {
-    const found = findSkill(text, skill)
+function bestLine(text, skill, fullCredit, bareCredit) {
+  let best = null
+  for (const line of String(text || '').split('\n')) {
+    const found = findSkill(line, skill)
     if (!found) continue
-    if (section === 'other') {
-      const inKnown = ['projects', 'experience', 'skills', 'education'].some((name) => {
-        return findSkill(resume.sections[name] || '', skill)
-      })
-      if (inKnown) continue
-    }
-    return {
-      section,
+    const credit = demonstratedUse(line) ? fullCredit : bareCredit
+    if (best && best.credit >= credit) continue
+    best = {
       credit,
-      snippet: lineAround(text, found.index),
+      snippet: line.trim().slice(0, 180),
       matchedAlias: found.alias,
     }
   }
-  return null
+  return best
+}
+
+function evidenceFor(skill, resume) {
+  // One skill, one score: the strongest line in projects or experience.
+  // A later bullet beats an earlier bare name. Repeats do not add credit.
+  let best = null
+  for (const section of ['projects', 'experience']) {
+    const found = bestLine(resume.sections[section] || '', skill, 100, 70)
+    if (!found) continue
+    if (best && best.credit >= found.credit) continue
+    best = { section, ...found }
+  }
+  if (best) {
+    return {
+      ...best,
+      reason: best.credit === 100
+        ? `Used in a ${best.section} bullet. One demonstration is enough, and repeating the name does not raise this.`
+        : `Named under ${best.section} without a bullet that shows the work. That is stronger than a skills-list mention and weaker than a demonstration.`,
+    }
+  }
+
+  const listed = bestLine(resume.sections.skills || '', skill, 60, 60)
+  if (listed) {
+    return {
+      section: 'skills',
+      credit: 60,
+      snippet: listed.snippet,
+      matchedAlias: listed.matchedAlias,
+      reason: 'Found only in the skills list, so the evidence is partial. Repeating it would not raise this.',
+    }
+  }
+
+  const elsewhere = bestLine(resume.text, skill, 40, 40)
+  if (!elsewhere) return null
+  const inKnown = ['projects', 'experience', 'skills', 'education'].some((name) => {
+    return findSkill(resume.sections[name] || '', skill)
+  })
+  if (inKnown) return null
+  return {
+    section: 'other',
+    credit: 40,
+    snippet: elsewhere.snippet,
+    matchedAlias: elsewhere.matchedAlias,
+    reason: 'Found outside projects, experience and the skills list, so the evidence is partial.',
+  }
 }
 
 function scoreSkillList(resume, items, key, label) {
@@ -106,11 +148,7 @@ function scoreSkillList(resume, items, key, label) {
       credit: evidence.credit,
       snippet: evidence.snippet,
       matchedAlias: evidence.matchedAlias,
-      reason: evidence.credit === 100
-        ? `Found in ${evidence.section}. One mention is enough. Extra repetitions do not raise this.`
-        : evidence.section === 'skills'
-          ? 'Found only in the skills list, so the evidence is partial. Repeating it would not raise this.'
-          : 'Found outside projects, experience and the skills list, so the evidence is partial.',
+      reason: evidence.reason,
     })
   }
 
@@ -120,7 +158,7 @@ function scoreSkillList(resume, items, key, label) {
   return category(key, total / items.length, {
     matched,
     missing,
-    reasons: [`${matched.length} of ${items.length} ${label} have evidence. A project or job mention scores 100, a skills-list mention scores 60, and another mention scores 40.`],
+    reasons: [`${matched.length} of ${items.length} ${label} have evidence. A bullet that uses the skill scores 100, a bare name in that section scores 70, a skills-list mention scores 60, and another mention scores 40. Repeating a name does not raise the credit.`],
     suggestions,
   })
 }

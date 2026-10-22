@@ -37,7 +37,7 @@ The Resume page has two independent scores. Rubric `h02-v1` in `server/config/at
 - Preferred keywords, 10%.
 - Soft skills, 5%.
 
-A skill counts once. Evidence strength depends on where it was found (a project or job bullet is stronger than a skills-list mention), not on how many times the word appears. Responsibility points use the words left after skill names are removed, so the same skill is not added again. A category with nothing to assess is left out and the remaining weights are renormalized.
+A skill counts once. A bullet that uses it scores 100, a bare name in Projects or Experience scores 70, a skills-list mention scores 60, and any other mention scores 40. The strongest line wins. Repeating the name does not raise the credit. Responsibility points use the words left after skill names are removed, so the same skill is not added again. A category with nothing to assess is left out and the remaining weights are renormalized.
 
 Reported beside the scores, and not added into them:
 
