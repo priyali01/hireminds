@@ -1,7 +1,8 @@
-const { combineScores } = require('../../services/ats/engine')
-const { scoreResumeAgainstJob } = require('../../services/ats/engine')
-const { assertWeights } = require('../../config/ats.config')
+const { combineScores, scoreResumeAgainstJob } = require('../../services/ats/engine')
+const { assertWeights, ATS_CONFIG } = require('../../config/ats.config')
 const { findAlias } = require('../../services/ats/match')
+const { scoreCompatibility, weightedScore } = require('../../services/ats/compatibility')
+const { decideGate } = require('../../services/ats/gate')
 
 const GOOD_JD = `
 Backend Developer
@@ -64,27 +65,43 @@ Club volunteer, 2024 - 2025
 `
 
 describe('combineScores', () => {
-  it('weights 80, 70, 90, 60 and 100 to 79', () => {
+  it('weights the six job-match categories to 78', () => {
     const result = combineScores({
       requiredSkills: 80,
-      experience: 70,
-      projects: 90,
-      preferred: 60,
-      educationReadability: 100,
+      projectsExperience: 70,
+      responsibilities: 90,
+      educationEligibility: 60,
+      preferred: 100,
+      softSkills: 50,
     })
-    expect(result.scoreExact).toBeCloseTo(79, 5)
-    expect(result.scoreDisplay).toBe(79)
+    expect(result.scoreExact).toBeCloseTo(78, 5)
+    expect(result.scoreDisplay).toBe(78)
     expect(result.passesThreshold).toBe(true)
   })
 
-  it('keeps a score just under 75 locked when the displayed value would round up', () => {
+  it('drops categories that were not assessed and renormalizes', () => {
     const result = combineScores({
-      requiredSkills: 74.96,
-      experience: 74.96,
-      projects: 74.96,
-      preferred: 74.96,
-      educationReadability: 74.96,
+      requiredSkills: 80,
+      projectsExperience: 70,
+      responsibilities: 90,
+      educationEligibility: 60,
+      preferred: null,
+      softSkills: null,
     })
+    expect(result.scoreExact).toBeCloseTo((30 * 80 + 25 * 70 + 20 * 90 + 10 * 60) / 85, 5)
+    expect(result.scoreDisplay).toBe(77.1)
+  })
+
+  it('keeps a score just under 75 locked when the displayed value would round up', () => {
+    const scores = {
+      requiredSkills: 74.96,
+      projectsExperience: 74.96,
+      responsibilities: 74.96,
+      educationEligibility: 74.96,
+      preferred: 74.96,
+      softSkills: 74.96,
+    }
+    const result = combineScores(scores)
     expect(result.scoreDisplay).toBe(75)
     expect(result.passesThreshold).toBe(false)
   })
@@ -92,17 +109,19 @@ describe('combineScores', () => {
   it('unlocks at exactly 75 and above', () => {
     const at = combineScores({
       requiredSkills: 75,
-      experience: 75,
-      projects: 75,
+      projectsExperience: 75,
+      responsibilities: 75,
+      educationEligibility: 75,
       preferred: 75,
-      educationReadability: 75,
+      softSkills: 75,
     })
     const above = combineScores({
       requiredSkills: 75.01,
-      experience: 75.01,
-      projects: 75.01,
+      projectsExperience: 75.01,
+      responsibilities: 75.01,
+      educationEligibility: 75.01,
       preferred: 75.01,
-      educationReadability: 75.01,
+      softSkills: 75.01,
     })
     expect(at.passesThreshold).toBe(true)
     expect(above.passesThreshold).toBe(true)
@@ -110,12 +129,38 @@ describe('combineScores', () => {
 
   it('rejects weights that do not sum to 100', () => {
     expect(() => assertWeights({
-      requiredSkills: 35,
-      experience: 20,
-      projects: 20,
-      preferred: 15,
-      educationReadability: 5,
+      requiredSkills: 30,
+      projectsExperience: 25,
+      responsibilities: 20,
+      educationEligibility: 10,
+      preferred: 10,
+      softSkills: 4,
     })).toThrow(/sum to 100/)
+  })
+})
+
+describe('document compatibility', () => {
+  it('uses the available-weight formula', () => {
+    const weights = { extraction: 30, sections: 20, contact: 15, chronology: 15, layout: 20 }
+    expect(weightedScore({
+      extraction: 100, sections: 100, contact: 100, chronology: 100, layout: null,
+    }, weights)).toBe(100)
+    expect(weightedScore({
+      extraction: 50, sections: 50, contact: 50, chronology: 50, layout: 50,
+    }, weights)).toBe(50)
+  })
+
+  it('does not invent a score when almost no text was extracted', () => {
+    const result = scoreCompatibility('short')
+    expect(result.status).toBe('inconclusive')
+    expect(result.scoreExact).toBeNull()
+  })
+
+  it('scores a readable resume and ignores a job description', () => {
+    const result = scoreCompatibility(GOOD_RESUME)
+    expect(result.status).toBe('scored')
+    expect(result.scoreExact).toBeGreaterThan(50)
+    expect(result.components.contact.reasons.join(' ')).toMatch(/email/i)
   })
 })
 
@@ -190,6 +235,86 @@ describe('scoreResumeAgainstJob', () => {
     const first = scoreResumeAgainstJob(GOOD_RESUME, GOOD_JD, { nowYear: 2026 })
     const second = scoreResumeAgainstJob(GOOD_RESUME, GOOD_JD, { nowYear: 2026 })
     expect(second.scoreExact).toBeCloseTo(first.scoreExact, 5)
+    expect(second.compatibility.scoreExact).toBeCloseTo(first.compatibility.scoreExact, 5)
     expect(second.categories.requiredSkills.score).toBeCloseTo(first.categories.requiredSkills.score, 5)
+  })
+
+  it('does not add keyword coverage back into the job match', () => {
+    const jd = 'Requirements\n- Docker'
+    const listed = scoreResumeAgainstJob('Skills\nDocker, Git\nEducation\nB.Tech Computer Science, 2022 - 2026\nProjects\n- Built a notes app for the campus notice board', jd)
+    expect(listed.keywordCoverage.percent).toBe(100)
+    expect(listed.categories.requiredSkills.score).toBe(60)
+    expect(listed.scoreExact).not.toBe(listed.keywordCoverage.percent)
+  })
+
+  it('does not give project credit a second time for a skill already scored as required', () => {
+    const base = `
+Education
+B.Tech Computer Science, 2022 - 2026
+Projects
+- Built a notes app for campus students and shipped the first version
+Experience
+Intern, College Lab, 2025 - 2026
+- Kept the lab machines running for the student staff
+`
+    const listed = scoreResumeAgainstJob(`${base}\nSkills\nDocker`, 'Requirements\n- Docker')
+    const used = scoreResumeAgainstJob(base.replace('first version', 'first version with Docker'), 'Requirements\n- Docker')
+    expect(listed.categories.projectsExperience.score).toBe(used.categories.projectsExperience.score)
+    expect(used.categories.requiredSkills.score).toBeGreaterThan(listed.categories.requiredSkills.score)
+  })
+
+  it('leaves unverified years unknown and still allows the gate when the job match clears 75', () => {
+    const jd = `${GOOD_JD}\nMinimum 3 years of experience`
+    const result = scoreResumeAgainstJob(GOOD_RESUME, jd, { nowYear: 2026 })
+    expect(result.eligibility.unverified.map((item) => item.name)).toEqual(expect.arrayContaining(['3 years of experience']))
+    expect(result.eligibility.unmet).toHaveLength(0)
+    expect(result.scoreExact).toBeGreaterThanOrEqual(75)
+    const gate = decideGate({
+      resumeText: GOOD_RESUME,
+      jobDescription: jd,
+      rubricVersion: ATS_CONFIG.rubricVersion,
+      superseded: false,
+    }, { isOwner: true, isLatest: true })
+    expect(gate.unlocked).toBe(true)
+    expect(gate.reason).toBe('meets_threshold')
+  })
+
+  it('locks the gate on a confirmed eligibility miss even when the job match clears 75', () => {
+    const jd = GOOD_JD.replace('Bachelor degree', "Master's degree")
+    const result = scoreResumeAgainstJob(GOOD_RESUME, jd, { nowYear: 2026 })
+    expect(result.eligibility.unmet.map((item) => item.name)).toEqual(expect.arrayContaining(["master's degree"]))
+    expect(result.scoreExact).toBeGreaterThanOrEqual(75)
+    expect(result.passesThreshold).toBe(false)
+    const gate = decideGate({
+      resumeText: GOOD_RESUME,
+      jobDescription: jd,
+      rubricVersion: ATS_CONFIG.rubricVersion,
+      superseded: false,
+    }, { isOwner: true, isLatest: true })
+    expect(gate.unlocked).toBe(false)
+    expect(gate.reason).toBe('eligibility_unmet')
+  })
+
+  it('does not change the score when semantic matching is requested without a local model', () => {
+    const plain = scoreResumeAgainstJob(GOOD_RESUME, GOOD_JD, { nowYear: 2026 })
+    const asked = scoreResumeAgainstJob(GOOD_RESUME, GOOD_JD, { nowYear: 2026, semanticMatching: true })
+    expect(asked.scoreExact).toBeCloseTo(plain.scoreExact, 5)
+    expect(asked.semanticMatching.applied).toBe(false)
+    expect(asked.warnings.join(' ')).toMatch(/no external API/i)
+  })
+
+  it('treats an unreadable resume as inconclusive instead of a zero job match', () => {
+    const result = scoreResumeAgainstJob('hi', GOOD_JD)
+    expect(result.status).toBe('incomplete')
+    expect(result.scoreExact).toBeNull()
+    expect(result.compatibility.status).toBe('inconclusive')
+    const gate = decideGate({
+      resumeText: 'hi',
+      jobDescription: GOOD_JD,
+      rubricVersion: ATS_CONFIG.rubricVersion,
+      superseded: false,
+    }, { isOwner: true, isLatest: true })
+    expect(gate.unlocked).toBe(false)
+    expect(gate.reason).toBe('parse_failed')
   })
 })

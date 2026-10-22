@@ -112,8 +112,8 @@ export default function DashboardPage() {
             <h1 style={{ fontSize: '2.5rem', marginBottom: '0.5rem' }}>{greeting()}, <span className="gradient-text">{user?.fullName?.split(' ')[0] || 'Guest'} 👋</span></h1>
             <p style={{ fontSize: '1.125rem', color: 'var(--color-text-muted)', marginBottom: '1rem' }}>
               {latestResume
-                ? <>Level score <strong style={{ color: 'var(--color-primary-light)' }}>{latestScore ?? 0}</strong>. ATS compatibility <strong style={{ color: 'var(--color-primary-light)' }}>{latestCompatibility ?? latestScore ?? 0}</strong>.</>
-                : 'Upload a resume to get a score you can compare with an online ATS checker.'}
+                ? <>Level score <strong style={{ color: 'var(--color-primary-light)' }}>{latestScore ?? 0}</strong>. Document compatibility <strong style={{ color: 'var(--color-primary-light)' }}>{latestCompatibility ?? '—'}</strong>.</>
+                : 'The job match lives on the Resume page. This dashboard level score is a separate coaching number.'}
             </p>
             <p style={{ fontSize: '0.875rem', color: 'var(--color-text-faint)', marginBottom: '2rem', maxWidth: '400px' }}>
               Complete your ATS analysis to unlock 23 personalized frontend opportunities.

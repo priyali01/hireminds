@@ -56,4 +56,18 @@ const SKILL_DICTIONARY = [
   { canonical: 'tableau', aliases: ['tableau'] },
 ]
 
-module.exports = { SKILL_DICTIONARY }
+/**
+ * Soft skills are matched as phrases and scored only in the soft-skill category.
+ * They are not technical requirements, so a hit here is not also a required-skill hit.
+ */
+const SOFT_SKILLS = [
+  { canonical: 'communication', aliases: ['communication'] },
+  { canonical: 'teamwork', aliases: ['teamwork', 'team work'] },
+  { canonical: 'leadership', aliases: ['leadership'] },
+  { canonical: 'problem solving', aliases: ['problem solving', 'problem-solving'] },
+  { canonical: 'collaboration', aliases: ['collaboration'] },
+  { canonical: 'time management', aliases: ['time management'] },
+  { canonical: 'mentoring', aliases: ['mentoring', 'mentorship'] },
+]
+
+module.exports = { SKILL_DICTIONARY, SOFT_SKILLS }

@@ -1,4 +1,4 @@
-const { SKILL_DICTIONARY } = require('./dictionary')
+const { SKILL_DICTIONARY, SOFT_SKILLS } = require('./dictionary')
 const { findSkill, skillsPresent } = require('./match')
 const { splitJobDescription } = require('./sections')
 
@@ -59,6 +59,14 @@ function parseJobDescription(jobDescription, dictionary = SKILL_DICTIONARY) {
   const requiredNames = new Set(requiredSkills.map((item) => item.canonical))
   const preferredSkills = uniqueSkills(preferred).filter((item) => !requiredNames.has(item.canonical))
 
+  const soft = []
+  soft.push(...skillsPresent(sections.required || '', SOFT_SKILLS).map((skill) => requirement(skill, 'required', 'requirements section')))
+  soft.push(...skillsPresent(sections.preferred || '', SOFT_SKILLS).map((skill) => requirement(skill, 'preferred', 'preferred section')))
+  for (const skill of skillsPresent(text, SOFT_SKILLS)) {
+    soft.push(requirement(skill, 'mentioned', 'job description'))
+  }
+  const softSkills = uniqueSkills(soft)
+
   const yearsMatch = text.match(MIN_YEARS_RE)
   const minYears = yearsMatch ? Number(yearsMatch[1] || yearsMatch[2]) : null
 
@@ -83,6 +91,7 @@ function parseJobDescription(jobDescription, dictionary = SKILL_DICTIONARY) {
     sectionsDetected: detected,
     required: requiredSkills,
     preferred: preferredSkills,
+    softSkills,
     minYears: Number.isFinite(minYears) ? minYears : null,
     responsibilities,
     educationRequired,

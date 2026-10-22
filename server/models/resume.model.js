@@ -136,12 +136,7 @@ const resumeSchema = new mongoose.Schema(
         experience: { type: Number, default: null },
         certifications: { type: Number, default: null },
       },
-      compatibilityBreakdown: {
-        searchability: { type: Number, default: null },
-        headings: { type: Number, default: null },
-        impact: { type: Number, default: null },
-        skills: { type: Number, default: null },
-      },
+      compatibilityBreakdown: { type: mongoose.Schema.Types.Mixed, default: null },
       checks: {
         type: [{
           id: String,

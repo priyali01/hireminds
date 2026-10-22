@@ -12,20 +12,43 @@ The score in phase 1 is computed in code. The same resume always produces the sa
 4. Get delivery practice: pace, filler words, answer length, and whether they faced the camera. Expression hints are optional, consented, and never a hire or reject score.
 5. Follow a weekly plan that uses the resume score, the job-description match, and the interview results.
 
-## How the two resume numbers work
+## How the scores work
 
-Companies’ applicant tracking systems mostly check whether a file can be read and whether the words from one job description appear. They do not publish a universal quality score.
+Companies’ applicant tracking systems mostly check whether a file can be read and whether the words from one job description appear. They do not publish a universal quality score. HireMinds does not claim to reproduce one.
 
-HireMinds shows two numbers so a test against an online checker is interpretable.
+The Resume page has two independent scores. Rubric `h02-v1` in `server/config/ats.config.js` is the only definition. The older single job-match mix (required 35, experience 20, projects 20, preferred 15, education and readability 10) is retired.
 
-**ATS compatibility (0–100).** This is the number to compare with a generic online ATS checker. It scores four things, in code:
+**Document compatibility (0–100).** Can the parser read the file? It does not use the job description.
 
-- Searchability, 30%: enough real text, an email, a phone number, a LinkedIn or GitHub link, and text that is not garbage.
-- Standard headings, 25%: Education, Skills, Projects, Experience or Internships, Summary.
-- Impact, 25%: bullet lines, bullets that start with an action verb, bullets that contain a real metric (a year by itself does not count).
-- Skills, 20%: specific tools found in the text, a Skills section, and skills that also appear in projects or experience.
+- Text extraction and reading order, 30%.
+- Section identification, 20%.
+- Contact field parsing, 15%.
+- Education, experience and date parsing, 15%.
+- Layout and formatting that the text actually shows, 20%. Columns, fonts and margins are not measured.
 
-**HireMinds level score (0–100).** This is the product score. It will not match an online checker. Experience is not counted for a fresher.
+`A = 100 × sum(weight × normalized component) / sum(weights of components that could be observed).` If extraction fails, the result is an error or inconclusive. It is not stored as zero.
+
+**Job match (0–100).** This is the only match score, and the only score the practice gate uses. Initial weights:
+
+- Required technical skills, 30%.
+- Relevant projects and experience, 25%.
+- Role responsibilities, 20%.
+- Education and eligibility, 10%.
+- Preferred keywords, 10%.
+- Soft skills, 5%.
+
+A skill counts once. Evidence strength depends on where it was found (a project or job bullet is stronger than a skills-list mention), not on how many times the word appears. Responsibility points use the words left after skill names are removed, so the same skill is not added again. A category with nothing to assess is left out and the remaining weights are renormalized.
+
+Reported beside the scores, and not added into them:
+
+- Keyword coverage: each requirement once.
+- Mandatory eligibility: confirmed meets, confirmed unmet, and unverified. Unverified is unknown, not a failure. A confirmed miss blocks the gate.
+- Evidence confidence: the share of assessed rows that have a located snippet.
+- Semantic matching: off. No local model is configured, and no external API is called.
+
+The practice gate opens at a configurable job-match threshold, initially 75, only when parsing succeeded, the assessment is the current one for that user, and no confirmed eligibility condition is unmet.
+
+**HireMinds level score (0–100).** This is a separate coaching number for a resume with no job description. It is not the job match and it is not document compatibility. Experience is not counted for a fresher.
 
 - Fresher: projects 40%, skills 30%, education 20%, certifications 10%, experience 0%.
 - Intermediate: experience 30%, skills 30%, projects 25%, education 10%, certifications 5%.
@@ -37,20 +60,19 @@ Every point is a check with earned points, max points, and a sentence. The secti
 
 A scanned or image PDF fails before scoring, because a company parser would not read it either.
 
-Online checkers use private rubrics. Expect the compatibility number to land near those tools and to flag the same kinds of problems (no phone, no metrics, no experience heading). Do not expect the integer to be identical. Compare the checklist with what the other site complains about.
-
-Keyword gaps in this phase are common software terms missing from the resume. They are not a match to a job description. That match is phase 3.
+Online checkers use private rubrics. Expect document compatibility to flag the same kinds of problems (no phone, no headings, unreadable text). Do not expect the integer to be identical. The job match will not match a checker that blends readability and keywords into one number.
 
 ## Phase 1 — Real ATS score
 
-This is the phase being built now.
+The Resume page now scores a pasted job description. Rubric `h02-v1`.
 
 Ships:
 
-- Rule engine in `server/services/ats.rules.js`.
-- PDF upload and pasted text both use it. Gemini does not choose the number.
-- Resume page shows compatibility, the level score, the formula, the section bars with weights, and every check.
-- The result is stored on the resume document.
+- Document compatibility in `server/services/ats/compatibility.js`.
+- Job match in `server/services/ats/engine.js`. The level score in `server/services/ats.rules.js` stays a separate coaching number.
+- PDF and DOCX text are extracted locally. Gemini does not choose either number.
+- The Resume page shows both scores, the category bars, eligibility, keyword coverage and evidence confidence.
+- The practice gate is enforced by `POST /ats/advance`. A score sent by the browser is ignored.
 
 Done when:
 

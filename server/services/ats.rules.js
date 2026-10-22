@@ -4,11 +4,14 @@
  * The numbers are arithmetic over the resume text. The same text and level
  * always return the same scores. Nothing in this file calls a model.
  *
- * Two results:
- * - compatibility: comparable in kind to a generic online ATS checker
- *   (contact, headings, bullets, skills). Not a match to one job description.
- * - overall: HireMinds level score. Freshers are not scored on experience.
+ * Two results, kept separate from the job-match score in services/ats/engine.js:
+ * - compatibility: document processing, from services/ats/compatibility.js.
+ *   That is the only ATS compatibility definition.
+ * - overall: HireMinds level score for coaching. Freshers are not scored on
+ *   experience. It is not a job match.
  */
+
+const { scoreCompatibility } = require('./ats/compatibility')
 
 const LEVEL_WEIGHTS = {
   fresher: {
@@ -832,14 +835,8 @@ function scoreResume(resumeText, rawLevel = 'fresher') {
     certifications: groupScore(checks, 'certifications'),
   }
 
-  const search = groupScore(checks, 'search')
-  const headings = groupScore(checks, 'headings')
-  const impact = groupScore(checks, 'impact')
-  const skillcoverage = groupScore(checks, 'skillcoverage')
-  const compatibility = weightedOverall(
-    { search, headings, impact, skillcoverage },
-    { search: 0.30, headings: 0.25, impact: 0.25, skillcoverage: 0.20 }
-  )
+  const compatibilityResult = scoreCompatibility(text)
+  const compatibility = compatibilityResult.scoreExact
 
   const overall = weightedOverall(breakdown, weights)
   const failed = checks
@@ -872,12 +869,7 @@ function scoreResume(resumeText, rawLevel = 'fresher') {
     formula: formulaFor(level, weights),
     weights: { ...weights },
     breakdown,
-    compatibilityBreakdown: {
-      searchability: search,
-      headings,
-      impact,
-      skills: skillcoverage,
-    },
+    compatibilityBreakdown: compatibilityResult,
     checks,
     findings: failed.map((item) => item.detail),
     sectionsDetected: detected,

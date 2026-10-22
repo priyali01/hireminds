@@ -86,7 +86,7 @@ export default function ResumePage() {
             Resume <span className="gradient-text">Analyser</span>✨
           </h1>
           <p className="page-subtitle" style={{ fontSize: '1rem', color: 'var(--color-text-muted)', marginBottom: '1rem', maxWidth: '90%' }}>
-            Paste a job description and upload a text PDF or DOCX. The score is calculated on this server from evidence in your resume. It is not an employer ATS.
+            Paste a job description and upload a text PDF or DOCX. You get two scores, both calculated on this server: whether the file can be read, and how the text matches this job. Neither is an employer ATS.
           </p>
           <label className="form-label" htmlFor="job-description" style={{ fontSize: '0.875rem', color: 'var(--color-text-muted)' }}>Job description</label>
           <textarea

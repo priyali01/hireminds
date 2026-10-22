@@ -1,22 +1,37 @@
 /**
- * HireMinds ATS rubric H01.
- * Weights are product settings. Change them here. The engine checks that they sum to 100.
- * This is not an employer's ATS and it does not claim to reproduce one.
+ * HireMinds rubric h02.
+ * Two independent scores. Change the weights here. Each set must sum to 100.
+ * These are product heuristics, not an employer's ATS and not a hiring standard.
+ *
+ * Job match is the only match score. ATS compatibility measures whether the
+ * file can be parsed. Keyword coverage, eligibility and evidence confidence
+ * are reported beside the scores and are not added into either one.
  */
 
 const ATS_CONFIG = {
-  rubricVersion: 'h01-v1',
+  rubricVersion: 'h02-v1',
   gateThreshold: 75,
   maxFileBytes: 5 * 1024 * 1024,
-  weights: {
-    requiredSkills: 35,
-    experience: 20,
-    projects: 20,
-    preferred: 15,
-    educationReadability: 10,
+  // No local model is configured. Leaving this false keeps scoring on exact
+  // phrases and the skill dictionary. It must not be wired to an external API.
+  semanticMatching: false,
+  compatibilityWeights: {
+    extraction: 30,
+    sections: 20,
+    contact: 15,
+    chronology: 15,
+    layout: 20,
+  },
+  jobMatchWeights: {
+    requiredSkills: 30,
+    projectsExperience: 25,
+    responsibilities: 20,
+    educationEligibility: 10,
+    preferred: 10,
+    softSkills: 5,
   },
   disclaimer:
-    'This score uses HireMinds rubric h01-v1. It is a practice match against the job description you pasted. It is not an employer ATS and it does not guarantee a company will accept the file.',
+    'HireMinds rubric h02-v1 calculates two separate scores in this app: document compatibility, and a job match against the description you pasted. This is not an employer ATS, and it does not guarantee that a company will accept the file.',
 }
 
 function assertWeights(weights) {
@@ -30,7 +45,8 @@ function assertWeights(weights) {
   }
 }
 
-assertWeights(ATS_CONFIG.weights)
+assertWeights(ATS_CONFIG.compatibilityWeights)
+assertWeights(ATS_CONFIG.jobMatchWeights)
 
 module.exports = {
   ATS_CONFIG,

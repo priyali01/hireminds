@@ -1,4 +1,5 @@
 const { scoreResume, weightedOverall, normalizeLevel } = require('../../services/ats.rules')
+const { weightedScore } = require('../../services/ats/compatibility')
 
 const STRONG_FRESHER = `
 Priya Sharma
@@ -54,17 +55,15 @@ describe('scoreResume', () => {
     expect(result.weights.projects).toBe(0.40)
   })
 
-  it('makes compatibility the stated mix of search, headings, impact, and skills', () => {
+  it('uses the document-processing compatibility score, separate from the level score', () => {
     const result = scoreResume(STRONG_FRESHER, 'fresher')
-    expect(result.compatibility).toBe(weightedOverall(
-      {
-        search: result.compatibilityBreakdown.searchability,
-        headings: result.compatibilityBreakdown.headings,
-        impact: result.compatibilityBreakdown.impact,
-        skillcoverage: result.compatibilityBreakdown.skills,
-      },
-      { search: 0.30, headings: 0.25, impact: 0.25, skillcoverage: 0.20 }
-    ))
+    const components = result.compatibilityBreakdown.components
+    const scores = Object.fromEntries(Object.entries(components).map(([key, value]) => [key, value.score]))
+    expect(result.compatibility).toBeCloseTo(weightedScore(
+      scores,
+      { extraction: 30, sections: 20, contact: 15, chronology: 15, layout: 20 }
+    ), 5)
+    expect(result.overall).toBe(weightedOverall(result.breakdown, result.weights))
   })
 
   it('scores a project-heavy fresher above the same text scored as experienced', () => {
