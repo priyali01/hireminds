@@ -12,7 +12,8 @@ const { classifyDegree, classifyYears, groupEligibility } = require('./eligibili
  * - Evidence strength depends on how the skill is used, not how many times it appears.
  *   A work bullet scores 100, a bare name in that section scores 70, a skills-list
  *   mention scores 60, and any other mention scores 40. The strongest line wins.
- * - Project and experience points come from having dated, described work. They do not add the skill hit again.
+ * - Project and experience points measure overlap with the job's responsibility domain.
+ *   Dated, described work does not score 100 when that domain is absent. Skill names are not added again.
  * - Responsibility points use the remaining words after skill names and stopwords are removed.
  * - Soft skills are their own 5% category.
  * - Degree and stated years are eligibility. Unverified conditions are left out of the average and do not fail the gate.
@@ -169,52 +170,69 @@ function substantiveLines(text) {
   })
 }
 
-function scoreProjectsExperience(resume) {
+function domainTerms(jd) {
+  const seen = new Set()
+  const terms = []
+  for (const line of jd.responsibilities || []) {
+    for (const word of contentWords(line)) {
+      if (word.length < 5 || seen.has(word)) continue
+      seen.add(word)
+      terms.push(word)
+    }
+  }
+  return terms
+}
+
+function scoreProjectsExperience(resume, jd) {
   const workText = `${resume.sections.projects || ''}\n${resume.sections.experience || ''}`
   const lines = substantiveLines(workText)
-  const substance = lines.length >= 2 ? 100 : lines.length === 1 ? 50 : 0
-  const dated = /\b(19|20)\d{2}\b/.test(workText)
-  const dateScore = dated ? 100 : 0
+  const terms = domainTerms(jd)
+
+  if (!terms.length) {
+    return category('projectsExperience', null, {
+      reasons: ['The job description does not state responsibilities this category can compare, so project relevance was left out instead of treating described work as a full match.'],
+    })
+  }
+
+  if (!lines.length) {
+    return category('projectsExperience', 0, {
+      missing: [{
+        name: 'described work',
+        credit: 0,
+        reason: 'Projects and Experience do not describe work, so domain alignment is 0.',
+      }],
+      reasons: ['Project relevance needs described work that shares the job domain. A date alone does not raise this score.'],
+      suggestions: ['Add project or experience bullets that use the words of this role, not only a year.'],
+    })
+  }
+
   const matched = []
   const missing = []
-
-  if (substance > 0) {
+  for (const term of terms) {
+    const found = findAlias(workText, term)
+    if (!found) {
+      missing.push({
+        name: term,
+        credit: 0,
+        reason: `The responsibility word “${term}” does not appear in projects or experience.`,
+      })
+      continue
+    }
     matched.push({
-      name: 'described work',
-      section: resume.sections.projects ? 'projects' : 'experience',
-      credit: substance,
-      snippet: lines[0] || '',
-      reason: `${lines.length} project or experience line${lines.length === 1 ? '' : 's'} describe work. Skill names in those lines are not added again here.`,
-    })
-  } else {
-    missing.push({
-      name: 'described work',
-      credit: 0,
-      reason: 'Projects and Experience do not contain a line long enough to describe work.',
-    })
-  }
-
-  if (dated) {
-    matched.push({
-      name: 'dated work',
-      section: 'experience',
+      name: term,
+      section: 'projects',
       credit: 100,
-      reason: 'A year is written under Projects or Experience. This is not a count of years.',
-    })
-  } else {
-    missing.push({
-      name: 'dated work',
-      credit: 0,
-      reason: 'No year is written under Projects or Experience.',
+      snippet: lineAround(workText, found.index),
+      reason: `The responsibility word “${term}” appears in projects or experience.`,
     })
   }
 
-  return category('projectsExperience', (substance + dateScore) / 2, {
+  return category('projectsExperience', (matched.length / terms.length) * 100, {
     matched,
     missing,
-    reasons: ['This category checks that work is described and dated. Required skills found in that work are scored only under required skills.'],
-    suggestions: substance < 100
-      ? ['Add two project or experience bullets that name the tool and the outcome.']
+    reasons: [`${matched.length} of ${terms.length} domain words from the job responsibilities appear in projects or experience. Described, dated work does not raise this score when the domain does not match. Required skills are not added again here.`],
+    suggestions: missing.length
+      ? ['Rewrite a project or experience bullet so it covers the responsibilities of this role, using work you actually did.']
       : [],
   })
 }
@@ -371,6 +389,7 @@ function publicRequirements(jd, eligibility) {
     educationRequired: jd.educationRequired,
     responsibilities: jd.responsibilities,
     sectionsDetected: jd.sectionsDetected,
+    extraction: jd.extraction,
     eligibility,
   }
 }
@@ -425,24 +444,47 @@ function scoreResumeAgainstJob(resumeText, jobDescription, options = {}) {
 
   const resume = splitResume(resumeText)
   const jd = parseJobDescription(jobDescription, options.dictionary || SKILL_DICTIONARY)
+  const eligibility = groupEligibility([
+    classifyDegree(jd.educationRequired, resume.sections.education || ''),
+    classifyYears(jd.minYears, `${resume.sections.experience || ''}\n${resume.sections.summary || ''}`),
+  ])
+
+  if (jd.extraction.status === 'failed') {
+    return {
+      status: 'incomplete',
+      scoreExact: null,
+      scoreDisplay: null,
+      passesThreshold: false,
+      gateEligible: false,
+      threshold,
+      weights,
+      compatibilityWeights: compatibility.weights,
+      rubricVersion: ATS_CONFIG.rubricVersion,
+      disclaimer: ATS_CONFIG.disclaimer,
+      categories: {},
+      requirements: publicRequirements(jd, eligibility),
+      compatibility,
+      keywordCoverage: null,
+      eligibility,
+      evidenceConfidence: null,
+      semanticMatching,
+      warnings: [jd.extraction.reason].concat(semanticWarning ? [semanticWarning] : []),
+      recommendations: ['Paste the full job description, including the requirements or responsibilities.'],
+      sectionsDetected: resume.detected,
+    }
+  }
+
   const categories = {
     requiredSkills: scoreSkillList(resume, jd.required, 'requiredSkills', 'required technical skills'),
-    projectsExperience: scoreProjectsExperience(resume),
+    projectsExperience: scoreProjectsExperience(resume, jd),
     responsibilities: scoreResponsibilities(resume, jd),
     educationEligibility: scoreEducationEligibility(resume, jd),
     preferred: scoreSkillList(resume, jd.preferred, 'preferred', 'preferred keywords'),
     softSkills: scoreSkillList(resume, jd.softSkills, 'softSkills', 'soft skills'),
   }
 
-  const eligibility = groupEligibility([
-    classifyDegree(jd.educationRequired, resume.sections.education || ''),
-    classifyYears(jd.minYears, `${resume.sections.experience || ''}\n${resume.sections.summary || ''}`),
-  ])
-
   const warnings = []
-  if (!jd.required.length) {
-    warnings.push('Required technical skills could not be verified from the job description. No job-match score was invented.')
-  }
+  if (jd.extraction.status === 'none_stated') warnings.push(jd.extraction.reason)
   warnings.push(...Object.values(categories).flatMap((item) => item.uncertain.map((entry) => entry.reason)))
   if (semanticWarning) warnings.push(semanticWarning)
 
@@ -450,8 +492,16 @@ function scoreResumeAgainstJob(resumeText, jobDescription, options = {}) {
   const confidence = evidenceConfidence(categories)
   const labeled = withWeights(categories, weights)
   const recommendations = Object.values(categories).flatMap((item) => item.suggestions).slice(0, 8)
+  const combined = combineScores({
+    requiredSkills: categories.requiredSkills.score,
+    projectsExperience: categories.projectsExperience.score,
+    responsibilities: categories.responsibilities.score,
+    educationEligibility: categories.educationEligibility.score,
+    preferred: categories.preferred.score,
+    softSkills: categories.softSkills.score,
+  }, weights, threshold)
 
-  if (!jd.required.length) {
+  if (combined.scoreExact == null) {
     return {
       status: 'incomplete',
       scoreExact: null,
@@ -470,20 +520,11 @@ function scoreResumeAgainstJob(resumeText, jobDescription, options = {}) {
       eligibility,
       evidenceConfidence: confidence,
       semanticMatching,
-      warnings,
+      warnings: warnings.concat(['No requirement in this job description could be scored, so no job-match score was invented.']),
       recommendations,
       sectionsDetected: resume.detected,
     }
   }
-
-  const combined = combineScores({
-    requiredSkills: categories.requiredSkills.score,
-    projectsExperience: categories.projectsExperience.score,
-    responsibilities: categories.responsibilities.score,
-    educationEligibility: categories.educationEligibility.score,
-    preferred: categories.preferred.score,
-    softSkills: categories.softSkills.score,
-  }, weights, threshold)
 
   const blockedByEligibility = eligibility.unmet.length > 0
   return {

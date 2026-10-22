@@ -38,12 +38,16 @@ ${EDUCATION}`)
   })
 
   it('keeps keyword coverage, evidence confidence and document compatibility out of the job match', () => {
-    const { result } = creditFor(`
+    const result = scoreResumeAgainstJob(`
 Projects
 - Shipped the campus portal with Docker for 200 students
 ${EDUCATION}
 Skills
-Docker`)
+Docker`, `Requirements
+- Docker
+
+Responsibilities
+- Keep the on-call rotation healthy for the platform`)
     const categoryScores = Object.fromEntries(
       Object.entries(result.categories).map(([key, category]) => [key, category.score])
     )

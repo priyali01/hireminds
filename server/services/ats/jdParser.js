@@ -1,6 +1,10 @@
 const { SKILL_DICTIONARY, SOFT_SKILLS } = require('./dictionary')
 const { findSkill, skillsPresent } = require('./match')
-const { splitJobDescription } = require('./sections')
+const { splitJobDescription, sectionForLine } = require('./sections')
+
+const REQUIRED_CUE = /\b(required|must|mandatory|proficient|experience with|experience in|knowledge of|skilled in|expertise in|hands-on|you(?:'|’)ll need|you will need|looking for|we need)\b/i
+const PREFERRED_CUE = /\b(preferred|nice to have|nice-to-have|good to have|bonus|optional|familiar with)\b/i
+const HARD_REQUIRED_CUE = /\b(required|must|mandatory)\b/i
 
 const DEGREE_RE = /\b(bachelor(?:'s)?|master(?:'s)?|b\.?\s?tech|m\.?\s?tech|b\.?\s?e\b|m\.?\s?e\b|b\.?\s?sc|degree|graduate)\b/i
 const MIN_YEARS_RE = /(?:minimum|at least|min\.?)\s+(\d+(?:\.\d+)?)\+?\s*(?:years|yrs)\b|(\d+(?:\.\d+)?)\+?\s*(?:years|yrs)\s+(?:of\s+)?(?:relevant\s+|professional\s+|hands-on\s+)?experience\b/i
@@ -22,38 +26,54 @@ function lineImportance(line) {
   return null
 }
 
-function skillsOnLine(line) {
-  return skillsPresent(line, SKILL_DICTIONARY)
+function letterCount(text) {
+  return (String(text || '').match(/\p{L}/gu) || []).length
+}
+
+function isShortSkillLine(line) {
+  const body = String(line || '').trim().replace(/^(?:[-•*▪]|\d+[.)])\s*/, '')
+  const words = body.split(/\s+/).filter(Boolean)
+  return words.length > 0 && words.length <= 6
+}
+
+function lineBucket(line, section) {
+  if (section === 'preferred') return 'preferred'
+  if (section !== 'responsibilities' && PREFERRED_CUE.test(line) && !HARD_REQUIRED_CUE.test(line)) return 'preferred'
+  if (section === 'required') return 'required'
+  if (section === 'responsibilities') return isShortSkillLine(line) ? 'required' : null
+  if (REQUIRED_CUE.test(line)) return 'required'
+  if (isShortSkillLine(line)) return 'required'
+  return null
+}
+
+function collectListedSkills(text, dictionary) {
+  const required = []
+  const preferred = []
+  let section = null
+  for (const rawLine of String(text || '').split('\n')) {
+    const heading = sectionForLine(rawLine)
+    if (heading) {
+      section = heading
+      continue
+    }
+    const bucket = lineBucket(rawLine, section)
+    if (!bucket) continue
+    const target = bucket === 'preferred' ? preferred : required
+    for (const skill of skillsPresent(rawLine, dictionary)) {
+      target.push(requirement(skill, bucket, rawLine.trim().slice(0, 180)))
+    }
+  }
+  return { required, preferred }
 }
 
 function parseJobDescription(jobDescription, dictionary = SKILL_DICTIONARY) {
   const { text, sections, detected } = splitJobDescription(jobDescription)
-  const required = []
-  const preferred = []
-
-  for (const skill of skillsPresent(sections.required || '', dictionary)) {
-    required.push(requirement(skill, 'required', 'requirements section'))
-  }
-  for (const skill of skillsPresent(sections.preferred || '', dictionary)) {
-    preferred.push(requirement(skill, 'preferred', 'preferred section'))
-  }
-
-  for (const line of text.split('\n')) {
-    const importance = lineImportance(line)
-    if (!importance) continue
-    const bucket = importance === 'required' ? required : preferred
-    for (const skill of skillsOnLine(line)) {
-      bucket.push(requirement(skill, importance, line.trim().slice(0, 180)))
-    }
-  }
-
-  const experienceWith = /experience with ([^\n.]{0,80})/gi
-  let experienceMatch
-  while ((experienceMatch = experienceWith.exec(text))) {
-    for (const skill of skillsPresent(experienceMatch[1], dictionary)) {
-      required.push(requirement(skill, 'required', experienceMatch[0].trim()))
-    }
-  }
+  const readableLetters = letterCount(text)
+  const odd = text.match(/[^\p{L}\p{N}\s@.,:;+|()\-/&%#'’"“”•·▪–—_\n]/gu) || []
+  const garbled = text.length > 0 && odd.length / text.length > 0.4
+  const listed = collectListedSkills(text, dictionary)
+  const required = listed.required
+  const preferred = listed.preferred
 
   const requiredSkills = uniqueSkills(required)
   const requiredNames = new Set(requiredSkills.map((item) => item.canonical))
@@ -96,6 +116,17 @@ function parseJobDescription(jobDescription, dictionary = SKILL_DICTIONARY) {
     responsibilities,
     educationRequired,
     dictionarySize: dictionary.length,
+    extraction: requiredSkills.length
+      ? { status: 'found', reason: 'Required skills were read from the job description.' }
+      : (readableLetters < 40 || garbled)
+        ? {
+          status: 'failed',
+          reason: 'The job description is too short or too garbled to extract skills. This is an extraction failure, not a finding that the job has no required skills.',
+        }
+        : {
+          status: 'none_stated',
+          reason: 'No required technical skills were stated in the job description. This category was left out of the job match.',
+        },
   }
 }
 
