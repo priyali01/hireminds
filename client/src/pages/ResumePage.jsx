@@ -3,7 +3,6 @@ import { useSelector } from 'react-redux'
 import { selectCurrentUser } from '../store/authSlice'
 import {
   useUploadAndAnalyzeResumeMutation,
-  useGetResumeHistoryQuery,
   useSubmitResumeFeedbackMutation,
 } from '../store/api'
 import { Link } from 'react-router-dom'
@@ -29,7 +28,7 @@ function ScoreColor({ score }) {
   return 'score-low'
 }
 
-function ScoreBar({ value, label }) {
+function ScoreBar({ value, label, note }) {
   const color = ScoreColor({ score: value })
   return (
     <div className="score-bar-row">
@@ -43,9 +42,22 @@ function ScoreBar({ value, label }) {
           style={{ width: `${value}%` }}
         />
       </div>
+      {note && <p className="score-bar-note">{note}</p>}
     </div>
   )
 }
+
+const CHECK_GROUPS = [
+  { id: 'search', title: 'Compatibility · can a parser read it' },
+  { id: 'headings', title: 'Compatibility · standard headings' },
+  { id: 'impact', title: 'Compatibility · bullets and proof' },
+  { id: 'skillcoverage', title: 'Compatibility · skills' },
+  { id: 'projects', title: 'Level score · projects' },
+  { id: 'skills', title: 'Level score · skills' },
+  { id: 'education', title: 'Level score · education' },
+  { id: 'experience', title: 'Level score · experience' },
+  { id: 'certifications', title: 'Level score · certifications' },
+]
 
 function ATSResult({ result, resumeId }) {
   const [feedback, setFeedback] = useState(null)
@@ -56,30 +68,91 @@ function ATSResult({ result, resumeId }) {
     await submitFeedback({ resumeId, thumbsUp }).catch(() => {})
   }
 
-  const scoreClass = ScoreColor({ score: result.overall })
-  const scoreLabel = result.overall >= 80 ? 'Strong' : result.overall >= 50 ? 'Average' : 'Needs work'
+  const compatibility = result.compatibility ?? result.overall
+  const compatClass = ScoreColor({ score: compatibility })
+  const levelClass = ScoreColor({ score: result.overall })
+  const levelName = result.level || 'fresher'
+  const weights = result.weights || {}
 
   return (
     <div className="result-grid">
-      {/* Overall score */}
-      <div className="card result-score-card glass-card">
-        <p className="result-section-label">ATS Score</p>
-        <div className="overall-score">
-          <span className={`score-big gradient-text ${scoreClass}`}>{result.overall}</span>
-          <span className="score-denom">/100</span>
+      <div className="score-pair">
+        <div className="card result-score-card glass-card">
+          <p className="result-section-label">ATS compatibility</p>
+          <div className="overall-score">
+            <span className={`score-big ${compatClass}`}>{compatibility}</span>
+            <span className="score-denom">/100</span>
+          </div>
+          <p className="score-explain">
+            Compare this number with a generic online ATS checker. It counts contact details, standard headings, bullets, metrics, and skills. It is not a match to one job description.
+          </p>
         </div>
-        <span className={`badge badge-${result.overall >= 80 ? 'green' : result.overall >= 50 ? 'yellow' : 'red'}`}>
-          {scoreLabel}
-        </span>
-        <div className="score-bar-track" style={{ marginTop: '1rem' }}>
-          <div
-            className={`score-bar-fill bg-${scoreClass}`}
-            style={{ width: `${result.overall}%` }}
-          />
+        <div className="card result-score-card glass-card">
+          <p className="result-section-label">HireMinds {levelName} score</p>
+          <div className="overall-score">
+            <span className={`score-big ${levelClass}`}>{result.overall}</span>
+            <span className="score-denom">/100</span>
+          </div>
+          <p className="score-explain">{result.formula}</p>
         </div>
-        <p className="model-tag">Analysed by {result.modelUsed || 'gemini-2.5-flash'}</p>
+      </div>
+      <p className="model-tag">Scored in code from the checklist below. The same resume always gets the same numbers. An online checker will be close on compatibility and will disagree with the fresher score when it punishes missing experience.</p>
 
-        {/* Thumbs feedback */}
+      <div className="card glass-card">
+        <h3 className="result-section-title">Level score, section by section</h3>
+        <div className="breakdown-list">
+          {Object.entries(result.breakdown || {}).map(([key, val]) => {
+            const weight = Math.round((weights[key] || 0) * 100)
+            return (
+              <ScoreBar
+                key={key}
+                value={val}
+                label={`${key.charAt(0).toUpperCase() + key.slice(1)} · ${weight}% of the level score`}
+                note={weight === 0 ? 'Shown so you can see it. It adds nothing at this level.' : ''}
+              />
+            )
+          })}
+        </div>
+      </div>
+
+      {result.compatibilityBreakdown && (
+        <div className="card glass-card">
+          <h3 className="result-section-title">Compatibility, piece by piece</h3>
+          <p className="score-explain">Searchability 30%, headings 25%, impact 25%, skills 20%.</p>
+          <div className="breakdown-list">
+            {Object.entries(result.compatibilityBreakdown).map(([key, val]) => (
+              <ScoreBar key={key} value={val} label={key.charAt(0).toUpperCase() + key.slice(1)} />
+            ))}
+          </div>
+        </div>
+      )}
+
+      <div className="card glass-card">
+        <h3 className="result-section-title">Every check</h3>
+        {CHECK_GROUPS.map((group) => {
+          const items = (result.checks || []).filter((item) => item.group === group.id)
+          if (!items.length) return null
+          const earned = items.reduce((sum, item) => sum + item.earned, 0)
+          const max = items.reduce((sum, item) => sum + item.max, 0)
+          return (
+            <div key={group.id} className="check-group">
+              <div className="check-group-title">
+                <span>{group.title}</span>
+                <span>{earned}/{max}</span>
+              </div>
+              {items.map((item) => (
+                <div key={item.id} className={`check-row ${item.passed ? 'check-pass' : 'check-miss'}`}>
+                  <div className="check-row-top">
+                    <span className="check-mark">{item.passed ? 'Pass' : 'Fix'}</span>
+                    <span className="check-label">{item.label}</span>
+                    <span className="check-points">{item.earned}/{item.max}</span>
+                  </div>
+                  <p className="check-detail">{item.detail}</p>
+                </div>
+              ))}
+            </div>
+          )
+        })}
         <div className="feedback-row">
           <span className="feedback-label">Was this helpful?</span>
           <button
@@ -94,18 +167,6 @@ function ATSResult({ result, resumeId }) {
             className={`thumb-btn ${feedback === 'down' ? 'active' : ''}`}
             title="Not helpful"
           >👎</button>
-        </div>
-      </div>
-
-      {/* Breakdown */}
-      <div className="card glass-card">
-        <h3 className="result-section-title">Section breakdown</h3>
-        <div className="breakdown-list">
-          {Object.entries(result.breakdown || {})
-            .filter(([, v]) => v > 0)
-            .map(([key, val]) => (
-              <ScoreBar key={key} value={val} label={key.charAt(0).toUpperCase() + key.slice(1)} />
-            ))}
         </div>
       </div>
 
@@ -130,16 +191,17 @@ function ATSResult({ result, resumeId }) {
       )}
 
       {/* Missing keywords */}
-      {result.missingKeywords?.length > 0 && (
-        <div className="card glass-card">
-          <h3 className="result-section-title">🔍 Missing keywords</h3>
+      <div className="card glass-card">
+        <h3 className="result-section-title">Common keywords not on this resume</h3>
+        <p className="score-explain">{result.keywordNote}</p>
+        {result.missingKeywords?.length > 0 && (
           <div className="chip-grid">
-            {result.missingKeywords.map((k, i) => (
-              <span key={i} className="chip">{k}</span>
+            {result.missingKeywords.map((k) => (
+              <span key={k} className="chip">{k}</span>
             ))}
           </div>
-        </div>
-      )}
+        )}
+      </div>
 
       {/* One-week fix plan */}
       {result.oneWeekFixPlan?.length > 0 && (
@@ -173,10 +235,16 @@ function FeatureItem({ icon, title, desc }) {
 export default function ResumePage() {
   const user = useSelector(selectCurrentUser)
   const [uploadAndAnalyze, { isLoading: isAnalyzing }] = useUploadAndAnalyzeResumeMutation()
-  const { data: historyData } = useGetResumeHistoryQuery()
 
   const [file, setFile] = useState(null)
-  const [level, setLevel] = useState(user?.level || 'fresher')
+  const [level, setLevel] = useState(({
+    fresher: 'fresher',
+    junior: 'intermediate',
+    intermediate: 'intermediate',
+    mid: 'experienced',
+    senior: 'experienced',
+    experienced: 'experienced',
+  })[user?.level] || 'fresher')
   const [result, setResult] = useState(null)
   const [resumeId, setResumeId] = useState(null)
   const [error, setError] = useState(null)
@@ -211,7 +279,7 @@ export default function ResumePage() {
   return (
     <motion.div className="resume-page" style={{ padding: 'var(--space-8)' }} initial="hidden" animate="show" variants={containerVariants}>
 
-      <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: '2rem', maxWidth: '1200px', margin: '0 auto' }}>
+      <div className="resume-analyzer-grid">
         
         {/* Upload panel (Left Column) */}
         <motion.div variants={itemVariants} className="upload-panel glass-card" style={{ padding: '2.5rem', borderRadius: '1.5rem', display: 'flex', flexDirection: 'column' }}>
@@ -219,7 +287,7 @@ export default function ResumePage() {
             Resume <span className="gradient-text">Analyser</span>✨
           </h1>
           <p className="page-subtitle" style={{ fontSize: '1rem', color: 'var(--color-text-muted)', marginBottom: '2rem', maxWidth: '90%' }}>
-            Level-aware ATS scoring — tailored for freshers.<br />Find what's missing. Fix it. Get hired.
+            Two scores from the text of your PDF. Compatibility is the one to compare with an online checker. The level score is HireMinds, and a fresher is not marked down for having no job.
           </p>
 
           {/* Level selector */}
@@ -347,7 +415,7 @@ export default function ResumePage() {
         </motion.div>
 
         {/* Results / Info panel (Right Column) */}
-        <motion.div variants={itemVariants} className="results-panel glass-card" style={{ padding: '3rem', borderRadius: '1.5rem', display: 'flex', flexDirection: 'column', justifyContent: 'center' }}>
+        <motion.div variants={itemVariants} className="results-panel glass-card" style={{ padding: '2rem', borderRadius: '1.5rem', display: 'flex', flexDirection: 'column', justifyContent: result ? 'flex-start' : 'center' }}>
           {result ? (
             <ATSResult result={result} resumeId={resumeId} />
           ) : (

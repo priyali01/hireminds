@@ -91,7 +91,8 @@ export default function DashboardPage() {
   const { data: historyData } = useGetResumeHistoryQuery()
 
   const latestResume = historyData?.resumes?.[0]
-  const latestScore = latestResume?.atsScore?.overall || 0
+  const latestScore = latestResume?.atsScore?.overall
+  const latestCompatibility = latestResume?.atsScore?.compatibility
 
   const greeting = () => {
     const hour = new Date().getHours()
@@ -109,7 +110,9 @@ export default function DashboardPage() {
           <div style={{ flex: '1 1 400px' }}>
             <h1 style={{ fontSize: '2.5rem', marginBottom: '0.5rem' }}>{greeting()}, <span className="gradient-text">{user?.fullName?.split(' ')[0] || 'Guest'} 👋</span></h1>
             <p style={{ fontSize: '1.125rem', color: 'var(--color-text-muted)', marginBottom: '1rem' }}>
-              You're <strong style={{ color: 'var(--color-primary-light)' }}>{latestScore}%</strong> interview-ready.
+              {latestResume
+                ? <>Level score <strong style={{ color: 'var(--color-primary-light)' }}>{latestScore ?? 0}</strong>. ATS compatibility <strong style={{ color: 'var(--color-primary-light)' }}>{latestCompatibility ?? latestScore ?? 0}</strong>.</>
+                : 'Upload a resume to get a score you can compare with an online ATS checker.'}
             </p>
             <p style={{ fontSize: '0.875rem', color: 'var(--color-text-faint)', marginBottom: '2rem', maxWidth: '400px' }}>
               Complete your ATS analysis to unlock 23 personalized frontend opportunities.
@@ -240,7 +243,7 @@ export default function DashboardPage() {
                   <div style={{ padding: '0.5rem', background: 'rgba(255,255,255,0.05)', borderRadius: '50%', color: 'var(--color-text-muted)' }}>📄</div>
                   <div style={{ flex: 1 }}>
                     <div style={{ fontSize: '0.875rem', fontWeight: 600 }}>Resume analyzed</div>
-                    <div style={{ fontSize: '0.75rem', color: 'var(--color-text-muted)' }}>Your resume scored {r.atsScore?.overall || 0} out of 100</div>
+                    <div style={{ fontSize: '0.75rem', color: 'var(--color-text-muted)' }}>Level score {r.atsScore?.overall || 0}. Compatibility {r.atsScore?.compatibility ?? r.atsScore?.overall ?? 0}.</div>
                   </div>
                   <span style={{ fontSize: '0.75rem', color: 'var(--color-text-faint)' }}>{new Date(r.createdAt).toLocaleDateString('en-IN')}</span>
                 </div>

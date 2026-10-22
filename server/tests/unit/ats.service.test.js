@@ -168,8 +168,8 @@ describe('analyseResume', () => {
 
   it('records promptVersion and modelUsed', async () => {
     const result = await analyseResume(sampleText, 'fresher')
-    expect(result.promptVersion).toBe('ats-v1.0')
-    expect(typeof result.modelUsed).toBe('string')
+    expect(result.promptVersion).toBe('ats-rules-v1')
+    expect(result.modelUsed).toBe('rules-engine')
   })
 
   it('records analysedAt as a Date object', async () => {

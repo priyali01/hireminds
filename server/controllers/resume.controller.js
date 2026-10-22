@@ -3,9 +3,35 @@ const pdfParse = require('pdf-parse-fork')
 const Resume = require('../models/resume.model')
 const User = require('../models/user.model')
 const { analyseResume } = require('../services/ats.service')
+const { normalizeLevel } = require('../services/ats.rules')
 const { awardPoints } = require('../services/gamification.service')
 const { resumeAnalyzeSchema, resumeFeedbackSchema } = require('../validators')
 const { NotFoundError, ValidationError } = require('../utils/errors')
+
+function toAtsScore(atsResult) {
+  return {
+    overall: atsResult.overall,
+    compatibility: atsResult.compatibility,
+    level: atsResult.level,
+    formula: atsResult.formula,
+    scoringMethod: atsResult.scoringMethod,
+    keywordNote: atsResult.keywordNote,
+    weights: atsResult.weights,
+    breakdown: atsResult.breakdown,
+    compatibilityBreakdown: atsResult.compatibilityBreakdown,
+    checks: atsResult.checks,
+    findings: atsResult.findings,
+    sectionsDetected: atsResult.sectionsDetected,
+    signals: atsResult.signals,
+    feedback: atsResult.feedback,
+    strengths: atsResult.strengths,
+    missingKeywords: atsResult.missingKeywords,
+    oneWeekFixPlan: atsResult.oneWeekFixPlan,
+    promptVersion: atsResult.promptVersion,
+    modelUsed: atsResult.modelUsed,
+    analysedAt: atsResult.analysedAt,
+  }
+}
 
 // Memory storage: file is never written to disk — only processed in RAM
 const upload = multer({
@@ -41,17 +67,7 @@ async function analyzeText(req, res, next) {
       source: 'manual',
       rawText: resumeText,
       level: userLevel,
-      atsScore: {
-        overall: atsResult.overall,
-        breakdown: atsResult.breakdown,
-        feedback: atsResult.feedback,
-        strengths: atsResult.strengths,
-        missingKeywords: atsResult.missingKeywords,
-        oneWeekFixPlan: atsResult.oneWeekFixPlan,
-        promptVersion: atsResult.promptVersion,
-        modelUsed: atsResult.modelUsed,
-        analysedAt: atsResult.analysedAt,
-      },
+      atsScore: toAtsScore(atsResult),
     })
 
     // Increment monthly analysis counter for quota tracking
@@ -85,7 +101,7 @@ async function uploadAndAnalyze(req, res, next) {
       ])
     }
 
-    const level = req.body.level || req.user?.level || 'fresher'
+    const level = normalizeLevel(req.body.level || req.user?.level || 'fresher')
 
     // Extract text from PDF buffer
     const pdfData = await pdfParse(req.file.buffer)
@@ -108,17 +124,7 @@ async function uploadAndAnalyze(req, res, next) {
         originalFilename: req.file.originalname,
         sizeBytes: req.file.size,
       },
-      atsScore: {
-        overall: atsResult.overall,
-        breakdown: atsResult.breakdown,
-        feedback: atsResult.feedback,
-        strengths: atsResult.strengths,
-        missingKeywords: atsResult.missingKeywords,
-        oneWeekFixPlan: atsResult.oneWeekFixPlan,
-        promptVersion: atsResult.promptVersion,
-        modelUsed: atsResult.modelUsed,
-        analysedAt: atsResult.analysedAt,
-      },
+      atsScore: toAtsScore(atsResult),
     })
 
     await User.findByIdAndUpdate(req.user.userId, {
