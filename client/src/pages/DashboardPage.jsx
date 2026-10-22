@@ -107,7 +107,7 @@ export default function DashboardPage() {
       <div className="dashboard-layout" style={{ maxWidth: '1200px' }}>
         
         {/* HERO SECTION */}
-        <motion.div variants={itemVariants} className="glass-card" style={{ padding: '2.5rem', borderRadius: '1.5rem', display: 'flex', gap: '2rem', flexWrap: 'wrap', alignItems: 'center', background: 'linear-gradient(135deg, rgba(16, 185, 129, 0.1) 0%, rgba(10, 20, 18, 0.8) 100%)' }}>
+        <motion.div variants={itemVariants} className="glass-card hero-panel" style={{ padding: '2.5rem', borderRadius: '1.5rem', display: 'flex', gap: '2rem', flexWrap: 'wrap', alignItems: 'center', background: 'linear-gradient(135deg, rgba(16, 185, 129, 0.1) 0%, rgba(10, 20, 18, 0.8) 100%)' }}>
           <div style={{ flex: '1 1 400px' }}>
             <h1 style={{ fontSize: '2.5rem', marginBottom: '0.5rem' }}>{greeting()}, <span className="gradient-text">{user?.fullName?.split(' ')[0] || 'Guest'} 👋</span></h1>
             <p style={{ fontSize: '1.125rem', color: 'var(--color-text-muted)', marginBottom: '1rem' }}>
@@ -125,7 +125,7 @@ export default function DashboardPage() {
                 <button type="button" className="btn btn-ghost btn-sm" onClick={() => navigate('/profile')}>Complete profile</button>
               </div>
             )}
-            <div style={{ display: 'flex', gap: '1rem' }}>
+            <div className="action-row" style={{ display: 'flex', gap: '1rem' }}>
               <button className="btn btn-primary" onClick={() => navigate('/resume')} style={{ padding: '0.75rem 1.5rem' }}>📄 Analyze Resume</button>
               <button className="btn" style={{ background: 'transparent', border: '1px solid var(--color-border)', padding: '0.75rem 1.5rem' }} onClick={() => navigate('/interview')}>🎤 Start AI Interview</button>
             </div>
@@ -144,7 +144,7 @@ export default function DashboardPage() {
         </motion.div>
 
         {/* QUICK STATS GRID */}
-        <div style={{ display: 'grid', gridTemplateColumns: 'repeat(auto-fit, minmax(240px, 1fr))', gap: '1.5rem' }}>
+        <div style={{ display: 'grid', gridTemplateColumns: 'repeat(auto-fit, minmax(min(100%, 220px), 1fr))', gap: '1.5rem' }}>
           <StatCard title="Level score" value={scoreLabel} subtitle={latestScore == null ? 'Score a resume to see this' : 'From the last resume upload'} icon="🎯" trend="📈" />
           <StatCard title="Job Matches" value="23" subtitle="New matches available" icon="💼" trend="📈" />
           <StatCard title="Interview Score" value="92/100" subtitle="Excellent! 🔥" icon="🎤" trend="📈" />
@@ -152,7 +152,7 @@ export default function DashboardPage() {
         </div>
 
         {/* MIDDLE 3-COLUMN GRID */}
-        <motion.div variants={containerVariants} style={{ display: 'grid', gridTemplateColumns: 'repeat(auto-fit, minmax(320px, 1fr))', gap: '1.5rem' }}>
+        <motion.div variants={containerVariants} style={{ display: 'grid', gridTemplateColumns: 'repeat(auto-fit, minmax(min(100%, 280px), 1fr))', gap: '1.5rem' }}>
           
           {/* AI Career Coach */}
           <motion.div variants={itemVariants} className="glass-card" style={{ padding: '1.5rem', borderRadius: '1rem', display: 'flex', flexDirection: 'column' }}>
@@ -235,7 +235,7 @@ export default function DashboardPage() {
         </motion.div>
 
         {/* BOTTOM 2-COLUMN GRID */}
-        <motion.div variants={containerVariants} style={{ display: 'grid', gridTemplateColumns: 'repeat(auto-fit, minmax(400px, 1fr))', gap: '1.5rem' }}>
+        <motion.div variants={containerVariants} style={{ display: 'grid', gridTemplateColumns: 'repeat(auto-fit, minmax(min(100%, 280px), 1fr))', gap: '1.5rem' }}>
           
           <DashboardCalendarWidget />
 

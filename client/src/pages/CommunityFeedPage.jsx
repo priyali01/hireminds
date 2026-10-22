@@ -48,9 +48,9 @@ export default function CommunityFeedPage() {
         <div className="col-span-1 lg:col-span-6 flex flex-col gap-6">
           
           {/* Hero Banner */}
-          <div className="relative overflow-hidden rounded-2xl bg-[#0B1110] border border-white/5 p-6 flex items-center justify-between shadow-[0_4px_30px_rgba(0,0,0,0.5)]">
+          <div className="relative overflow-hidden rounded-2xl bg-[#0B1110] border border-white/5 p-6 flex flex-col sm:flex-row items-start sm:items-center justify-between gap-4 shadow-[0_4px_30px_rgba(0,0,0,0.5)]">
             <div className="absolute top-0 right-0 w-[400px] h-[400px] bg-[#2DD4BF]/10 rounded-full blur-[80px] -translate-y-1/2 translate-x-1/3 pointer-events-none" />
-            <div className="relative z-10 max-w-[70%]">
+            <div className="relative z-10 max-w-full sm:max-w-[70%]">
               <h2 className="text-2xl font-bold text-white mb-2">
                 Community Knowledge <span className="text-[#2DD4BF] drop-shadow-[0_0_10px_rgba(45,212,191,0.5)]">Hub ✦</span>
               </h2>

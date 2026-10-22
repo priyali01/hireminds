@@ -128,14 +128,14 @@ export default function JobsPage() {
       <div className="dashboard-layout" style={{ maxWidth: '1200px', margin: '0 auto' }}>
         
         {/* Header */}
-        <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginBottom: '2rem' }}>
+        <div className="page-header" style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', gap: '1rem', flexWrap: 'wrap', marginBottom: '2rem' }}>
           <div>
             <h1 style={{ fontSize: '2rem', margin: '0 0 0.5rem 0', fontWeight: 700 }}>
               Application <span className="gradient-text">Tracker</span>✨
             </h1>
             <p style={{ color: 'var(--color-text-muted)', margin: 0 }}>Manage your job hunt and analyze your journey</p>
           </div>
-          <div style={{ display: 'flex', gap: '1rem' }}>
+          <div className="action-row" style={{ display: 'flex', gap: '1rem', flexWrap: 'wrap' }}>
             <button className="btn btn-ghost" onClick={() => setShowMatchForm(!showMatchForm)} style={{ border: '1px solid rgba(255,255,255,0.1)', display: 'flex', alignItems: 'center', gap: '0.5rem' }}>
               <span style={{ color: 'var(--color-primary-light)' }}>✨</span> Match JD
             </button>
@@ -157,7 +157,7 @@ export default function JobsPage() {
               <h3 style={{ margin: 0 }}>Add New Application</h3>
               <button onClick={() => setShowAddForm(false)} className="btn btn-ghost" style={{ padding: '0.25rem 0.5rem' }}>✕</button>
             </div>
-            <form onSubmit={handleAddJob} style={{ display: 'flex', gap: '1rem' }}>
+            <form onSubmit={handleAddJob} className="form-row" style={{ display: 'flex', gap: '1rem', flexWrap: 'wrap' }}>
               <input type="text" placeholder="Company" value={company} onChange={e => setCompany(e.target.value)} required className="input" style={{ flex: 1 }} />
               <input type="text" placeholder="Role" value={role} onChange={e => setRole(e.target.value)} required className="input" style={{ flex: 1 }} />
               <input type="url" placeholder="Job URL (optional)" value={url} onChange={e => setUrl(e.target.value)} className="input" style={{ flex: 1 }} />
@@ -195,7 +195,7 @@ export default function JobsPage() {
             {matchResult && (
               <div style={{ marginTop: '1.5rem', padding: '1.5rem', background: 'rgba(255,255,255,0.02)', borderRadius: '1rem', border: '1px solid rgba(255,255,255,0.05)' }}>
                 <h4 style={{ margin: '0 0 1rem 0' }}>Match Score: <span style={{ color: matchResult.score > 70 ? 'var(--color-primary-light)' : '#ef4444' }}>{matchResult.score}%</span></h4>
-                <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: '2rem' }}>
+                <div className="stack-2" style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: '2rem' }}>
                   <div>
                     <h5 style={{ color: 'var(--color-text-muted)', margin: '0 0 0.5rem 0' }}>Matched Keywords</h5>
                     <ul style={{ paddingLeft: '1.25rem', fontSize: '0.875rem', color: 'var(--color-primary-light)', margin: 0 }}>
@@ -215,7 +215,7 @@ export default function JobsPage() {
         )}
 
         {/* Stats Grid */}
-        <motion.div variants={containerVariants} style={{ display: 'grid', gridTemplateColumns: 'repeat(4, 1fr)', gap: '1.5rem', marginBottom: '2rem' }}>
+        <motion.div variants={containerVariants} className="stats-4" style={{ display: 'grid', gridTemplateColumns: 'repeat(4, minmax(0, 1fr))', gap: '1.5rem', marginBottom: '2rem' }}>
           <StatCard icon="🔖" title="Saved" count={savedCount} color="200, 200, 200" accentColor="var(--color-text-muted)" />
           <StatCard icon="↗️" title="Applied" count={appliedCount} color="96, 165, 250" accentColor="#3B82F6" />
           <StatCard icon="👥" title="Interviewing" count={interviewingCount} color="16, 185, 129" accentColor="#10B981" />
@@ -223,12 +223,12 @@ export default function JobsPage() {
         </motion.div>
 
         {/* Filters Area */}
-        <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginBottom: '1.5rem' }}>
-          <div style={{ display: 'flex', alignItems: 'center', background: 'var(--color-surface)', border: '1px solid rgba(255,255,255,0.05)', borderRadius: '0.75rem', padding: '0.5rem 1rem', width: '350px' }}>
+        <div className="page-header" style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', gap: '1rem', flexWrap: 'wrap', marginBottom: '1.5rem' }}>
+          <div style={{ display: 'flex', alignItems: 'center', background: 'var(--color-surface)', border: '1px solid rgba(255,255,255,0.05)', borderRadius: '0.75rem', padding: '0.5rem 1rem', width: '100%', maxWidth: '350px' }}>
             <span style={{ color: 'var(--color-text-muted)', marginRight: '0.5rem' }}>🔍</span>
             <input type="text" placeholder="Search by company, role, or location..." style={{ background: 'transparent', border: 'none', color: '#fff', outline: 'none', width: '100%', fontSize: '0.875rem' }} />
           </div>
-          <div style={{ display: 'flex', gap: '0.75rem' }}>
+          <div className="action-row" style={{ display: 'flex', gap: '0.75rem', flexWrap: 'wrap' }}>
             <select className="input" style={{ padding: '0.5rem 2rem 0.5rem 1rem', width: 'auto', background: 'var(--color-surface)' }}>
               <option>All Status</option>
             </select>
@@ -250,9 +250,9 @@ export default function JobsPage() {
             <span className="spinner" />
           </div>
         ) : jobs.length > 0 ? (
-          <motion.div variants={itemVariants} className="glass-card" style={{ borderRadius: '1rem', overflow: 'hidden' }}>
+          <motion.div variants={itemVariants} className="glass-card scroll-x" style={{ borderRadius: '1rem', overflowX: 'auto' }}>
             {/* Table Header */}
-            <div style={{ display: 'grid', gridTemplateColumns: '2fr 2fr 1fr 1fr 1fr 40px', padding: '1rem 1.5rem', borderBottom: '1px solid rgba(255,255,255,0.05)', fontSize: '0.75rem', color: 'var(--color-text-muted)', fontWeight: 600, textTransform: 'uppercase', letterSpacing: '0.05em' }}>
+            <div style={{ display: 'grid', gridTemplateColumns: '2fr 2fr 1fr 1fr 1fr 40px', minWidth: '720px', padding: '1rem 1.5rem', borderBottom: '1px solid rgba(255,255,255,0.05)', fontSize: '0.75rem', color: 'var(--color-text-muted)', fontWeight: 600, textTransform: 'uppercase', letterSpacing: '0.05em' }}>
               <div>Job Role</div>
               <div>Company</div>
               <div>Status On</div>
@@ -264,7 +264,7 @@ export default function JobsPage() {
             {/* Table Rows */}
             <motion.div variants={containerVariants} initial="hidden" animate="show">
               {jobs.map(job => (
-                <motion.div variants={itemVariants} key={job._id} style={{ display: 'grid', gridTemplateColumns: '2fr 2fr 1fr 1fr 1fr 40px', padding: '1.25rem 1.5rem', borderBottom: '1px solid rgba(255,255,255,0.02)', alignItems: 'center', transition: 'background 0.2s', cursor: 'pointer' }} className="table-row-hover">
+                <motion.div variants={itemVariants} key={job._id} style={{ display: 'grid', gridTemplateColumns: '2fr 2fr 1fr 1fr 1fr 40px', minWidth: '720px', padding: '1.25rem 1.5rem', borderBottom: '1px solid rgba(255,255,255,0.02)', alignItems: 'center', transition: 'background 0.2s', cursor: 'pointer' }} className="table-row-hover">
                   
                   {/* Role + Icon */}
                   <div style={{ display: 'flex', alignItems: 'center', gap: '1rem' }}>

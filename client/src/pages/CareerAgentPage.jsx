@@ -81,7 +81,7 @@ export default function CareerAgentPage() {
         </Link>
       </nav>
 
-      <div className="dashboard-layout" style={{ flex: 1, display: 'flex', flexDirection: 'column', overflow: 'hidden', padding: '1rem 2rem 2rem 2rem', maxWidth: '1200px', margin: '0 auto', width: '100%' }}>
+      <div className="dashboard-layout" style={{ flex: 1, display: 'flex', flexDirection: 'column', overflow: 'hidden', padding: '1rem', maxWidth: '1200px', margin: '0 auto', width: '100%', minWidth: 0 }}>
         
         {/* Chat Area */}
         <div className="glass-card" style={{ flex: 1, overflowY: 'auto', padding: '2rem', display: 'flex', flexDirection: 'column', gap: '1.5rem', borderRadius: '1rem', background: 'var(--color-bg)', border: 'none' }}>

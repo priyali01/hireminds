@@ -91,7 +91,7 @@ export default function PricingPage() {
         <h1 className="welcome-title gradient-text">Supercharge Your Career</h1>
         <p className="welcome-subtitle">Unlock advanced AI mocks and higher usage quotas.</p>
 
-        <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: '2rem', marginTop: '3rem' }}>
+        <div className="stack-2" style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: '2rem', marginTop: '3rem' }}>
           
           <div className="glass-card" style={{ padding: '2rem', borderRadius: '1rem', display: 'flex', flexDirection: 'column' }}>
             <h2 style={{ fontSize: '1.5rem', marginBottom: '0.5rem' }}>Pro Plan</h2>

@@ -29,7 +29,7 @@ export default function ProfilePage() {
       <div className="dashboard-layout" style={{ maxWidth: '1000px', margin: '0 auto' }}>
         
         {/* Header */}
-        <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginBottom: '2rem' }}>
+        <div className="page-header" style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', gap: '1rem', flexWrap: 'wrap', marginBottom: '2rem' }}>
           <div>
             <h1 style={{ fontSize: '2rem', margin: '0 0 0.5rem 0', fontWeight: 700 }}>
               Your <span className="gradient-text">Profile</span>✨
@@ -54,7 +54,7 @@ export default function ProfilePage() {
           {isModalOpen && <ProfileEditModal user={user} onClose={() => setIsModalOpen(false)} />}
         </AnimatePresence>
 
-        <div style={{ display: 'grid', gridTemplateColumns: '1fr 2fr', gap: '2rem' }}>
+        <div className="stack-2" style={{ display: 'grid', gridTemplateColumns: '1fr 2fr', gap: '2rem' }}>
           
           {/* Left Column - User Identity */}
           <div style={{ display: 'flex', flexDirection: 'column', gap: '1.5rem' }}>
@@ -70,7 +70,7 @@ export default function ProfilePage() {
                 {user.fullName ? user.fullName.charAt(0).toUpperCase() : 'U'}
               </div>
               <h2 style={{ margin: '0 0 0.5rem 0', fontSize: '1.5rem' }}>{user.fullName}</h2>
-              <p style={{ color: 'var(--color-text-muted)', margin: '0 0 1rem 0' }}>{user.email}</p>
+              <p style={{ color: 'var(--color-text-muted)', margin: '0 0 1rem 0', overflowWrap: 'anywhere' }}>{user.email}</p>
               
               <span style={{ 
                 background: 'rgba(139, 92, 246, 0.15)', color: '#8b5cf6', 
@@ -104,7 +104,7 @@ export default function ProfilePage() {
             <motion.div variants={itemVariants} className="glass-card" style={{ padding: '2rem', borderRadius: '1rem' }}>
               <h3 style={{ margin: '0 0 1.5rem 0', fontSize: '1.25rem', borderBottom: '1px solid rgba(255,255,255,0.05)', paddingBottom: '1rem' }}>Professional Info</h3>
               
-              <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: '1.5rem' }}>
+              <div className="stack-2" style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: '1.5rem' }}>
                 <div>
                   <div style={{ fontSize: '0.75rem', color: 'var(--color-text-muted)', textTransform: 'uppercase', letterSpacing: '0.5px', marginBottom: '0.5rem' }}>Experience Level</div>
                   <div style={{ fontSize: '1.125rem', fontWeight: 500 }}>{user.level ? user.level.charAt(0).toUpperCase() + user.level.slice(1) : 'Not specified'}</div>

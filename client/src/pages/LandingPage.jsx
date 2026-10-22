@@ -1,3 +1,4 @@
+import { useState } from 'react'
 import { Link } from 'react-router-dom'
 import { motion } from 'framer-motion'
 import { useSelector } from 'react-redux'
@@ -14,12 +15,13 @@ import { Skiper17 } from "../components/animations/StickyCard";
 
 export default function LandingPage() {
   const isAuthenticated = useSelector(selectIsAuthenticated)
+  const [menuOpen, setMenuOpen] = useState(false)
 
   return (
-    <div className="min-h-screen bg-[#060908] text-white font-sans selection:bg-[#14B8A6] selection:text-white">
+    <div className="min-h-screen bg-[#060908] text-white font-sans selection:bg-[#14B8A6] selection:text-white overflow-x-hidden">
 
       {/* Navbar */}
-      <nav className="fixed top-0 left-0 w-full z-50 px-8 md:px-12 py-4 flex justify-between items-center bg-[#0d1211]/80 backdrop-blur-md border-b border-white/5">
+      <nav className="fixed top-0 left-0 w-full z-50 px-4 sm:px-8 md:px-12 py-4 flex flex-wrap justify-between items-center gap-3 bg-[#0d1211]/80 backdrop-blur-md border-b border-white/5">
         <div className="flex items-center gap-2">
           <img src="/logo.png" alt="HireMinds" className="h-10 w-auto object-contain" />
         </div>
@@ -31,7 +33,10 @@ export default function LandingPage() {
           <a href="#testimonials" className="text-sm font-medium text-[#94A3B8] hover:text-white transition-colors">Resources</a>
         </div>
 
-        <div className="flex items-center gap-4">
+        <div className="flex items-center gap-2 sm:gap-4">
+          <button type="button" className="md:hidden text-sm font-medium text-[#94A3B8] px-2 py-1" onClick={() => setMenuOpen((open) => !open)}>
+            {menuOpen ? 'Close' : 'Menu'}
+          </button>
           {isAuthenticated ? (
             <Link to="/dashboard" className="px-5 py-2 text-sm font-bold text-white bg-[#14B8A6] hover:bg-[#0D9488] transition-colors rounded-lg shadow-[0_0_15px_rgba(20,184,166,0.3)]">
               Dashboard
@@ -45,6 +50,14 @@ export default function LandingPage() {
             </>
           )}
         </div>
+        {menuOpen && (
+          <div className="md:hidden w-full flex flex-col gap-3 pt-2 border-t border-white/5">
+            <a href="#home" className="text-sm font-medium text-[#14B8A6]" onClick={() => setMenuOpen(false)}>Home</a>
+            <a href="#features" className="text-sm font-medium text-[#94A3B8]" onClick={() => setMenuOpen(false)}>Products</a>
+            <a href="#solutions" className="text-sm font-medium text-[#94A3B8]" onClick={() => setMenuOpen(false)}>Solutions</a>
+            <a href="#testimonials" className="text-sm font-medium text-[#94A3B8]" onClick={() => setMenuOpen(false)}>Resources</a>
+          </div>
+        )}
       </nav>
 
       {/* Hero Section */}
@@ -69,7 +82,7 @@ export default function LandingPage() {
           </div>
 
           {/* Slogan */}
-          <h1 className="text-5xl md:text-7xl font-extrabold tracking-tight mb-8 leading-[1.1] max-w-4xl mx-auto">
+          <h1 className="text-4xl sm:text-5xl md:text-7xl font-extrabold tracking-tight mb-8 leading-[1.1] max-w-4xl mx-auto">
             Get Hired <span className="text-transparent bg-clip-text bg-gradient-to-r from-[#2DD4BF] to-[#0D9488]">Faster</span>. <br />
             No Experience Needed.
           </h1>

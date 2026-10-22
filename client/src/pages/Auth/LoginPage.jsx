@@ -6,7 +6,7 @@ export default function LoginPage() {
   const prefersReduced = window.matchMedia('(prefers-reduced-motion: reduce)').matches
 
   return (
-    <div className="bg-[#070B0A] text-slate-200 font-sans flex flex-row relative h-screen overflow-hidden">
+    <div className="bg-[#070B0A] text-slate-200 font-sans flex flex-col lg:flex-row relative min-h-screen lg:h-screen overflow-x-hidden lg:overflow-hidden">
 
       {/* Background Teal Radial Glows */}
       <div className="absolute top-1/2 left-[20%] w-[800px] h-[800px] bg-[#14B8A6]/5 rounded-full blur-[150px] pointer-events-none -translate-x-1/2 -translate-y-1/2" />
@@ -17,7 +17,7 @@ export default function LoginPage() {
         initial={{ x: prefersReduced ? 0 : -40, opacity: prefersReduced ? 1 : 0 }}
         animate={{ x: 0, opacity: 1 }}
         transition={{ duration: prefersReduced ? 0.01 : 0.6, ease: 'easeOut' }}
-        className="relative z-20 w-[420px] lg:w-[480px] shrink-0 flex items-center justify-center px-8 border-r border-[#14B8A6]/10"
+        className="relative z-20 w-full lg:w-[480px] lg:shrink-0 flex items-center justify-center px-5 sm:px-8 py-8 lg:py-0 lg:border-r border-[#14B8A6]/10"
         style={{
           background: 'linear-gradient(180deg, rgba(20, 184, 166, 0.02) 0%, transparent 100%)',
         }}
@@ -32,7 +32,7 @@ export default function LoginPage() {
         initial={{ opacity: prefersReduced ? 1 : 0 }}
         animate={{ opacity: 1 }}
         transition={{ duration: prefersReduced ? 0.01 : 0.8, ease: 'easeOut', delay: prefersReduced ? 0 : 0.2 }}
-        className="relative z-20 flex-1 flex items-center justify-center px-8 overflow-hidden"
+        className="relative z-20 hidden lg:flex flex-1 items-center justify-center px-8 overflow-hidden"
       >
         <div className="w-full h-full max-w-[1000px] mx-auto flex flex-col justify-center">
           <ProductPreview />
