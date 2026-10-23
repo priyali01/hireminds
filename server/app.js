@@ -101,6 +101,8 @@ const chatRoutes = require('./routes/chat.routes')
 app.use('/chat', requireAuth, enforceQuotasLazily, trackDailyStreak, chatRoutes)
 const atsRoutes = require('./routes/ats.routes')
 app.use('/ats', requireAuth, atsRoutes)
+const optimizeRoutes = require('./routes/optimize.routes')
+app.use('/optimize', requireAuth, optimizeRoutes)
 
 // 7. Health check endpoint
 // Railway uses this to verify the service is healthy after deploy

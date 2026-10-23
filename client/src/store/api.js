@@ -164,6 +164,28 @@ export const api = createApi({
       }),
       invalidatesTags: ['Resume'],
     }),
+    loadGitHubProfile: builder.mutation({
+      query: (body) => ({ url: '/optimize/github', method: 'POST', body }),
+    }),
+    createOptimizerDraft: builder.mutation({
+      query: (body) => ({ url: '/optimize/drafts', method: 'POST', body }),
+    }),
+    reviewOptimizerChange: builder.mutation({
+      query: ({ id, changeId, ...body }) => ({
+        url: `/optimize/drafts/${id}/changes/${changeId}`,
+        method: 'PATCH',
+        body,
+      }),
+    }),
+    rescoreOptimizerDraft: builder.mutation({
+      query: (id) => ({ url: `/optimize/drafts/${id}/rescore`, method: 'POST' }),
+    }),
+    exportOptimizerDraft: builder.mutation({
+      query: ({ id, format }) => ({
+        url: `/optimize/drafts/${id}/export?format=${format}`,
+        responseHandler: (response) => response.blob(),
+      }),
+    }),
     advanceAtsGate: builder.mutation({
       query: (body) => ({ url: '/ats/advance', method: 'POST', body }),
     }),
@@ -330,6 +352,11 @@ export const {
   useGetResumeQuery,
   useSubmitResumeFeedbackMutation,
   useAssessResumeMutation,
+  useLoadGitHubProfileMutation,
+  useCreateOptimizerDraftMutation,
+  useReviewOptimizerChangeMutation,
+  useRescoreOptimizerDraftMutation,
+  useExportOptimizerDraftMutation,
   useAdvanceAtsGateMutation,
   useCreateInterviewSessionMutation,
   useSubmitInterviewAnswerMutation,

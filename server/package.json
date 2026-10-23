@@ -40,10 +40,12 @@
     "helmet": "^8.0.0",
     "jsonwebtoken": "^9.0.2",
     "mammoth": "^1.13.0",
+    "jszip": "^3.10.2",
     "mongoose": "^8.15.0",
     "morgan": "^1.10.0",
     "multer": "^2.1.1",
     "node-cron": "^4.4.1",
+    "pdf-lib": "^1.17.1",
     "pdfjs-dist": "^6.4.299",
     "razorpay": "^2.9.6",
     "winston": "^3.17.0",
@@ -51,10 +53,8 @@
   },
   "devDependencies": {
     "jest": "^29.7.0",
-    "jszip": "^3.10.2",
     "mongodb-memory-server": "^10.1.4",
     "nodemon": "^3.1.14",
-    "pdf-lib": "^1.17.1",
     "supertest": "^7.1.0"
   }
 }
