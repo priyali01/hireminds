@@ -3,7 +3,8 @@ const { findSkill } = require('../ats/match')
 const { lineAround } = require('../ats/match')
 const { splitResume } = require('../ats/sections')
 const { parseJobDescription } = require('../ats/jdParser')
-const { rankProjects } = require('./rank')
+const { rankProjects, trustedText } = require('./rank')
+const { redactSecrets } = require('./github')
 
 function skillByName(name) {
   return SKILL_DICTIONARY.find((skill) => skill.canonical === name)
@@ -11,21 +12,38 @@ function skillByName(name) {
 
 function quoteFor(repo, skill) {
   for (const file of repo.files || []) {
-    const found = findSkill(file.text || '', skill)
+    const text = trustedText(file.text || '')
+    const found = findSkill(text, skill)
     if (!found) continue
-    const quote = lineAround(file.text, found.index)
+    const quote = redactSecrets(lineAround(text, found.index))
     if (quote) return { source: 'github', quote, ref: `${repo.name}/${file.path}` }
   }
-  const readme = repo.readme || ''
+  const readme = trustedText(repo.readme || '')
   const sentence = readme.split(/(?<=[.!?])\s+/).map((part) => part.trim()).find((part) => findSkill(part, skill))
-  if (sentence) return { source: 'github', quote: sentence, ref: repo.name }
-  const meta = [repo.name, repo.description].filter(Boolean).join('\n')
+  if (sentence) return { source: 'github', quote: redactSecrets(sentence), ref: repo.name }
+  const meta = trustedText([repo.name, repo.description].filter(Boolean).join('\n'))
   const found = findSkill(meta, skill)
   if (found) {
-    const quote = lineAround(meta, found.index)
+    const quote = redactSecrets(lineAround(meta, found.index))
     if (quote) return { source: 'github', quote, ref: repo.name }
   }
   return null
+}
+
+function slug(name) {
+  return String(name || 'project').toLowerCase().replace(/[^a-z0-9]+/g, '-').replace(/^-|-$/g, '') || 'project'
+}
+
+function uniqueId(used, prefix, name) {
+  const base = `${prefix}-${slug(name)}`
+  let id = base
+  let count = 2
+  while (used.has(id)) {
+    id = `${base}-${count}`
+    count += 1
+  }
+  used.add(id)
+  return id
 }
 
 function proposeResumeEdits({ resumeText, jobDescription, repos = [] }) {
@@ -59,6 +77,7 @@ function proposeResumeEdits({ resumeText, jobDescription, repos = [] }) {
 
   const sections = splitResume(resume)
   const changes = []
+  const usedIds = new Set()
   const skillsText = (sections.sections.skills || '').trim()
   const missingOnResume = demonstrated.filter((name) => {
     const skill = skillByName(name)
@@ -67,7 +86,7 @@ function proposeResumeEdits({ resumeText, jobDescription, repos = [] }) {
 
   if (skillsText && missingOnResume.length) {
     changes.push({
-      id: 'skills-demonstrated',
+      id: uniqueId(usedIds, 'skills', 'demonstrated'),
       section: 'skills',
       action: 'revise',
       before: skillsText,
@@ -89,7 +108,7 @@ function proposeResumeEdits({ resumeText, jobDescription, repos = [] }) {
         || projectLines[0]
         || ''
       changes.push({
-        id: `project-${repo.name}`,
+        id: uniqueId(usedIds, 'project', repo.name),
         section: 'projects',
         action: before ? 'revise' : 'add',
         before,
@@ -107,7 +126,7 @@ function proposeResumeEdits({ resumeText, jobDescription, repos = [] }) {
     const quote = skill && repo ? quoteFor(repo, skill) : null
     if (quote && quote.quote && !summary.includes(quote.quote)) {
       changes.push({
-        id: 'summary-evidence',
+        id: uniqueId(usedIds, 'summary', 'evidence'),
         section: 'summary',
         action: 'revise',
         before: summary,
@@ -122,7 +141,7 @@ function proposeResumeEdits({ resumeText, jobDescription, repos = [] }) {
     const line = (sections.sections.projects || '').split('\n').map((item) => item.trim()).find((item) => item && item.toLowerCase().includes(project.name.toLowerCase()))
     if (!line) continue
     changes.push({
-      id: `remove-${project.name}`,
+      id: uniqueId(usedIds, 'remove', project.name),
       section: 'projects',
       action: 'remove',
       before: line,
@@ -138,6 +157,7 @@ function proposeResumeEdits({ resumeText, jobDescription, repos = [] }) {
     demonstratedSkills: demonstrated,
     suggestedToLearn,
     projects: ranked.projects,
+    rubricVersion: ranked.rubricVersion,
   }
 }
 

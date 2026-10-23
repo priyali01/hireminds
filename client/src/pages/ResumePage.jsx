@@ -243,7 +243,7 @@ export default function ResumePage() {
         </motion.div>
 
       </div>
-      <OptimizePanel key={assessment?.id || 'none'} assessment={assessment} />
+      <OptimizePanel assessment={assessment} />
     </motion.div>
   )
 }

@@ -167,6 +167,18 @@ export const api = createApi({
     loadGitHubProfile: builder.mutation({
       query: (body) => ({ url: '/optimize/github', method: 'POST', body }),
     }),
+    githubStatus: builder.query({
+      query: () => '/optimize/github/status',
+    }),
+    githubRepos: builder.query({
+      query: () => '/optimize/github/repos',
+    }),
+    startGitHubConnect: builder.mutation({
+      query: () => ({ url: '/optimize/github/connect', method: 'POST' }),
+    }),
+    disconnectGitHub: builder.mutation({
+      query: () => ({ url: '/optimize/github', method: 'DELETE' }),
+    }),
     createOptimizerDraft: builder.mutation({
       query: (body) => ({ url: '/optimize/drafts', method: 'POST', body }),
     }),
@@ -353,6 +365,10 @@ export const {
   useSubmitResumeFeedbackMutation,
   useAssessResumeMutation,
   useLoadGitHubProfileMutation,
+  useGithubStatusQuery,
+  useGithubReposQuery,
+  useStartGitHubConnectMutation,
+  useDisconnectGitHubMutation,
   useCreateOptimizerDraftMutation,
   useReviewOptimizerChangeMutation,
   useRescoreOptimizerDraftMutation,

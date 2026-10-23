@@ -49,6 +49,14 @@ function selectSourceFiles(entries) {
     .slice(0, 3)
 }
 
+function redactSecrets(text) {
+  return String(text || '')
+    .replace(/\bghp_[A-Za-z0-9]{8,}\b/g, '[redacted]')
+    .replace(/\bgithub_pat_[A-Za-z0-9_]{8,}\b/g, '[redacted]')
+    .replace(/\bgho_[A-Za-z0-9]{8,}\b/g, '[redacted]')
+    .replace(/\bghu_[A-Za-z0-9]{8,}\b/g, '[redacted]')
+}
+
 function githubHeaders(token, allowPrivate) {
   const headers = {
     Accept: 'application/vnd.github+json',
@@ -66,19 +74,33 @@ async function readJson(response) {
   }
 }
 
+function rateLimited(response) {
+  return response.status === 429
+}
+
 async function fetchReadme(fetchImpl, headers, login, repo) {
   const response = await fetchImpl(`https://api.github.com/repos/${encodeURIComponent(login)}/${encodeURIComponent(repo)}/readme`, { headers })
+  if (rateLimited(response)) {
+    throw new AppError('GitHub rate limit reached. Try again later.', 429, 'GITHUB_RATE_LIMIT')
+  }
   if (!response.ok) return ''
   const body = await readJson(response)
   if (!body || body.encoding !== 'base64' || !body.content) return ''
-  return Buffer.from(body.content, 'base64').toString('utf8').slice(0, 20000)
+  return redactSecrets(Buffer.from(body.content, 'base64').toString('utf8').slice(0, 20000))
 }
 
-async function fetchSourceFiles(fetchImpl, headers, login, repo) {
+async function inspectRepository(fetchImpl, headers, login, repo) {
   const response = await fetchImpl(`https://api.github.com/repos/${encodeURIComponent(login)}/${encodeURIComponent(repo)}/contents/`, { headers })
-  if (!response.ok) return []
+  if (rateLimited(response)) {
+    throw new AppError('GitHub rate limit reached. Try again later.', 429, 'GITHUB_RATE_LIMIT')
+  }
+  if (!response.ok) return { structure: [], files: [] }
   const body = await readJson(response)
-  if (!Array.isArray(body)) return []
+  if (!Array.isArray(body)) return { structure: [], files: [] }
+  const structure = body
+    .filter((entry) => entry && (entry.name || entry.path))
+    .slice(0, 40)
+    .map((entry) => (entry.type === 'dir' ? `${entry.name || entry.path}/` : (entry.name || entry.path)))
   const picked = selectSourceFiles(body.map((entry) => ({
     path: entry.path,
     type: entry.type === 'file' ? 'blob' : entry.type,
@@ -90,15 +112,29 @@ async function fetchSourceFiles(fetchImpl, headers, login, repo) {
       `https://api.github.com/repos/${encodeURIComponent(login)}/${encodeURIComponent(repo)}/contents/${entry.path}`,
       { headers }
     )
+    if (rateLimited(fileResponse)) {
+      throw new AppError('GitHub rate limit reached. Try again later.', 429, 'GITHUB_RATE_LIMIT')
+    }
     if (!fileResponse.ok) continue
     const fileBody = await readJson(fileResponse)
     if (!fileBody || fileBody.encoding !== 'base64' || !fileBody.content) continue
     files.push({
       path: entry.path,
-      text: Buffer.from(fileBody.content, 'base64').toString('utf8').slice(0, 20000),
+      text: redactSecrets(Buffer.from(fileBody.content, 'base64').toString('utf8').slice(0, 20000)),
     })
   }
-  return files
+  return { structure, files }
+}
+
+async function fetchLanguages(fetchImpl, headers, login, repo) {
+  const response = await fetchImpl(`https://api.github.com/repos/${encodeURIComponent(login)}/${encodeURIComponent(repo)}/languages`, { headers })
+  if (rateLimited(response)) {
+    throw new AppError('GitHub rate limit reached. Try again later.', 429, 'GITHUB_RATE_LIMIT')
+  }
+  if (!response.ok) return {}
+  const body = await readJson(response)
+  if (!body || Array.isArray(body)) return {}
+  return Object.fromEntries(Object.entries(body).filter(([, bytes]) => typeof bytes === 'number').slice(0, 12))
 }
 
 async function fetchPublicProfile(login, { fetchImpl = global.fetch, token = null, allowPrivate = false } = {}) {
@@ -121,7 +157,33 @@ async function fetchPublicProfile(login, { fetchImpl = global.fetch, token = nul
     detailed.push({
       ...repo,
       readme: await fetchReadme(fetchImpl, headers, login, repo.name),
-      files: await fetchSourceFiles(fetchImpl, headers, login, repo.name),
+      files: (await inspectRepository(fetchImpl, headers, login, repo.name)).files,
+    })
+  }
+  return detailed
+}
+
+async function loadRepositoryEvidence(repos, { fetchImpl = global.fetch, token }) {
+  const headers = githubHeaders(token, true)
+  const detailed = []
+  for (const repo of repos) {
+    const owner = repo.owner?.login || repo.owner || ''
+    const inspected = await inspectRepository(fetchImpl, headers, owner, repo.name)
+    const detected = await fetchLanguages(fetchImpl, headers, owner, repo.name)
+    detailed.push({
+      name: repo.name,
+      githubId: repo.id || repo.githubId || null,
+      description: repo.description || '',
+      language: repo.language || '',
+      languages: Object.keys(detected).length ? detected : (repo.languages || {}),
+      topics: Array.isArray(repo.topics) ? repo.topics : [],
+      defaultBranch: repo.defaultBranch || repo.default_branch || '',
+      structure: inspected.structure,
+      pushedAt: repo.pushedAt || repo.pushed_at || null,
+      private: Boolean(repo.private),
+      htmlUrl: repo.htmlUrl || repo.html_url || '',
+      readme: await fetchReadme(fetchImpl, headers, owner, repo.name),
+      files: inspected.files,
     })
   }
   return detailed
@@ -131,5 +193,7 @@ module.exports = {
   parseGitHubLogin,
   selectPublicRepos,
   selectSourceFiles,
+  redactSecrets,
   fetchPublicProfile,
+  loadRepositoryEvidence,
 }
