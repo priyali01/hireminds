@@ -170,6 +170,10 @@ describe('optimizer drafts', () => {
       })
     expect(response.status).toBe(201)
     expect(response.body.draft.demonstratedSkills).toContain('node.js')
+    expect(response.body.draft.rubricVersion).toBe('h02-projects-v1')
+    expect(response.body.draft.report).toBeNull()
+    expect(response.body.draft.projects[0].declaredTechnologies).toContain('node.js')
+    expect(response.body.draft.projects[0].score).toEqual(expect.any(Number))
     expect(response.body.draft.projects.map((project) => project.recommendation)).toEqual(['highlight'])
     const projectChange = response.body.draft.changes.find((change) => change.section === 'projects')
     expect(projectChange.after).toContain('Built a Node.js service for campus events.')
@@ -215,7 +219,7 @@ describe('optimizer drafts', () => {
     global.fetch = jest.fn(async (url) => {
       const href = String(url)
       if (href === 'https://api.github.com/app/installations/99') {
-        return { ok: true, status: 200, json: async () => ({ account: { login: 'octocat' } }) }
+        return { ok: true, status: 200, json: async () => ({ id: 99, account: { login: 'octocat' } }) }
       }
       if (href.endsWith('/access_tokens')) {
         return { ok: true, status: 200, json: async () => ({ token: 'ghs_install_secret' }) }
@@ -271,7 +275,103 @@ describe('optimizer drafts', () => {
       .send({ jobDescription: JD, resumeText: RESUME, repoNames: ['campus-api', 'not-shared'] })
     expect(draft.status).toBe(201)
     expect(draft.body.draft.projects.map((project) => project.name)).toEqual(['campus-api'])
+    expect(draft.body.draft.projects[0].verifiedTechnologies).toContain('node.js')
+    expect(draft.body.draft.rubricVersion).toBe('h02-projects-v1')
     expect(draft.body.draft.demonstratedSkills).toContain('node.js')
     expect(JSON.stringify(draft.body)).not.toContain('ghs_install_secret')
+
+    const other = await register('someoneelse@test.com')
+    const hiddenRepos = await request(app)
+      .get('/optimize/github/repos')
+      .set('Authorization', `Bearer ${other}`)
+    expect(hiddenRepos.body.connected).toBe(false)
+    expect(hiddenRepos.body.repos).toEqual([])
+    const hiddenDraft = await request(app)
+      .post('/optimize/drafts')
+      .set('Authorization', `Bearer ${other}`)
+      .send({ jobDescription: JD, resumeText: RESUME, repoNames: ['campus-api'] })
+    expect(hiddenDraft.status).toBe(422)
+  })
+
+  it('drops a cancelled or forged GitHub callback and clears revoked access', async () => {
+    const { generateKeyPairSync } = require('crypto')
+    const jwt = require('jsonwebtoken')
+    const GitHubConnection = require('../../models/githubConnection.model')
+    const OptimizerDraft = require('../../models/optimizerDraft.model')
+    const { privateKey } = generateKeyPairSync('rsa', { modulusLength: 2048 })
+    process.env.GITHUB_APP_ID = '4242'
+    process.env.GITHUB_APP_SLUG = 'hireminds'
+    process.env.GITHUB_APP_PRIVATE_KEY = privateKey.export({ type: 'pkcs1', format: 'pem' })
+    process.env.CLIENT_URL = 'http://localhost:5173'
+    const token = await register('callback@test.com')
+    const userId = jwt.verify(token, process.env.JWT_SECRET).userId
+
+    const started = await request(app)
+      .post('/optimize/github/connect')
+      .set('Authorization', `Bearer ${token}`)
+    const state = new URL(started.body.url).searchParams.get('state')
+    const cancelled = await request(app).get(`/optimize/github/callback?state=${state}&error=access_denied&error_description=The+user+canceled`)
+    expect(cancelled.status).toBe(302)
+    expect(cancelled.headers.location).toBe('http://localhost:5173/resume?github=error')
+    expect(cancelled.headers.location).not.toContain('canceled')
+    expect(await GitHubConnection.countDocuments({ userId })).toBe(0)
+
+    const again = await request(app)
+      .post('/optimize/github/connect')
+      .set('Authorization', `Bearer ${token}`)
+    const forgedState = new URL(again.body.url).searchParams.get('state')
+    global.fetch = jest.fn(async () => ({ ok: true, status: 200, json: async () => ({ id: 5, account: { login: 'intruder' } }) }))
+    const forged = await request(app).get(`/optimize/github/callback?state=${forgedState}&installation_id=99&setup_action=install`)
+    expect(forged.headers.location).toBe('http://localhost:5173/resume?github=error')
+    expect(await GitHubConnection.countDocuments({ userId })).toBe(0)
+
+    await GitHubConnection.create({ userId, installationId: 7, accountLogin: 'octocat' })
+    global.fetch = jest.fn(async (url) => {
+      const href = String(url)
+      if (href.endsWith('/access_tokens')) return { ok: false, status: 404, json: async () => ({}) }
+      return { ok: false, status: 404, json: async () => ({}) }
+    })
+    const revoked = await request(app).get('/optimize/github/repos').set('Authorization', `Bearer ${token}`)
+    expect(revoked.status).toBe(200)
+    expect(revoked.body.revoked).toBe(true)
+    expect(revoked.body.connected).toBe(false)
+    expect(JSON.stringify(revoked.body)).not.toMatch(/ghs_|BEGIN RSA/)
+    expect(await GitHubConnection.countDocuments({ userId })).toBe(0)
+
+    await GitHubConnection.create({ userId, installationId: 7, accountLogin: 'octocat' })
+    global.fetch = jest.fn(async (url) => {
+      const href = String(url)
+      if (href.endsWith('/access_tokens')) return { ok: true, status: 200, json: async () => ({ token: 'ghs_rate_secret' }) }
+      if (href.includes('page=1')) {
+        return { ok: true, status: 200, json: async () => ({ repositories: Array.from({ length: 100 }, (_, index) => ({ id: index + 1, name: `repo-${index}`, private: false, owner: { login: 'octocat' }, default_branch: 'main' })) }) }
+      }
+      if (href.includes('page=2')) {
+        return { ok: true, status: 200, json: async () => ({ repositories: [{ id: 250, name: 'last-repo', private: true, owner: { login: 'octocat' }, default_branch: 'main' }] }) }
+      }
+      return { ok: false, status: 404, json: async () => ({}) }
+    })
+    const pages = await request(app).get('/optimize/github/repos').set('Authorization', `Bearer ${token}`)
+    expect(pages.status).toBe(200)
+    expect(pages.body.repos).toHaveLength(100)
+    expect(pages.body.repos.map((item) => item.name)).not.toContain('last-repo')
+    expect(pages.body.repos[0].defaultBranch).toBe('main')
+    expect(JSON.stringify(pages.body)).not.toContain('ghs_rate_secret')
+
+    global.fetch = jest.fn(async (url) => {
+      if (String(url).endsWith('/access_tokens')) return { ok: true, status: 200, json: async () => ({ token: 'ghs_rate_secret' }) }
+      return { ok: false, status: 429, json: async () => ({ message: 'rate limit' }) }
+    })
+    const limited = await request(app).get('/optimize/github/repos').set('Authorization', `Bearer ${token}`)
+    expect(limited.status).toBe(429)
+    expect(JSON.stringify(limited.body)).not.toContain('ghs_rate_secret')
+
+    await request(app)
+      .post('/optimize/drafts')
+      .set('Authorization', `Bearer ${token}`)
+      .send({ jobDescription: JD, resumeText: RESUME, manualProjects: [{ name: 'Campus API', details: 'Built a Node.js service for campus events.' }] })
+    const removed = await request(app).delete('/users/account').set('Authorization', `Bearer ${token}`)
+    expect(removed.status).toBe(200)
+    expect(await GitHubConnection.countDocuments({ userId })).toBe(0)
+    expect(await OptimizerDraft.countDocuments({ userId })).toBe(0)
   })
 })

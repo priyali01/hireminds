@@ -19,6 +19,7 @@ const { NotFoundError, ValidationError } = require('../utils/errors')
 function present(draft) {
   return {
     id: draft._id,
+    rubricVersion: draft.rubricVersion || 'h02-projects-v1',
     originalText: draft.originalText,
     approvedText: draft.approvedText,
     jobDescription: draft.jobDescription,
@@ -80,6 +81,7 @@ async function githubCallback(req, res) {
       state: req.query.state,
       installationId: req.query.installation_id,
       setupAction: req.query.setup_action,
+      error: req.query.error,
     })
     res.redirect(clientRedirect(result.status === 'pending' ? 'pending' : 'connected'))
   } catch {
@@ -99,7 +101,13 @@ async function githubStatus(req, res, next) {
 async function githubRepos(req, res, next) {
   try {
     const listed = await listSharedRepos(req.user.userId)
-    res.json({ success: true, connected: listed.connected, accountLogin: listed.accountLogin || '', repos: listed.repos })
+    res.json({
+      success: true,
+      connected: listed.connected,
+      revoked: Boolean(listed.revoked),
+      accountLogin: listed.accountLogin || '',
+      repos: listed.repos,
+    })
   } catch (err) {
     next(err)
   }
@@ -158,6 +166,7 @@ async function createDraft(req, res, next) {
       demonstratedSkills: proposal.demonstratedSkills,
       suggestedToLearn: proposal.suggestedToLearn,
       projects: proposal.projects,
+      rubricVersion: proposal.rubricVersion,
     })
     res.status(201).json({ success: true, draft: present(draft) })
   } catch (err) {

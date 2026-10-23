@@ -3,7 +3,8 @@ const { findSkill } = require('../ats/match')
 const { lineAround } = require('../ats/match')
 const { splitResume } = require('../ats/sections')
 const { parseJobDescription } = require('../ats/jdParser')
-const { rankProjects } = require('./rank')
+const { rankProjects, trustedText } = require('./rank')
+const { redactSecrets } = require('./github')
 
 function skillByName(name) {
   return SKILL_DICTIONARY.find((skill) => skill.canonical === name)
@@ -11,18 +12,19 @@ function skillByName(name) {
 
 function quoteFor(repo, skill) {
   for (const file of repo.files || []) {
-    const found = findSkill(file.text || '', skill)
+    const text = trustedText(file.text || '')
+    const found = findSkill(text, skill)
     if (!found) continue
-    const quote = lineAround(file.text, found.index)
+    const quote = redactSecrets(lineAround(text, found.index))
     if (quote) return { source: 'github', quote, ref: `${repo.name}/${file.path}` }
   }
-  const readme = repo.readme || ''
+  const readme = trustedText(repo.readme || '')
   const sentence = readme.split(/(?<=[.!?])\s+/).map((part) => part.trim()).find((part) => findSkill(part, skill))
-  if (sentence) return { source: 'github', quote: sentence, ref: repo.name }
-  const meta = [repo.name, repo.description].filter(Boolean).join('\n')
+  if (sentence) return { source: 'github', quote: redactSecrets(sentence), ref: repo.name }
+  const meta = trustedText([repo.name, repo.description].filter(Boolean).join('\n'))
   const found = findSkill(meta, skill)
   if (found) {
-    const quote = lineAround(meta, found.index)
+    const quote = redactSecrets(lineAround(meta, found.index))
     if (quote) return { source: 'github', quote, ref: repo.name }
   }
   return null
@@ -155,6 +157,7 @@ function proposeResumeEdits({ resumeText, jobDescription, repos = [] }) {
     demonstratedSkills: demonstrated,
     suggestedToLearn,
     projects: ranked.projects,
+    rubricVersion: ranked.rubricVersion,
   }
 }
 

@@ -26,6 +26,7 @@ const optimizerDraftSchema = new mongoose.Schema({
   demonstratedSkills: { type: [String], default: [] },
   suggestedToLearn: { type: [String], default: [] },
   projects: { type: [mongoose.Schema.Types.Mixed], default: [] },
+  rubricVersion: { type: String, default: 'h02-projects-v1' },
   report: { type: mongoose.Schema.Types.Mixed, default: null },
 }, { timestamps: true })
 

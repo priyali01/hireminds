@@ -1,4 +1,7 @@
 const User = require('../models/user.model')
+const GitHubConnection = require('../models/githubConnection.model')
+const GitHubConnectState = require('../models/githubConnectState.model')
+const OptimizerDraft = require('../models/optimizerDraft.model')
 const { AppError } = require('../utils/errors')
 
 // @desc    Update user profile
@@ -111,7 +114,11 @@ exports.deleteAccount = async (req, res, next) => {
   try {
     // In a real production scenario, we might soft-delete or schedule deletion
     // For V2.0, we will perform a hard delete for DPDP compliance.
-    await User.findByIdAndDelete(req.user.userId || req.user.id)
+    const userId = req.user.userId || req.user.id
+    await User.findByIdAndDelete(userId)
+    await GitHubConnection.deleteMany({ userId })
+    await GitHubConnectState.deleteMany({ userId })
+    await OptimizerDraft.deleteMany({ userId })
     
     // Clear cookies
     res.cookie('refreshToken', 'none', {

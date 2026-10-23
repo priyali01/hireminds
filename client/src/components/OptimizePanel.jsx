@@ -53,8 +53,10 @@ export default function OptimizePanel({ assessment }) {
     const flag = params.get('github')
     if (!flag) return
     if (flag === 'connected') {
-      refetchStatus()
-      setError(null)
+      refetchStatus().then((result) => {
+        if (result?.data?.connected) setError(null)
+        else setError('GitHub did not attach this connection to your HirMind account. Start again from HirMind.')
+      })
     } else if (flag === 'pending') {
       setError('GitHub is waiting for an owner to approve the app. You can add projects yourself until then.')
     } else if (flag === 'error') {
@@ -64,6 +66,12 @@ export default function OptimizePanel({ assessment }) {
     next.delete('github')
     setParams(next, { replace: true })
   }, [params, refetchStatus, setParams])
+
+  useEffect(() => {
+    if (!shared?.revoked) return
+    refetchStatus()
+    setError('GitHub access was removed. Connect again, or add a project yourself.')
+  }, [shared?.revoked, refetchStatus])
 
   const connect = async () => {
     setError(null)
@@ -165,6 +173,9 @@ export default function OptimizePanel({ assessment }) {
       <p className="optimize-note">
         Proposed lines are copied from your resume, a repository you chose on GitHub, or a project you describe yourself. Skills that are not demonstrated stay on a learn list.
       </p>
+      <p className="optimize-note">
+        Connect GitHub opens GitHub’s screen so you can allow read-only metadata and file contents for repositories you select. HirMind cannot edit those repositories. You can skip this and describe a project yourself.
+      </p>
 
       <div className="optimize-row">
         {status?.connected ? (
@@ -244,13 +255,25 @@ export default function OptimizePanel({ assessment }) {
             </div>
           </div>
 
+          {draft.rubricVersion && (
+            <p className="optimize-note">Project relevance uses rubric {draft.rubricVersion}. This number is separate from the job-match score.</p>
+          )}
           {draft.projects?.length > 0 && (
             <ul className="optimize-projects">
               {draft.projects.map((project) => (
                 <li key={project.name}>
                   <strong>{project.name}</strong>
                   <span>{LABELS[project.recommendation] || project.recommendation}</span>
+                  <span>Project relevance {project.score ?? '—'} / 100</span>
                   <span>{project.reasons?.[0]}</span>
+                  <div className="optimize-evidence-note">
+                    {project.verifiedTechnologies?.length > 0 && <span>Verified in source: {project.verifiedTechnologies.join(', ')}</span>}
+                    {project.declaredTechnologies?.length > 0 && <span>Declared only: {project.declaredTechnologies.join(', ')}</span>}
+                    {project.missingRequirements?.length > 0 && <span>Not found in this project: {project.missingRequirements.join(', ')}</span>}
+                    {(project.statedAchievements || []).map((item) => (
+                      <span key={item}>Stated in the repository, not verified: {item}</span>
+                    ))}
+                  </div>
                 </li>
               ))}
             </ul>

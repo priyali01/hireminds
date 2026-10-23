@@ -58,12 +58,13 @@ async function beginConnect(userId) {
   return { url: url.toString() }
 }
 
-async function completeInstall({ state, installationId, setupAction, fetchImpl = global.fetch }) {
+async function completeInstall({ state, installationId, setupAction, error, fetchImpl = global.fetch }) {
   const pending = state ? await GitHubConnectState.findOne({ state: String(state) }) : null
   if (!pending || pending.expiresAt.getTime() < Date.now()) {
     throw new ValidationError('GitHub returned a connection that could not be verified. Start again from HirMind.')
   }
   await GitHubConnectState.deleteOne({ _id: pending._id })
+  if (error) throw new ValidationError('GitHub did not complete the connection.')
   if (setupAction === 'request') return { status: 'pending' }
 
   const id = Number(installationId)
@@ -77,11 +78,13 @@ async function completeInstall({ state, installationId, setupAction, fetchImpl =
   const response = await fetchImpl(`https://api.github.com/app/installations/${id}`, {
     headers: githubHeaders(appJwt(config)),
   })
-  if (!response.ok) throw new AppError('GitHub did not accept this installation.', 502, 'GITHUB_UNAVAILABLE')
   const body = await readJson(response)
+  if (!response.ok || Number(body?.id) !== id || !body?.account || typeof body.account !== 'object') {
+    throw new AppError('GitHub did not confirm this installation.', 502, 'GITHUB_UNAVAILABLE')
+  }
   await GitHubConnection.findOneAndUpdate(
     { userId: pending.userId },
-    { userId: pending.userId, installationId: id, accountLogin: body?.account?.login || '' },
+    { userId: pending.userId, installationId: id, accountLogin: body.account.login || '' },
     { upsert: true, new: true }
   )
   return { status: 'connected' }
@@ -97,6 +100,12 @@ async function installationAccessToken(installationId, fetchImpl) {
     { method: 'POST', headers: githubHeaders(appJwt(config)) }
   )
   const body = await readJson(response)
+  if (response.status === 401 || response.status === 404) {
+    throw new AppError('GitHub access for this account was removed.', 401, 'GITHUB_REVOKED')
+  }
+  if (response.status === 429) {
+    throw new AppError('GitHub rate limit reached. Try again later.', 429, 'GITHUB_RATE_LIMIT')
+  }
   if (!response.ok || !body?.token) {
     throw new AppError('GitHub did not provide access to the repositories you shared.', 502, 'GITHUB_UNAVAILABLE')
   }
@@ -105,10 +114,13 @@ async function installationAccessToken(installationId, fetchImpl) {
 
 function presentRepo(repo) {
   return {
+    id: Number.isInteger(repo.id) ? repo.id : null,
     name: repo.name,
     owner: repo.owner?.login || '',
     description: repo.description || '',
     language: repo.language || '',
+    topics: Array.isArray(repo.topics) ? repo.topics.slice(0, 20) : [],
+    defaultBranch: repo.default_branch || '',
     private: Boolean(repo.private),
     htmlUrl: repo.html_url || '',
     pushedAt: repo.pushed_at || null,
@@ -118,18 +130,40 @@ function presentRepo(repo) {
 async function listSharedRepos(userId, fetchImpl = global.fetch) {
   const connection = await GitHubConnection.findOne({ userId })
   if (!connection) return { connected: false, repos: [] }
-  const access = await installationAccessToken(connection.installationId, fetchImpl)
-  const response = await fetchImpl('https://api.github.com/installation/repositories?per_page=100', {
-    headers: githubHeaders(access),
-  })
-  const body = await readJson(response)
-  if (!response.ok || !Array.isArray(body?.repositories)) {
-    throw new AppError('GitHub could not list the repositories you shared.', 502, 'GITHUB_UNAVAILABLE')
+  let access
+  try {
+    access = await installationAccessToken(connection.installationId, fetchImpl)
+  } catch (err) {
+    if (err.code === 'GITHUB_REVOKED') {
+      await GitHubConnection.deleteOne({ userId })
+      return { connected: false, revoked: true, repos: [] }
+    }
+    throw err
+  }
+  const repositories = []
+  for (let page = 1; page <= 3 && repositories.length < 100; page += 1) {
+    const response = await fetchImpl(
+      `https://api.github.com/installation/repositories?per_page=100&page=${page}`,
+      { headers: githubHeaders(access) }
+    )
+    const body = await readJson(response)
+    if (response.status === 401 || response.status === 404) {
+      await GitHubConnection.deleteOne({ userId })
+      return { connected: false, revoked: true, repos: [] }
+    }
+    if (response.status === 429) {
+      throw new AppError('GitHub rate limit reached. Try again later.', 429, 'GITHUB_RATE_LIMIT')
+    }
+    if (!response.ok || !Array.isArray(body?.repositories)) {
+      throw new AppError('GitHub could not list the repositories you shared.', 502, 'GITHUB_UNAVAILABLE')
+    }
+    repositories.push(...body.repositories)
+    if (body.repositories.length < 100) break
   }
   return {
     connected: true,
     accountLogin: connection.accountLogin,
-    repos: body.repositories.slice(0, 100).map(presentRepo),
+    repos: repositories.slice(0, 100).map(presentRepo),
   }
 }
 
@@ -154,11 +188,12 @@ async function fetchSharedRepos(userId, names, fetchImpl = global.fetch) {
 function clientRedirect(flag) {
   const base = process.env.CLIENT_URL || 'http://localhost:5173'
   const url = new URL('/resume', base)
-  url.searchParams.set('github', flag)
+  url.searchParams.set('github', ['connected', 'pending', 'error'].includes(flag) ? flag : 'error')
   return url.toString()
 }
 
 async function disconnect(userId) {
+  await GitHubConnectState.deleteMany({ userId })
   await GitHubConnection.deleteOne({ userId })
 }
 
