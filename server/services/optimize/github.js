@@ -127,9 +127,30 @@ async function fetchPublicProfile(login, { fetchImpl = global.fetch, token = nul
   return detailed
 }
 
+async function loadRepositoryEvidence(repos, { fetchImpl = global.fetch, token }) {
+  const headers = githubHeaders(token, true)
+  const detailed = []
+  for (const repo of repos) {
+    detailed.push({
+      name: repo.name,
+      description: repo.description || '',
+      language: repo.language || '',
+      languages: repo.languages || {},
+      topics: Array.isArray(repo.topics) ? repo.topics : [],
+      pushedAt: repo.pushedAt || repo.pushed_at || null,
+      private: Boolean(repo.private),
+      htmlUrl: repo.htmlUrl || repo.html_url || '',
+      readme: await fetchReadme(fetchImpl, headers, repo.owner, repo.name),
+      files: await fetchSourceFiles(fetchImpl, headers, repo.owner, repo.name),
+    })
+  }
+  return detailed
+}
+
 module.exports = {
   parseGitHubLogin,
   selectPublicRepos,
   selectSourceFiles,
   fetchPublicProfile,
+  loadRepositoryEvidence,
 }

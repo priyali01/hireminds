@@ -1,6 +1,15 @@
 const Assessment = require('../models/assessment.model')
 const OptimizerDraft = require('../models/optimizerDraft.model')
 const { parseGitHubLogin, fetchPublicProfile } = require('../services/optimize/github')
+const {
+  beginConnect,
+  completeInstall,
+  listSharedRepos,
+  fetchSharedRepos,
+  clientRedirect,
+  disconnect,
+  connectionStatus,
+} = require('../services/optimize/githubConnect')
 const { proposeResumeEdits } = require('../services/optimize/propose')
 const { decideChange, approvedText } = require('../services/optimize/apply')
 const { exportResume } = require('../services/optimize/exportResume')
@@ -25,6 +34,84 @@ async function ownedDraft(userId, id) {
   const draft = await OptimizerDraft.findOne({ _id: id, userId })
   if (!draft) throw new NotFoundError('Draft')
   return draft
+}
+
+function manualRepos(list) {
+  if (!Array.isArray(list) || list.length === 0) return []
+  return list.slice(0, 8).map((item) => {
+    const name = String(item?.name || '').trim()
+    const details = String(item?.details || '').trim()
+    if (name.length < 2 || name.length > 80) {
+      throw new ValidationError('Each project needs a name.')
+    }
+    if (details.length < 10 || details.length > 4000) {
+      throw new ValidationError('Describe what you built, in your own words.')
+    }
+    if (/ghp_|github_pat_|gho_|ghu_/i.test(`${name}\n${details}`)) {
+      throw new ValidationError('Paste a project description, not a token.')
+    }
+    return {
+      name,
+      description: '',
+      readme: details,
+      language: '',
+      languages: {},
+      topics: [],
+      pushedAt: null,
+      files: [],
+      private: false,
+      htmlUrl: '',
+    }
+  })
+}
+
+async function startGitHubConnect(req, res, next) {
+  try {
+    const result = await beginConnect(req.user.userId)
+    res.json({ success: true, url: result.url })
+  } catch (err) {
+    next(err)
+  }
+}
+
+async function githubCallback(req, res) {
+  try {
+    const result = await completeInstall({
+      state: req.query.state,
+      installationId: req.query.installation_id,
+      setupAction: req.query.setup_action,
+    })
+    res.redirect(clientRedirect(result.status === 'pending' ? 'pending' : 'connected'))
+  } catch {
+    res.redirect(clientRedirect('error'))
+  }
+}
+
+async function githubStatus(req, res, next) {
+  try {
+    const status = await connectionStatus(req.user.userId)
+    res.json({ success: true, ...status })
+  } catch (err) {
+    next(err)
+  }
+}
+
+async function githubRepos(req, res, next) {
+  try {
+    const listed = await listSharedRepos(req.user.userId)
+    res.json({ success: true, connected: listed.connected, accountLogin: listed.accountLogin || '', repos: listed.repos })
+  } catch (err) {
+    next(err)
+  }
+}
+
+async function githubDisconnect(req, res, next) {
+  try {
+    await disconnect(req.user.userId)
+    res.json({ success: true, connected: false })
+  } catch (err) {
+    next(err)
+  }
 }
 
 async function loadGitHub(req, res, next) {
@@ -56,7 +143,11 @@ async function createDraft(req, res, next) {
     if (!jobDescription || String(jobDescription).trim().length < 20) {
       throw new ValidationError('Paste a job description before tailoring.')
     }
-    const repos = Array.isArray(req.body.repos) ? req.body.repos.slice(0, 8) : []
+    const supplied = Array.isArray(req.body.repos) ? req.body.repos.slice(0, 8) : []
+    const selected = Array.isArray(req.body.repoNames)
+      ? await fetchSharedRepos(req.user.userId, req.body.repoNames)
+      : []
+    const repos = [...selected, ...manualRepos(req.body.manualProjects), ...supplied].slice(0, 8)
     const proposal = proposeResumeEdits({ resumeText, jobDescription, repos })
     const draft = await OptimizerDraft.create({
       userId: req.user.userId,
@@ -129,6 +220,11 @@ async function exportDraft(req, res, next) {
 
 module.exports = {
   loadGitHub,
+  startGitHubConnect,
+  githubCallback,
+  githubStatus,
+  githubRepos,
+  githubDisconnect,
   createDraft,
   getDraft,
   reviewChange,

@@ -28,6 +28,22 @@ function quoteFor(repo, skill) {
   return null
 }
 
+function slug(name) {
+  return String(name || 'project').toLowerCase().replace(/[^a-z0-9]+/g, '-').replace(/^-|-$/g, '') || 'project'
+}
+
+function uniqueId(used, prefix, name) {
+  const base = `${prefix}-${slug(name)}`
+  let id = base
+  let count = 2
+  while (used.has(id)) {
+    id = `${base}-${count}`
+    count += 1
+  }
+  used.add(id)
+  return id
+}
+
 function proposeResumeEdits({ resumeText, jobDescription, repos = [] }) {
   const resume = String(resumeText || '')
   const parsed = parseJobDescription(jobDescription || '')
@@ -59,6 +75,7 @@ function proposeResumeEdits({ resumeText, jobDescription, repos = [] }) {
 
   const sections = splitResume(resume)
   const changes = []
+  const usedIds = new Set()
   const skillsText = (sections.sections.skills || '').trim()
   const missingOnResume = demonstrated.filter((name) => {
     const skill = skillByName(name)
@@ -67,7 +84,7 @@ function proposeResumeEdits({ resumeText, jobDescription, repos = [] }) {
 
   if (skillsText && missingOnResume.length) {
     changes.push({
-      id: 'skills-demonstrated',
+      id: uniqueId(usedIds, 'skills', 'demonstrated'),
       section: 'skills',
       action: 'revise',
       before: skillsText,
@@ -89,7 +106,7 @@ function proposeResumeEdits({ resumeText, jobDescription, repos = [] }) {
         || projectLines[0]
         || ''
       changes.push({
-        id: `project-${repo.name}`,
+        id: uniqueId(usedIds, 'project', repo.name),
         section: 'projects',
         action: before ? 'revise' : 'add',
         before,
@@ -107,7 +124,7 @@ function proposeResumeEdits({ resumeText, jobDescription, repos = [] }) {
     const quote = skill && repo ? quoteFor(repo, skill) : null
     if (quote && quote.quote && !summary.includes(quote.quote)) {
       changes.push({
-        id: 'summary-evidence',
+        id: uniqueId(usedIds, 'summary', 'evidence'),
         section: 'summary',
         action: 'revise',
         before: summary,
@@ -122,7 +139,7 @@ function proposeResumeEdits({ resumeText, jobDescription, repos = [] }) {
     const line = (sections.sections.projects || '').split('\n').map((item) => item.trim()).find((item) => item && item.toLowerCase().includes(project.name.toLowerCase()))
     if (!line) continue
     changes.push({
-      id: `remove-${project.name}`,
+      id: uniqueId(usedIds, 'remove', project.name),
       section: 'projects',
       action: 'remove',
       before: line,

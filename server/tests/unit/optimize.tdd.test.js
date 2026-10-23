@@ -97,6 +97,21 @@ describe('project ranking', () => {
     expect(ranked.projects[1].recommendation).toBe('remove')
   })
 
+  it('highlights a short description that shows a required skill', () => {
+    const ranked = rankProjects([
+      repo({
+        name: 'Campus API',
+        readme: 'Built a Node.js service for campus events.',
+        language: '',
+        languages: {},
+        pushedAt: null,
+        files: [],
+      }),
+    ], JD, { now: NOW })
+    expect(ranked.projects[0].recommendation).toBe('highlight')
+    expect(ranked.projects[0].demonstratedSkills).toContain('node.js')
+  })
+
   it('asks to shorten a long repository that barely matches the role', () => {
     const ranked = rankProjects([
       repo({

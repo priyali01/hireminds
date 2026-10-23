@@ -1,6 +1,10 @@
-import { useState } from 'react'
+import { useEffect, useState } from 'react'
+import { useSearchParams } from 'react-router-dom'
 import {
-  useLoadGitHubProfileMutation,
+  useGithubStatusQuery,
+  useGithubReposQuery,
+  useStartGitHubConnectMutation,
+  useDisconnectGitHubMutation,
   useCreateOptimizerDraftMutation,
   useReviewOptimizerChangeMutation,
   useRescoreOptimizerDraftMutation,
@@ -19,28 +23,84 @@ function messageFrom(err, fallback) {
 }
 
 export default function OptimizePanel({ assessment }) {
-  const [profile, setProfile] = useState('')
-  const [repos, setRepos] = useState(null)
+  const [params, setParams] = useSearchParams()
   const [draft, setDraft] = useState(null)
   const [edits, setEdits] = useState({})
+  const [selected, setSelected] = useState([])
+  const [projectName, setProjectName] = useState('')
+  const [projectDetails, setProjectDetails] = useState('')
+  const [manualProjects, setManualProjects] = useState([])
   const [error, setError] = useState(null)
-  const [loadGitHub, { isLoading: loadingGit }] = useLoadGitHubProfileMutation()
+  const { data: status, refetch: refetchStatus } = useGithubStatusQuery()
+  const { data: shared, error: reposError } = useGithubReposQuery(undefined, { skip: !status?.connected })
+  const [startConnect, { isLoading: connecting }] = useStartGitHubConnectMutation()
+  const [disconnectGitHub, { isLoading: disconnecting }] = useDisconnectGitHubMutation()
   const [createDraft, { isLoading: drafting }] = useCreateOptimizerDraftMutation()
   const [reviewChange, { isLoading: reviewing }] = useReviewOptimizerChangeMutation()
   const [rescore, { isLoading: scoring }] = useRescoreOptimizerDraftMutation()
   const [exportDraft, { isLoading: exporting }] = useExportOptimizerDraftMutation()
 
-  const busy = loadingGit || drafting || reviewing || scoring || exporting
+  const busy = connecting || disconnecting || drafting || reviewing || scoring || exporting
+  const repos = shared?.repos || []
+  const assessmentId = assessment?.id
 
-  const loadProfile = async () => {
+  useEffect(() => {
+    setDraft(null)
+    setEdits({})
+  }, [assessmentId])
+
+  useEffect(() => {
+    const flag = params.get('github')
+    if (!flag) return
+    if (flag === 'connected') {
+      refetchStatus()
+      setError(null)
+    } else if (flag === 'pending') {
+      setError('GitHub is waiting for an owner to approve the app. You can add projects yourself until then.')
+    } else if (flag === 'error') {
+      setError('GitHub did not complete the connection. Start again from HirMind.')
+    }
+    const next = new URLSearchParams(params)
+    next.delete('github')
+    setParams(next, { replace: true })
+  }, [params, refetchStatus, setParams])
+
+  const connect = async () => {
     setError(null)
     try {
-      const result = await loadGitHub({ profile }).unwrap()
-      setRepos(result.repos || [])
+      const result = await startConnect().unwrap()
+      if (!String(result.url || '').startsWith('https://github.com/')) {
+        setError('GitHub did not return an authorization page.')
+        return
+      }
+      window.location.assign(result.url)
     } catch (err) {
-      setRepos(null)
-      setError(messageFrom(err, 'That public profile could not be read.'))
+      setError(messageFrom(err, 'GitHub connection is not set up on the server yet. You can still add projects yourself.'))
     }
+  }
+
+  const disconnect = async () => {
+    setError(null)
+    setSelected([])
+    try {
+      await disconnectGitHub().unwrap()
+      refetchStatus()
+    } catch (err) {
+      setError(messageFrom(err, 'GitHub could not be disconnected.'))
+    }
+  }
+
+  const addProject = () => {
+    const name = projectName.trim()
+    const details = projectDetails.trim()
+    if (name.length < 2 || details.length < 10) {
+      setError('Name the project and describe what you actually built.')
+      return
+    }
+    setManualProjects((current) => [...current, { name, details }].slice(0, 8))
+    setProjectName('')
+    setProjectDetails('')
+    setError(null)
   }
 
   const tailor = async () => {
@@ -49,7 +109,8 @@ export default function OptimizePanel({ assessment }) {
     try {
       const result = await createDraft({
         assessmentId: assessment.id,
-        repos: repos || [],
+        repoNames: selected,
+        manualProjects,
       }).unwrap()
       setDraft(result.draft)
       setEdits({})
@@ -102,36 +163,73 @@ export default function OptimizePanel({ assessment }) {
     <section className="optimize-panel glass-card">
       <h2>Tailor this resume</h2>
       <p className="optimize-note">
-        Proposed lines are copied from this resume or a public repository. Skills that are not already demonstrated are listed to learn, and they are not written onto the resume.
+        Proposed lines are copied from your resume, a repository you chose on GitHub, or a project you describe yourself. Skills that are not demonstrated stay on a learn list.
       </p>
 
-      {!assessment ? (
-        <p className="optimize-note">Score a resume against a job description first. Tailoring uses that saved text.</p>
-      ) : (
-        <>
-          <label className="form-label" htmlFor="github-profile">Public GitHub profile</label>
-          <div className="optimize-row">
-            <input
-              id="github-profile"
-              className="form-input"
-              value={profile}
-              placeholder="github.com/your-name"
-              onChange={(event) => setProfile(event.target.value)}
-            />
-            <button type="button" className="btn btn-secondary" disabled={busy || !profile.trim()} onClick={loadProfile}>
-              {loadingGit ? 'Reading…' : 'Load repositories'}
-            </button>
-          </div>
-          {repos && (
-            <p className="optimize-note">{repos.length} public {repos.length === 1 ? 'repository' : 'repositories'} loaded. Private repositories are not requested.</p>
-          )}
-          <button type="button" className="btn btn-primary" disabled={busy} onClick={tailor}>
-            {drafting ? 'Preparing edits…' : 'Prepare edits'}
+      <div className="optimize-row">
+        {status?.connected ? (
+          <>
+            <p className="optimize-note">Connected{status.accountLogin ? ` as ${status.accountLogin}` : ''}. Choose which shared repositories to analyze.</p>
+            <button type="button" className="btn btn-ghost" disabled={busy} onClick={disconnect}>Disconnect</button>
+          </>
+        ) : (
+          <button type="button" className="btn btn-secondary" disabled={busy} onClick={connect}>
+            {connecting ? 'Opening GitHub…' : 'Connect GitHub'}
           </button>
-        </>
+        )}
+      </div>
+      {error && <div className="server-error">{error}</div>}
+      {reposError && <div className="server-error">{messageFrom(reposError, 'GitHub could not list the repositories you shared.')}</div>}
+      {repos.length > 0 && (
+        <ul className="optimize-projects">
+          {repos.map((repo) => (
+            <li key={`${repo.owner}/${repo.name}`}>
+              <label>
+                    <input
+                      type="checkbox"
+                      checked={selected.includes(repo.name)}
+                      onChange={() => setSelected((current) => (
+                        current.includes(repo.name)
+                          ? current.filter((name) => name !== repo.name)
+                          : [...current, repo.name].slice(0, 8)
+                      ))}
+                    />
+                {' '}{repo.name}{repo.private ? ' · private, shared by you' : ''}
+              </label>
+            </li>
+          ))}
+        </ul>
       )}
 
-      {error && <div className="server-error">{error}</div>}
+      <h3>Or describe a project yourself</h3>
+      <label className="form-label" htmlFor="project-name">Project name</label>
+      <input id="project-name" className="form-input" value={projectName} placeholder="Campus API" onChange={(event) => setProjectName(event.target.value)} />
+      <label className="form-label" htmlFor="project-details">What you built</label>
+      <textarea
+        id="project-details"
+        className="jd-input"
+        value={projectDetails}
+        placeholder="Write what you actually built. HirMind will not add metrics or tools you do not mention."
+        onChange={(event) => setProjectDetails(event.target.value)}
+      />
+      <button type="button" className="btn btn-ghost" onClick={addProject}>Add this project</button>
+      {manualProjects.length > 0 && (
+        <ul className="optimize-projects">
+          {manualProjects.map((project, index) => (
+            <li key={`${project.name}-${index}`}>
+              <strong>{project.name}</strong>
+              <button type="button" className="btn btn-ghost" onClick={() => setManualProjects((current) => current.filter((_, itemIndex) => itemIndex !== index))}>Remove</button>
+            </li>
+          ))}
+        </ul>
+      )}
+      {!assessment ? (
+        <p className="optimize-note">The ATS checker above still works on its own. Score a resume before preparing edits.</p>
+      ) : (
+        <button type="button" className="btn btn-primary" disabled={busy} onClick={tailor}>
+          {drafting ? 'Preparing edits…' : 'Prepare edits'}
+        </button>
+      )}
 
       {draft && (
         <div className="optimize-results">

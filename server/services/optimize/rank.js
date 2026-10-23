@@ -17,20 +17,23 @@ function repoParts(repo) {
   return { fileText, readme: repo.readme || '', meta }
 }
 
-function measure(repo, skills) {
+function measure(repo, skills, requiredNames) {
   const parts = repoParts(repo)
   const demonstrated = []
   let evidence = 0
+  let requiredEvidence = 0
   for (const skill of skills) {
     const inFile = findSkill(parts.fileText, skill)
     const inReadme = findSkill(parts.readme, skill)
     const inMeta = findSkill(parts.meta, skill)
     if (!inFile && !inReadme && !inMeta) continue
+    const weight = inFile ? 100 : inReadme ? 70 : 40
     demonstrated.push(skill.canonical)
-    evidence = Math.max(evidence, inFile ? 100 : inReadme ? 70 : 40)
+    evidence = Math.max(evidence, weight)
+    if (requiredNames.has(skill.canonical)) requiredEvidence = Math.max(requiredEvidence, weight)
   }
   const relevance = skills.length === 0 ? 0 : Math.round((100 * demonstrated.length) / skills.length)
-  return { demonstrated, evidence, relevance }
+  return { demonstrated, evidence, relevance, requiredEvidence }
 }
 
 function depthScore(repo) {
@@ -51,7 +54,9 @@ function recencyScore(pushedAt, now) {
   return 15
 }
 
-function recommendation({ relevance, evidence, score, readmeWords }) {
+function recommendation({ relevance, evidence, score, readmeWords, requiredEvidence }) {
+  if (requiredEvidence >= 70) return 'highlight'
+  if (requiredEvidence > 0) return 'keep'
   if (relevance < 35 && readmeWords >= 150) return 'shorten'
   if (evidence >= 70 && relevance > 0 && score >= 55) return 'highlight'
   if (score >= 45 && relevance > 0) return 'keep'
@@ -59,14 +64,22 @@ function recommendation({ relevance, evidence, score, readmeWords }) {
 }
 
 function rankProjects(repos, jobDescription, { now = new Date() } = {}) {
-  const skills = targetSkills(jobDescription)
+  const parsed = parseJobDescription(jobDescription || '')
+  const skills = [...parsed.required, ...parsed.preferred]
+  const requiredNames = new Set(parsed.required.map((skill) => skill.canonical))
   const projects = (repos || []).map((repo) => {
-    const measured = measure(repo, skills)
+    const measured = measure(repo, skills, requiredNames)
     const depth = depthScore(repo)
     const recency = recencyScore(repo.pushedAt, now)
     const score = Math.round((0.45 * measured.relevance) + (0.25 * measured.evidence) + (0.15 * depth) + (0.15 * recency))
     const readmeWords = words(repo.readme).length
-    const label = recommendation({ relevance: measured.relevance, evidence: measured.evidence, score, readmeWords })
+    const label = recommendation({
+      relevance: measured.relevance,
+      evidence: measured.evidence,
+      score,
+      readmeWords,
+      requiredEvidence: measured.requiredEvidence,
+    })
     return {
       name: repo.name,
       htmlUrl: repo.htmlUrl || '',
