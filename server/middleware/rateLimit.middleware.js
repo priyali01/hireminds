@@ -21,7 +21,27 @@ const globalLimiter = rateLimit({
   legacyHeaders: false,
 })
 
+const optimizeLimiter = rateLimit({
+  windowMs: 15 * 60 * 1000,
+  limit: 30,
+  standardHeaders: 'draft-7',
+  legacyHeaders: false,
+  skip: () => process.env.NODE_ENV === 'test',
+  message: { success: false, error: 'Too many resume tailoring requests. Try again later.' },
+})
+
+const practiceLimiter = rateLimit({
+  windowMs: 15 * 60 * 1000,
+  limit: 60,
+  standardHeaders: 'draft-7',
+  legacyHeaders: false,
+  skip: () => process.env.NODE_ENV === 'test',
+  message: { success: false, error: 'Too many interview requests. Try again later.' },
+})
+
 module.exports = {
   authLimiter,
-  globalLimiter
+  globalLimiter,
+  optimizeLimiter,
+  practiceLimiter,
 }
