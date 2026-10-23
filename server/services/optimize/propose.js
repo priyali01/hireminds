@@ -100,6 +100,24 @@ function proposeResumeEdits({ resumeText, jobDescription, repos = [] }) {
     }
   }
 
+  const summary = (sections.sections.summary || '').trim()
+  if (summary && highlight) {
+    const repo = repos.find((item) => item.name === highlight.name)
+    const skill = (highlight.demonstratedSkills || []).map(skillByName).find(Boolean)
+    const quote = skill && repo ? quoteFor(repo, skill) : null
+    if (quote && quote.quote && !summary.includes(quote.quote)) {
+      changes.push({
+        id: 'summary-evidence',
+        section: 'summary',
+        action: 'revise',
+        before: summary,
+        after: `${summary}\n${quote.quote}`,
+        evidence: [quote],
+        status: 'pending',
+      })
+    }
+  }
+
   for (const project of ranked.projects.filter((item) => item.recommendation === 'remove')) {
     const line = (sections.sections.projects || '').split('\n').map((item) => item.trim()).find((item) => item && item.toLowerCase().includes(project.name.toLowerCase()))
     if (!line) continue

@@ -2,6 +2,7 @@ import { useState, useRef } from 'react'
 import { useAssessResumeMutation } from '../store/api'
 import { motion } from 'framer-motion'
 import AtsReport from '../components/AtsReport'
+import OptimizePanel from '../components/OptimizePanel'
 import '../styles/resume.css'
 
 const containerVariants = {
@@ -242,6 +243,7 @@ export default function ResumePage() {
         </motion.div>
 
       </div>
+      <OptimizePanel key={assessment?.id || 'none'} assessment={assessment} />
     </motion.div>
   )
 }
