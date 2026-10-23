@@ -196,8 +196,8 @@ export default function InterviewPage() {
       <div className="dashboard-layout" style={{ maxWidth: '1200px', margin: '0 auto', display: 'flex', flexDirection: 'column', gap: '2rem' }}>
         
         {/* SECTION 1: HERO */}
-        <motion.div variants={itemVariants} className="glass-card" style={{ padding: '2.5rem 3rem', borderRadius: '1.5rem', display: 'flex', justifyContent: 'space-between', alignItems: 'center', background: 'linear-gradient(135deg, rgba(16, 185, 129, 0.05) 0%, rgba(10, 20, 18, 0.8) 100%)' }}>
-          <div style={{ flex: 1, paddingRight: '4rem' }}>
+        <motion.div variants={itemVariants} className="glass-card hero-panel" style={{ padding: '2.5rem 3rem', borderRadius: '1.5rem', display: 'flex', justifyContent: 'space-between', alignItems: 'center', gap: '1.5rem', flexWrap: 'wrap', background: 'linear-gradient(135deg, rgba(16, 185, 129, 0.05) 0%, rgba(10, 20, 18, 0.8) 100%)' }}>
+          <div style={{ flex: '1 1 280px', minWidth: 0 }}>
             <motion.div variants={itemVariants} style={{ display: 'flex', alignItems: 'center', gap: '0.75rem', marginBottom: '0.5rem' }}>
               <span style={{ fontSize: '1.75rem', color: 'var(--color-primary-light)' }}>🎤</span>
               <h1 style={{ fontSize: '1.75rem', margin: 0, fontWeight: 700, letterSpacing: '0.02em' }}>AI Interview Center</h1>
@@ -212,7 +212,7 @@ export default function InterviewPage() {
               </p>
             </motion.div>
             
-            <motion.div variants={itemVariants} style={{ display: 'flex', gap: '1rem' }}>
+            <motion.div variants={itemVariants} className="action-row" style={{ display: 'flex', gap: '1rem', flexWrap: 'wrap' }}>
               <motion.button whileHover={{ scale: 1.05 }} whileTap={{ scale: 0.95 }} className="btn" onClick={() => navigate('/interview/setup')} style={{ background: 'var(--color-primary-light)', color: '#000', padding: '0.75rem 1.5rem', borderRadius: '0.5rem', fontWeight: 600, display: 'flex', alignItems: 'center', gap: '0.5rem', boxShadow: '0 4px 15px rgba(16, 185, 129, 0.4)' }}>
                 ▶ Start Mock Interview
               </motion.button>
@@ -227,7 +227,7 @@ export default function InterviewPage() {
         </motion.div>
 
         {/* SECTION 2: PERFORMANCE STATS */}
-        <motion.div variants={containerVariants} style={{ display: 'grid', gridTemplateColumns: 'repeat(4, 1fr)', gap: '1.5rem' }}>
+        <motion.div variants={containerVariants} className="stats-4" style={{ display: 'grid', gridTemplateColumns: 'repeat(4, minmax(0, 1fr))', gap: '1.5rem' }}>
           <StatCard icon="🎯" title="Overall Score" value="84" unit="/100" trend="↑ 8%" trendColor="var(--color-primary-light)" sparklineColor="#10b981" subtext="vs last month" />
           <StatCard icon="📅" title="Interviews Completed" value="12" unit="" trend="↑ 3" trendColor="var(--color-primary-light)" sparklineColor="#3b82f6" subtext="this week" />
           <StatCard icon="😊" title="Avg. Confidence" value="78%" unit="" trend="↑ 6%" trendColor="var(--color-primary-light)" sparklineColor="#10b981" subtext="vs last month" />
@@ -240,7 +240,7 @@ export default function InterviewPage() {
             <h2 style={{ fontSize: '1.25rem', fontWeight: 600 }}>Interview Types</h2>
             <span style={{ color: 'var(--color-primary-light)', fontSize: '0.875rem', cursor: 'pointer' }}>View all →</span>
           </div>
-          <div style={{ display: 'grid', gridTemplateColumns: 'repeat(4, 1fr)', gap: '1.5rem' }}>
+          <div className="stats-4" style={{ display: 'grid', gridTemplateColumns: 'repeat(4, minmax(0, 1fr))', gap: '1.5rem' }}>
             <InterviewTypeCard 
               icon={<span style={{color: '#10b981'}}>{"</>"}</span>} title="Technical Interview" 
               items={['DSA', 'OOP', 'DBMS', 'Operating Systems', 'Computer Networks']} duration="45-60 mins" onClick={() => navigate('/interview/setup')}
@@ -261,9 +261,9 @@ export default function InterviewPage() {
         </motion.div>
 
         {/* SECTION 4 & 5: COACH & SKILLS */}
-        <motion.div variants={containerVariants} style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: '1.5rem' }}>
+        <motion.div variants={containerVariants} className="stack-2" style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: '1.5rem' }}>
           
-          <motion.div variants={itemVariants} className="glass-card" style={{ padding: '1.5rem', borderRadius: '1rem', display: 'flex' }}>
+          <motion.div variants={itemVariants} className="glass-card" style={{ padding: '1.5rem', borderRadius: '1rem', display: 'flex', flexWrap: 'wrap' }}>
             <div style={{ flex: 1 }}>
               <div style={{ display: 'flex', alignItems: 'center', gap: '0.5rem', marginBottom: '0.5rem' }}>
                 <span style={{ fontSize: '1.25rem', color: 'var(--color-primary-light)' }}>🤖</span>
@@ -287,7 +287,7 @@ export default function InterviewPage() {
                 Practice DBMS Interview →
               </motion.button>
             </div>
-            <div style={{ width: '200px', display: 'flex', alignItems: 'center', justifyContent: 'center' }}>
+            <div className="coach-art" style={{ width: '200px', display: 'flex', alignItems: 'center', justifyContent: 'center' }}>
               <RobotIllustration />
             </div>
           </motion.div>
@@ -310,14 +310,15 @@ export default function InterviewPage() {
         </motion.div>
 
         {/* SECTION 6 & 7: HISTORY & TREND */}
-        <motion.div variants={containerVariants} style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: '1.5rem' }}>
+        <motion.div variants={containerVariants} className="stack-2" style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: '1.5rem' }}>
           
           <motion.div variants={itemVariants} className="glass-card" style={{ padding: '1.5rem', borderRadius: '1rem' }}>
             <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginBottom: '1rem' }}>
               <h3 style={{ margin: 0, fontSize: '1.125rem', fontWeight: 600 }}>Interview History</h3>
               <span style={{ color: 'var(--color-primary-light)', fontSize: '0.75rem', cursor: 'pointer' }}>View all →</span>
             </div>
-            <div style={{ display: 'grid', gridTemplateColumns: '2fr 1fr 1fr 1fr 40px', paddingBottom: '0.5rem', borderBottom: '1px solid rgba(255,255,255,0.05)', fontSize: '0.625rem', fontWeight: 700, textTransform: 'uppercase', color: 'var(--color-text-faint)' }}>
+            <div className="scroll-x">
+            <div style={{ display: 'grid', gridTemplateColumns: '2fr 1fr 1fr 1fr 40px', minWidth: '520px', paddingBottom: '0.5rem', borderBottom: '1px solid rgba(255,255,255,0.05)', fontSize: '0.625rem', fontWeight: 700, textTransform: 'uppercase', color: 'var(--color-text-faint)' }}>
               <div>Interview</div>
               <div>Date</div>
               <div>Score</div>
@@ -333,7 +334,7 @@ export default function InterviewPage() {
                 { title: 'Amazon SDE Mock Drive', sub: 'Full Placement Drive', date: '15 Jun 2024', score: '82', feedback: 'Good', fcolor: '#f59e0b' },
                 { title: 'DBMS Interview', sub: 'Technical Round', date: '12 Jun 2024', score: '68', feedback: 'Needs Work', fcolor: '#ef4444' }
               ].map((item, i) => (
-                <motion.div variants={itemVariants} key={i} style={{ display: 'grid', gridTemplateColumns: '2fr 1fr 1fr 1fr 40px', padding: '0.75rem 0', borderBottom: '1px solid rgba(255,255,255,0.02)', alignItems: 'center', fontSize: '0.75rem' }} className="table-row-hover">
+                <motion.div variants={itemVariants} key={i} style={{ display: 'grid', gridTemplateColumns: '2fr 1fr 1fr 1fr 40px', minWidth: '520px', padding: '0.75rem 0', borderBottom: '1px solid rgba(255,255,255,0.02)', alignItems: 'center', fontSize: '0.75rem' }} className="table-row-hover">
                   <div>
                     <div style={{ fontWeight: 600 }}>{item.title}</div>
                     <div style={{ fontSize: '0.625rem', color: 'var(--color-text-muted)' }}>{item.sub}</div>
@@ -347,6 +348,7 @@ export default function InterviewPage() {
                 </motion.div>
               ))}
             </motion.div>
+            </div>
           </motion.div>
 
           <motion.div variants={itemVariants} className="glass-card" style={{ padding: '1.5rem', borderRadius: '1rem', display: 'flex', flexDirection: 'column' }}>

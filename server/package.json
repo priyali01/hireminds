@@ -5,11 +5,11 @@
   "scripts": {
     "dev": "nodemon index.js",
     "start": "node index.js",
-    "test": "jest --forceExit --detectOpenHandles",
-    "test:unit": "jest tests/unit --forceExit --detectOpenHandles",
-    "test:integration": "jest tests/integration --forceExit --detectOpenHandles",
-    "test:watch": "jest --watch --forceExit --detectOpenHandles",
-    "test:coverage": "jest --coverage --forceExit --detectOpenHandles"
+    "test": "node --experimental-vm-modules ./node_modules/jest/bin/jest.js --forceExit --detectOpenHandles",
+    "test:unit": "node --experimental-vm-modules ./node_modules/jest/bin/jest.js tests/unit --forceExit --detectOpenHandles",
+    "test:integration": "node --experimental-vm-modules ./node_modules/jest/bin/jest.js tests/integration --forceExit --detectOpenHandles",
+    "test:watch": "node --experimental-vm-modules ./node_modules/jest/bin/jest.js --watch --forceExit --detectOpenHandles",
+    "test:coverage": "node --experimental-vm-modules ./node_modules/jest/bin/jest.js --coverage --forceExit --detectOpenHandles"
   },
   "jest": {
     "testEnvironment": "node",
@@ -39,19 +39,22 @@
     "express-rate-limit": "^7.5.1",
     "helmet": "^8.0.0",
     "jsonwebtoken": "^9.0.2",
+    "mammoth": "^1.13.0",
     "mongoose": "^8.15.0",
     "morgan": "^1.10.0",
     "multer": "^2.1.1",
     "node-cron": "^4.4.1",
-    "pdf-parse-fork": "^1.2.0",
+    "pdfjs-dist": "^6.4.299",
     "razorpay": "^2.9.6",
     "winston": "^3.17.0",
     "zod": "^3.25.67"
   },
   "devDependencies": {
     "jest": "^29.7.0",
+    "jszip": "^3.10.2",
     "mongodb-memory-server": "^10.1.4",
     "nodemon": "^3.1.14",
+    "pdf-lib": "^1.17.1",
     "supertest": "^7.1.0"
   }
 }

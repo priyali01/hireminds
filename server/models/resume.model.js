@@ -115,8 +115,20 @@ const resumeSchema = new mongoose.Schema(
     // --- ATS Analysis Results ---
     atsScore: {
       overall: { type: Number, default: null },
+      compatibility: { type: Number, default: null },
+      level: { type: String, default: null },
+      formula: { type: String, default: '' },
+      scoringMethod: { type: String, default: null },
+      keywordNote: { type: String, default: '' },
       // Fresher weights: projects 40%, skills 30%, education 20%, certs 10%
       // Experienced weights: experience 40%, skills 30%, projects 15%, education 10%, certs 5%
+      weights: {
+        skills: { type: Number, default: null },
+        projects: { type: Number, default: null },
+        education: { type: Number, default: null },
+        experience: { type: Number, default: null },
+        certifications: { type: Number, default: null },
+      },
       breakdown: {
         skills: { type: Number, default: null },
         projects: { type: Number, default: null },
@@ -124,12 +136,39 @@ const resumeSchema = new mongoose.Schema(
         experience: { type: Number, default: null },
         certifications: { type: Number, default: null },
       },
+      compatibilityBreakdown: { type: mongoose.Schema.Types.Mixed, default: null },
+      checks: {
+        type: [{
+          id: String,
+          group: String,
+          label: String,
+          max: Number,
+          earned: Number,
+          passed: Boolean,
+          detail: String,
+        }],
+        default: [],
+      },
+      findings: { type: [String], default: [] },
+      sectionsDetected: { type: [String], default: [] },
+      signals: {
+        wordCount: Number,
+        email: Boolean,
+        phone: Boolean,
+        linkedin: Boolean,
+        github: Boolean,
+        bulletCount: Number,
+        quantifiedBullets: Number,
+        actionVerbBullets: Number,
+        skillsFound: [String],
+        listedSkillCount: Number,
+      },
       feedback: { type: [String], default: [] },
       strengths: { type: [String], default: [] },
       missingKeywords: { type: [String], default: [] },
       oneWeekFixPlan: { type: [String], default: [] },
 
-      // Metadata about the AI call that produced this score
+      // rules-engine for phase 1. Older rows may still say a Gemini model name.
       promptVersion: { type: String, default: null },
       modelUsed: { type: String, default: null },
       analysedAt: { type: Date, default: null },

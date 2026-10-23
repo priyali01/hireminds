@@ -91,7 +91,9 @@ export default function DashboardPage() {
   const { data: historyData } = useGetResumeHistoryQuery()
 
   const latestResume = historyData?.resumes?.[0]
-  const latestScore = latestResume?.atsScore?.overall || 0
+  const latestScore = latestResume?.atsScore?.overall
+  const latestCompatibility = latestResume?.atsScore?.compatibility
+  const scoreLabel = latestScore == null ? '—' : `${latestScore}/100`
 
   const greeting = () => {
     const hour = new Date().getHours()
@@ -105,16 +107,25 @@ export default function DashboardPage() {
       <div className="dashboard-layout" style={{ maxWidth: '1200px' }}>
         
         {/* HERO SECTION */}
-        <motion.div variants={itemVariants} className="glass-card" style={{ padding: '2.5rem', borderRadius: '1.5rem', display: 'flex', gap: '2rem', flexWrap: 'wrap', alignItems: 'center', background: 'linear-gradient(135deg, rgba(16, 185, 129, 0.1) 0%, rgba(10, 20, 18, 0.8) 100%)' }}>
+        <motion.div variants={itemVariants} className="glass-card hero-panel" style={{ padding: '2.5rem', borderRadius: '1.5rem', display: 'flex', gap: '2rem', flexWrap: 'wrap', alignItems: 'center', background: 'linear-gradient(135deg, rgba(16, 185, 129, 0.1) 0%, rgba(10, 20, 18, 0.8) 100%)' }}>
           <div style={{ flex: '1 1 400px' }}>
             <h1 style={{ fontSize: '2.5rem', marginBottom: '0.5rem' }}>{greeting()}, <span className="gradient-text">{user?.fullName?.split(' ')[0] || 'Guest'} 👋</span></h1>
             <p style={{ fontSize: '1.125rem', color: 'var(--color-text-muted)', marginBottom: '1rem' }}>
-              You're <strong style={{ color: 'var(--color-primary-light)' }}>{latestScore}%</strong> interview-ready.
+              {latestResume
+                ? <>Level score <strong style={{ color: 'var(--color-primary-light)' }}>{latestScore ?? 0}</strong>. Document compatibility <strong style={{ color: 'var(--color-primary-light)' }}>{latestCompatibility ?? '—'}</strong>.</>
+                : 'The job match lives on the Resume page. This dashboard level score is a separate coaching number.'}
             </p>
             <p style={{ fontSize: '0.875rem', color: 'var(--color-text-faint)', marginBottom: '2rem', maxWidth: '400px' }}>
               Complete your ATS analysis to unlock 23 personalized frontend opportunities.
             </p>
-            <div style={{ display: 'flex', gap: '1rem' }}>
+            {(!user?.skills?.length || !user?.college) && (
+              <div style={{ fontSize: '0.875rem', color: 'var(--color-text-faint)', marginBottom: '1rem', maxWidth: '460px' }}>
+                Skills and education are optional. Add them on your profile when you want a closer analysis.
+                {' '}
+                <button type="button" className="btn btn-ghost btn-sm" onClick={() => navigate('/profile')}>Complete profile</button>
+              </div>
+            )}
+            <div className="action-row" style={{ display: 'flex', gap: '1rem' }}>
               <button className="btn btn-primary" onClick={() => navigate('/resume')} style={{ padding: '0.75rem 1.5rem' }}>📄 Analyze Resume</button>
               <button className="btn" style={{ background: 'transparent', border: '1px solid var(--color-border)', padding: '0.75rem 1.5rem' }} onClick={() => navigate('/interview')}>🎤 Start AI Interview</button>
             </div>
@@ -124,7 +135,7 @@ export default function DashboardPage() {
             <CircularProgress percentage={latestScore} size={160} strokeWidth={12} title="Interview" subtitle="Readiness" />
             
             <div style={{ minWidth: '200px' }}>
-              <MiniStatList icon="🎯" label="ATS Score" value={`${latestScore}/100`} />
+              <MiniStatList icon="🎯" label="Level score" value={scoreLabel} />
               <MiniStatList icon="🎤" label="Interviews" value={user?.metrics?.interviews || 12} />
               <MiniStatList icon="💼" label="Job Matches" value="23" />
               <MiniStatList icon="📈" label="Skills Improved" value="12" />
@@ -133,15 +144,15 @@ export default function DashboardPage() {
         </motion.div>
 
         {/* QUICK STATS GRID */}
-        <div style={{ display: 'grid', gridTemplateColumns: 'repeat(auto-fit, minmax(240px, 1fr))', gap: '1.5rem' }}>
-          <StatCard title="ATS Score" value={`${latestScore}/100`} subtitle="Great progress! 🎉" icon="🎯" trend="📈" />
+        <div style={{ display: 'grid', gridTemplateColumns: 'repeat(auto-fit, minmax(min(100%, 220px), 1fr))', gap: '1.5rem' }}>
+          <StatCard title="Level score" value={scoreLabel} subtitle={latestScore == null ? 'Score a resume to see this' : 'From the last resume upload'} icon="🎯" trend="📈" />
           <StatCard title="Job Matches" value="23" subtitle="New matches available" icon="💼" trend="📈" />
           <StatCard title="Interview Score" value="92/100" subtitle="Excellent! 🔥" icon="🎤" trend="📈" />
           <StatCard title="Skills Improved" value="12" subtitle="Keep it up! 💪" icon="📈" trend="📈" />
         </div>
 
         {/* MIDDLE 3-COLUMN GRID */}
-        <motion.div variants={containerVariants} style={{ display: 'grid', gridTemplateColumns: 'repeat(auto-fit, minmax(320px, 1fr))', gap: '1.5rem' }}>
+        <motion.div variants={containerVariants} style={{ display: 'grid', gridTemplateColumns: 'repeat(auto-fit, minmax(min(100%, 280px), 1fr))', gap: '1.5rem' }}>
           
           {/* AI Career Coach */}
           <motion.div variants={itemVariants} className="glass-card" style={{ padding: '1.5rem', borderRadius: '1rem', display: 'flex', flexDirection: 'column' }}>
@@ -224,7 +235,7 @@ export default function DashboardPage() {
         </motion.div>
 
         {/* BOTTOM 2-COLUMN GRID */}
-        <motion.div variants={containerVariants} style={{ display: 'grid', gridTemplateColumns: 'repeat(auto-fit, minmax(400px, 1fr))', gap: '1.5rem' }}>
+        <motion.div variants={containerVariants} style={{ display: 'grid', gridTemplateColumns: 'repeat(auto-fit, minmax(min(100%, 280px), 1fr))', gap: '1.5rem' }}>
           
           <DashboardCalendarWidget />
 
@@ -240,7 +251,7 @@ export default function DashboardPage() {
                   <div style={{ padding: '0.5rem', background: 'rgba(255,255,255,0.05)', borderRadius: '50%', color: 'var(--color-text-muted)' }}>📄</div>
                   <div style={{ flex: 1 }}>
                     <div style={{ fontSize: '0.875rem', fontWeight: 600 }}>Resume analyzed</div>
-                    <div style={{ fontSize: '0.75rem', color: 'var(--color-text-muted)' }}>Your resume scored {r.atsScore?.overall || 0} out of 100</div>
+                    <div style={{ fontSize: '0.75rem', color: 'var(--color-text-muted)' }}>Level score {r.atsScore?.overall || 0}. Compatibility {r.atsScore?.compatibility ?? r.atsScore?.overall ?? 0}.</div>
                   </div>
                   <span style={{ fontSize: '0.75rem', color: 'var(--color-text-faint)' }}>{new Date(r.createdAt).toLocaleDateString('en-IN')}</span>
                 </div>

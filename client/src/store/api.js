@@ -156,6 +156,17 @@ export const api = createApi({
     submitResumeFeedback: builder.mutation({
       query: (body) => ({ url: '/resumes/feedback', method: 'POST', body }),
     }),
+    assessResume: builder.mutation({
+      query: (formData) => ({
+        url: '/ats/assess',
+        method: 'POST',
+        body: formData,
+      }),
+      invalidatesTags: ['Resume'],
+    }),
+    advanceAtsGate: builder.mutation({
+      query: (body) => ({ url: '/ats/advance', method: 'POST', body }),
+    }),
 
     // --- Interview endpoints ---
     createInterviewSession: builder.mutation({
@@ -318,6 +329,8 @@ export const {
   useGetResumeHistoryQuery,
   useGetResumeQuery,
   useSubmitResumeFeedbackMutation,
+  useAssessResumeMutation,
+  useAdvanceAtsGateMutation,
   useCreateInterviewSessionMutation,
   useSubmitInterviewAnswerMutation,
   useGetInterviewHistoryQuery,

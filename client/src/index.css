@@ -360,6 +360,29 @@ a:hover { text-decoration: underline; }
   text-decoration: none;
 }
 
+.nav-brand { order: 1; }
+
+.nav-links {
+  order: 2;
+  flex: 1;
+  justify-content: center;
+}
+
+.nav-actions {
+  order: 3;
+  display: flex;
+  align-items: center;
+  gap: 0.75rem;
+}
+
+.nav-menu-btn {
+  display: none;
+  align-items: center;
+  justify-content: center;
+  min-height: 40px;
+  padding: 0.4rem 0.8rem;
+}
+
 /* ===========================
    BADGE
    =========================== */
@@ -422,10 +445,107 @@ a:hover { text-decoration: underline; }
 /* ===========================
    RESPONSIVE
    =========================== */
+.scroll-x {
+  overflow-x: auto;
+  -webkit-overflow-scrolling: touch;
+}
+
+@media (max-width: 1100px) {
+  .nav {
+    flex-wrap: wrap;
+    padding: 0.75rem 1rem;
+    gap: 0.5rem;
+  }
+
+  .nav-menu-btn { display: inline-flex; }
+
+  .nav-actions { order: 2; margin-left: auto; }
+
+  .nav-links {
+    display: none;
+    flex: none;
+    flex-direction: column;
+    align-items: stretch;
+    justify-content: flex-start;
+    width: 100%;
+    gap: 0;
+    order: 3;
+    padding-top: 0.35rem;
+  }
+
+  .nav-links.is-open { display: flex; }
+
+  .nav-link {
+    padding: 0.8rem 0.15rem;
+    border-bottom: 1px solid rgba(255, 255, 255, 0.06);
+  }
+}
+
 @media (max-width: 768px) {
   :root {
     --space-8: 1rem;
   }
 
-  .nav-links { display: none; }
+  .main-layout,
+  .main-content,
+  .dashboard-page,
+  .dashboard-layout {
+    max-width: 100%;
+    min-width: 0;
+    overflow-x: clip;
+  }
+
+  .glass-card,
+  .stats-4 > *,
+  .stack-2 > *,
+  .stack-3 > * {
+    min-width: 0;
+    max-width: 100%;
+  }
+
+  .scroll-x {
+    max-width: 100%;
+  }
+
+  .dashboard-page {
+    padding: 1rem !important;
+  }
+
+  .hero-panel {
+    padding: 1.25rem !important;
+    flex-direction: column !important;
+    align-items: stretch !important;
+  }
+
+  .action-row {
+    flex-wrap: wrap;
+  }
+
+  .action-row > .btn,
+  .action-row > button,
+  .action-row > a {
+    flex: 1 1 140px;
+  }
+
+  .stack-2,
+  .stack-3 {
+    grid-template-columns: 1fr !important;
+  }
+
+  .stats-4 {
+    grid-template-columns: repeat(2, minmax(0, 1fr)) !important;
+  }
+
+  .page-header {
+    flex-direction: column;
+    align-items: stretch !important;
+  }
+
+  .form-row {
+    flex-direction: column;
+  }
+
+  .coach-art {
+    display: none !important;
+  }
 }

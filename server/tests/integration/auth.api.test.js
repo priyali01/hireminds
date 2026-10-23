@@ -208,8 +208,61 @@ describe('PUT /auth/onboarding', () => {
     const res = await request(app)
       .put('/auth/onboarding')
       .set('Authorization', `Bearer ${accessToken}`)
-      .send({ ...validOnboarding, level: 'junior' })
+      .send({ ...validOnboarding, level: 'wizard' })
     expect(res.status).toBe(422)
+  })
+
+  it('finishes with only a career stage and one target role', async () => {
+    const res = await request(app)
+      .put('/auth/onboarding')
+      .set('Authorization', `Bearer ${accessToken}`)
+      .send({ level: 'intermediate', targetRoles: ['UI/UX Designer'] })
+    expect(res.status).toBe(200)
+    expect(res.body.user.onboardingComplete).toBe(true)
+    expect(res.body.user.level).toBe('intermediate')
+    expect(res.body.user.targetRoles).toEqual(['UI/UX Designer'])
+    expect(res.body.user.skills).toEqual([])
+    expect(res.body.user.college).toBeNull()
+  })
+
+  it('saves experienced as a career stage', async () => {
+    const res = await request(app)
+      .put('/auth/onboarding')
+      .set('Authorization', `Bearer ${accessToken}`)
+      .send({ level: 'experienced', targetRoles: ['Backend Developer'] })
+    expect(res.status).toBe(200)
+    expect(res.body.user.level).toBe('experienced')
+  })
+
+  it('returns 422 when no target role is selected', async () => {
+    const res = await request(app)
+      .put('/auth/onboarding')
+      .set('Authorization', `Bearer ${accessToken}`)
+      .send({ level: 'fresher', targetRoles: [] })
+    expect(res.status).toBe(422)
+  })
+
+  it('lets skills and education be added later from the profile', async () => {
+    await request(app)
+      .put('/auth/onboarding')
+      .set('Authorization', `Bearer ${accessToken}`)
+      .send({ level: 'fresher', targetRoles: ['Data Scientist'] })
+
+    const res = await request(app)
+      .put('/users/profile')
+      .set('Authorization', `Bearer ${accessToken}`)
+      .send({
+        skills: ['Python', 'Machine Learning'],
+        college: 'VIT Vellore',
+        branch: 'Computer Science',
+        graduationYear: 2026,
+      })
+    expect(res.status).toBe(200)
+    expect(res.body.user.skills).toEqual(['Python', 'Machine Learning'])
+    expect(res.body.user.college).toBe('VIT Vellore')
+    expect(res.body.user.branch).toBe('Computer Science')
+    expect(res.body.user.graduationYear).toBe(2026)
+    expect(res.body.user.level).toBe('fresher')
   })
 
   it('returns 401 without auth token', async () => {

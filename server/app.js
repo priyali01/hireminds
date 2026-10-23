@@ -99,6 +99,8 @@ const tpoRoutes = require('./routes/tpo.routes')
 app.use('/tpo', tpoRoutes)
 const chatRoutes = require('./routes/chat.routes')
 app.use('/chat', requireAuth, enforceQuotasLazily, trackDailyStreak, chatRoutes)
+const atsRoutes = require('./routes/ats.routes')
+app.use('/ats', requireAuth, atsRoutes)
 
 // 7. Health check endpoint
 // Railway uses this to verify the service is healthy after deploy

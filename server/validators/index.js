@@ -27,20 +27,13 @@ const onboardingSchema = z.object({
     errorMap: () => ({ message: 'Level must be fresher, intermediate, or experienced' }),
   }),
   targetRoles: z
-    .array(z.string().trim().min(1))
+    .array(z.string().trim().min(1).max(80))
     .min(1, 'Select at least one target role')
     .max(5, 'Select up to 5 target roles'),
-  skills: z
-    .array(z.string().trim().min(1))
-    .min(1, 'Add at least one skill')
-    .max(20, 'You can add up to 20 skills'),
-  college: z.string().trim().min(2, 'College name is required').max(200),
-  branch: z.string().trim().min(2, 'Branch is required').max(100),
-  graduationYear: z
-    .number()
-    .int()
-    .min(2000, 'Invalid graduation year')
-    .max(2035, 'Invalid graduation year'),
+  skills: z.array(z.string().trim().min(1).max(60)).max(20).optional().default([]),
+  college: z.string().trim().max(200).optional().or(z.literal('')),
+  branch: z.string().trim().max(100).optional().or(z.literal('')),
+  graduationYear: z.number().int().min(2000).max(2035).nullable().optional(),
 })
 
 // --- Resume validators ---

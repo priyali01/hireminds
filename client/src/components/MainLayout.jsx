@@ -1,3 +1,4 @@
+import { useEffect, useState } from 'react'
 import { Link, useNavigate, Outlet, useLocation } from 'react-router-dom'
 import { useDispatch, useSelector } from 'react-redux'
 import { clearCredentials, selectCurrentUser } from '../store/authSlice'
@@ -9,6 +10,11 @@ export default function MainLayout() {
   const location = useLocation()
   const user = useSelector(selectCurrentUser)
   const [logout] = useLogoutMutation()
+  const [menuOpen, setMenuOpen] = useState(false)
+
+  useEffect(() => {
+    setMenuOpen(false)
+  }, [location.pathname])
 
   const handleLogout = async () => {
     try {
@@ -41,17 +47,16 @@ export default function MainLayout() {
         <div className="nav-brand">
           <img src="/logo.png" alt="HireMinds" className="nav-logo-img" />
         </div>
-        <div className="nav-links" style={{ display: 'flex', gap: '2rem', alignItems: 'center' }}>
-          <Link to="/dashboard" className="nav-link" style={getLinkStyle('/dashboard')}>Dashboard</Link>
-          <Link to="/resume" className="nav-link" style={getLinkStyle('/resume')}>Resume</Link>
-          <Link to="/jobs" className="nav-link" style={getLinkStyle('/jobs')}>Jobs</Link>
-          <Link to="/interview" className="nav-link" style={getLinkStyle('/interview')}>Interviews</Link>
-          <Link to="/leaderboard" className="nav-link" style={getLinkStyle('/leaderboard')}>Leaderboard</Link>
-          <Link to="/community" className="nav-link" style={getLinkStyle('/community')}>Community</Link>
-          <Link to="/chat" className="nav-link" style={getLinkStyle('/chat', true, '#8b5cf6')}>🤖 AI Coach</Link>
-          <Link to="/pricing" className="nav-link" style={getLinkStyle('/pricing', true, '#f59e0b')}>⭐ Upgrade</Link>
-        </div>
-        <div style={{ display: 'flex', alignItems: 'center', gap: '1.5rem' }}>
+        <div className="nav-actions">
+          <button
+            type="button"
+            className="btn btn-ghost btn-sm nav-menu-btn"
+            aria-expanded={menuOpen}
+            aria-controls="app-nav"
+            onClick={() => setMenuOpen((open) => !open)}
+          >
+            {menuOpen ? 'Close' : 'Menu'}
+          </button>
           <button onClick={handleLogout} className="btn btn-ghost btn-sm" id="logout-btn">
             Sign out
           </button>
@@ -65,6 +70,16 @@ export default function MainLayout() {
           }}>
             {user?.fullName ? user.fullName.charAt(0).toUpperCase() : 'U'}
           </Link>
+        </div>
+        <div id="app-nav" className={`nav-links ${menuOpen ? 'is-open' : ''}`}>
+          <Link to="/dashboard" className="nav-link" style={getLinkStyle('/dashboard')}>Dashboard</Link>
+          <Link to="/resume" className="nav-link" style={getLinkStyle('/resume')}>Resume</Link>
+          <Link to="/jobs" className="nav-link" style={getLinkStyle('/jobs')}>Jobs</Link>
+          <Link to="/interview" className="nav-link" style={getLinkStyle('/interview')}>Interviews</Link>
+          <Link to="/leaderboard" className="nav-link" style={getLinkStyle('/leaderboard')}>Leaderboard</Link>
+          <Link to="/community" className="nav-link" style={getLinkStyle('/community')}>Community</Link>
+          <Link to="/chat" className="nav-link" style={getLinkStyle('/chat', true, '#8b5cf6')}>AI Coach</Link>
+          <Link to="/pricing" className="nav-link" style={getLinkStyle('/pricing', true, '#f59e0b')}>Upgrade</Link>
         </div>
       </nav>
 

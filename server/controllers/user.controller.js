@@ -4,23 +4,56 @@ const { AppError } = require('../utils/errors')
 // @desc    Update user profile
 // @route   PUT /api/users/profile
 // @access  Private
+const CAREER_STAGES = {
+  fresher: 'fresher',
+  student: 'fresher',
+  junior: 'intermediate',
+  intermediate: 'intermediate',
+  mid: 'experienced',
+  senior: 'experienced',
+  experienced: 'experienced',
+}
+
+function cleanList(values, limit) {
+  if (!Array.isArray(values)) return null
+  return values.map((item) => String(item || '').trim()).filter(Boolean).slice(0, limit)
+}
+
 exports.updateProfile = async (req, res, next) => {
   try {
     const { fullName, level, targetRoles, skills, college, branch, graduationYear } = req.body
+    const userId = req.user.userId || req.user.id
 
-    const user = await User.findById(req.user.id)
+    const user = await User.findById(userId)
     if (!user) {
       return next(new AppError('User not found', 404))
     }
 
-    // Update allowed fields
-    if (fullName !== undefined) user.fullName = fullName
-    if (level !== undefined) user.level = level
-    if (targetRoles !== undefined) user.targetRoles = targetRoles
-    if (skills !== undefined) user.skills = skills
-    if (college !== undefined) user.college = college
-    if (branch !== undefined) user.branch = branch
-    if (graduationYear !== undefined) user.graduationYear = graduationYear
+    if (fullName !== undefined) user.fullName = String(fullName).trim()
+    if (level !== undefined) {
+      const stage = CAREER_STAGES[String(level).toLowerCase()]
+      if (!stage) return next(new AppError('Level must be fresher, intermediate, or experienced', 422))
+      user.level = stage
+    }
+    if (targetRoles !== undefined) {
+      const roles = cleanList(targetRoles, 5)
+      if (!roles) return next(new AppError('Target roles must be a list', 422))
+      user.targetRoles = roles
+    }
+    if (skills !== undefined) {
+      const listed = cleanList(skills, 20)
+      if (!listed) return next(new AppError('Skills must be a list', 422))
+      user.skills = listed
+    }
+    if (college !== undefined) user.college = String(college).trim() || null
+    if (branch !== undefined) user.branch = String(branch).trim() || null
+    if (graduationYear !== undefined && graduationYear !== '') {
+      const year = Number(graduationYear)
+      if (!Number.isInteger(year) || year < 2000 || year > 2035) {
+        return next(new AppError('Invalid graduation year', 422))
+      }
+      user.graduationYear = year
+    }
 
     await user.save()
 
@@ -49,7 +82,7 @@ exports.changePassword = async (req, res, next) => {
     }
 
     // Need to explicitly select password
-    const user = await User.findById(req.user.id).select('+password')
+    const user = await User.findById(req.user.userId || req.user.id).select('+password')
     if (!user) {
       return next(new AppError('User not found', 404))
     }
@@ -78,7 +111,7 @@ exports.deleteAccount = async (req, res, next) => {
   try {
     // In a real production scenario, we might soft-delete or schedule deletion
     // For V2.0, we will perform a hard delete for DPDP compliance.
-    await User.findByIdAndDelete(req.user.id)
+    await User.findByIdAndDelete(req.user.userId || req.user.id)
     
     // Clear cookies
     res.cookie('refreshToken', 'none', {

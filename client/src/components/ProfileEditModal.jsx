@@ -18,8 +18,10 @@ export default function ProfileEditModal({ user, onClose }) {
     fullName: user.fullName || '',
     college: user.college || '',
     branch: user.branch || '',
-    graduationYear: user.graduationYear || new Date().getFullYear() + 1,
-    level: user.level || 'fresher',
+    graduationYear: user.graduationYear || '',
+    level: ['fresher', 'intermediate', 'experienced'].includes(user.level) ? user.level : 'fresher',
+    skillsText: (user.skills || []).join(', '),
+    rolesText: (user.targetRoles || []).join(', '),
   })
 
   const [pwdForm, setPwdForm] = useState({
@@ -33,7 +35,17 @@ export default function ProfileEditModal({ user, onClose }) {
     setError('')
     setSuccess('')
     try {
-      const res = await updateProfile(form).unwrap()
+      const skills = form.skillsText.split(',').map((item) => item.trim()).filter(Boolean).slice(0, 20)
+      const targetRoles = form.rolesText.split(',').map((item) => item.trim()).filter(Boolean).slice(0, 5)
+      const res = await updateProfile({
+        fullName: form.fullName,
+        level: form.level,
+        college: form.college,
+        branch: form.branch,
+        graduationYear: form.graduationYear === '' ? undefined : Number(form.graduationYear),
+        skills,
+        targetRoles,
+      }).unwrap()
       dispatch(updateUser(res.user))
       setSuccess('Profile updated successfully!')
       setTimeout(() => setSuccess(''), 3000)
@@ -117,7 +129,7 @@ export default function ProfileEditModal({ user, onClose }) {
                   required
                 />
               </div>
-              <div className="grid grid-cols-2 gap-4">
+              <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
                 <div>
                   <label className="block text-sm text-gray-400 mb-1">Experience Level</label>
                   <select 
@@ -139,6 +151,27 @@ export default function ProfileEditModal({ user, onClose }) {
                     onChange={(e) => setForm({...form, graduationYear: e.target.value})}
                   />
                 </div>
+              </div>
+              <div>
+                <label className="block text-sm text-gray-400 mb-1">Skills</label>
+                <input
+                  type="text"
+                  placeholder="Python, Figma, SQL"
+                  className="w-full bg-slate-800 border border-white/10 rounded-lg px-4 py-2 text-white focus:outline-none focus:border-teal-400"
+                  value={form.skillsText}
+                  onChange={(e) => setForm({ ...form, skillsText: e.target.value })}
+                />
+                <p className="text-xs text-gray-500 mt-1">Optional. Separate skills with commas. A later analysis can use them.</p>
+              </div>
+              <div>
+                <label className="block text-sm text-gray-400 mb-1">Target roles</label>
+                <input
+                  type="text"
+                  placeholder="Backend Developer, UI/UX Designer"
+                  className="w-full bg-slate-800 border border-white/10 rounded-lg px-4 py-2 text-white focus:outline-none focus:border-teal-400"
+                  value={form.rolesText}
+                  onChange={(e) => setForm({ ...form, rolesText: e.target.value })}
+                />
               </div>
               <div>
                 <label className="block text-sm text-gray-400 mb-1">College</label>

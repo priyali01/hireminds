@@ -70,7 +70,7 @@ export default function LeaderboardPage() {
       <div className="dashboard-layout" style={{ maxWidth: '1000px', margin: '0 auto' }}>
         
         {/* Header */}
-        <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'flex-start', marginBottom: '2rem' }}>
+        <div className="page-header" style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'flex-start', gap: '1rem', flexWrap: 'wrap', marginBottom: '2rem' }}>
           <div style={{ display: 'flex', gap: '1.5rem', alignItems: 'center' }}>
             <div style={{ width: '64px', height: '64px', borderRadius: '16px', background: 'rgba(16, 185, 129, 0.05)', border: '1px solid rgba(16, 185, 129, 0.2)', display: 'flex', alignItems: 'center', justifyContent: 'center', fontSize: '2rem', color: 'var(--color-primary-light)' }}>
               🏆
@@ -114,6 +114,7 @@ export default function LeaderboardPage() {
         {/* Hero Rank Banner */}
         {!isLoading && data?.userStats && (
           <motion.div 
+            className="hero-panel"
             style={{ 
               background: 'linear-gradient(90deg, rgba(16, 185, 129, 0.05) 0%, rgba(16, 185, 129, 0.15) 100%)',
               border: '1px solid rgba(16, 185, 129, 0.2)',
@@ -123,6 +124,8 @@ export default function LeaderboardPage() {
               display: 'flex',
               justifyContent: 'space-between',
               alignItems: 'center',
+              gap: '1.5rem',
+              flexWrap: 'wrap',
               position: 'relative',
               overflow: 'hidden'
             }}
@@ -137,7 +140,7 @@ export default function LeaderboardPage() {
               <h2 style={{ margin: '0 0 1.5rem 0', fontSize: '2rem', fontWeight: 700 }}>
                 You're Ranked <span style={{ color: 'var(--color-primary-light)' }}>#{data.userStats.rank || '--'}</span>
               </h2>
-              <div style={{ display: 'flex', gap: '1rem' }}>
+              <div className="action-row" style={{ display: 'flex', gap: '1rem', flexWrap: 'wrap' }}>
                 <span style={{ background: 'rgba(0,0,0,0.3)', border: '1px solid rgba(255,255,255,0.05)', padding: '0.5rem 1rem', borderRadius: '2rem', fontSize: '0.875rem', display: 'flex', alignItems: 'center', gap: '0.5rem' }}>
                   <span style={{ color: '#FCD34D' }}>⭐</span> Points: {data.userStats.points}
                 </span>
@@ -229,7 +232,7 @@ export default function LeaderboardPage() {
         </div>
 
         {/* Bottom Features Banner */}
-        <div className="glass-card" style={{ padding: '2rem 3rem', borderRadius: '1.5rem', display: 'grid', gridTemplateColumns: '1fr 1fr 1fr', gap: '2rem' }}>
+        <div className="glass-card stack-3" style={{ padding: '2rem', borderRadius: '1.5rem', display: 'grid', gridTemplateColumns: 'repeat(auto-fit, minmax(min(100%, 180px), 1fr))', gap: '2rem' }}>
           <FeatureBox 
             icon="🎙️" 
             title="Practice Interviews" 
